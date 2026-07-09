@@ -1,0 +1,122 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------
+ * Design tokens — Tailwind v4 CSS-first theme.
+ * Match the v3 config from the spec, encoded for v4.
+ * --------------------------------------------------------------- */
+@theme {
+  /* Sage — primary brand */
+  --color-sage-50:  #EBF3EE;
+  --color-sage-100: #D4E8DA;
+  --color-sage-200: #B8DCC2;
+  --color-sage-400: #6BAF83;
+  --color-sage-500: #4A7C5F;
+  --color-sage-700: #2D5A3D;
+  --color-sage-900: #1A3526;
+
+  /* Ink — text + dark surfaces */
+  --color-ink:       #111827;
+  --color-ink-body:  #374151;
+  --color-ink-muted: #6B7280;
+
+  /* Surfaces */
+  --color-surface: #F7F9F7;
+  --color-border:  #E5EDE8;
+
+  /* Fonts (provided via next/font in layout) */
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-sans:    var(--font-dm-sans), system-ui, sans-serif;
+
+  /* Easings */
+  --ease-expo-out:    cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-expo-in-out: cubic-bezier(0.87, 0, 0.13, 1);
+
+  /* Animations — Radix accordion uses --radix-accordion-content-height */
+  --animate-accordion-down: accordion-down 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-accordion-up:   accordion-up   0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-marquee: marquee 28s linear infinite;
+}
+
+@keyframes accordion-down {
+  from { height: 0; opacity: 0.6; }
+  to   { height: var(--radix-accordion-content-height); opacity: 1; }
+}
+@keyframes accordion-up {
+  from { height: var(--radix-accordion-content-height); opacity: 1; }
+  to   { height: 0; opacity: 0; }
+}
+@keyframes marquee {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}
+
+/* ---------------------------------------------------------------
+ * Base
+ * --------------------------------------------------------------- */
+html {
+  background: #ffffff;
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background: #ffffff;
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+/* Hide native cursor on pointer-fine devices — custom cursor renders */
+@media (pointer: fine) {
+  *, *::before, *::after { cursor: none !important; }
+}
+
+::selection {
+  background: var(--color-sage-100);
+  color: var(--color-sage-900);
+}
+
+/* ---------------------------------------------------------------
+ * Grain — pure SVG, no image asset
+ * --------------------------------------------------------------- */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.028;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 128px 128px;
+}
+
+/* ---------------------------------------------------------------
+ * Lenis smooth scroll
+ * --------------------------------------------------------------- */
+html.lenis,
+html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: clip; }
+
+/* ---------------------------------------------------------------
+ * Marquee
+ * --------------------------------------------------------------- */
+.animate-marquee {
+  animation: var(--animate-marquee);
+  will-change: transform;
+}
+.animate-marquee:hover { animation-play-state: paused; }
+
+/* ---------------------------------------------------------------
+ * Reduced motion
+ * --------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

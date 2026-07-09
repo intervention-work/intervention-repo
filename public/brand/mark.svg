@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" role="img" aria-label="Change Institute mark">
+  <!-- Shared emblem: a threshold / sunrise — two ascending arches over a rising core.
+       Meaning: opening the door to help and a clear path forward. -->
+  <path d="M14 64 A26 26 0 0 1 66 64" fill="none" stroke="#111827" stroke-width="7" stroke-linecap="round"/>
+  <path d="M26 64 A14 14 0 0 1 54 64" fill="none" stroke="#4A7C5F" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="40" cy="64" r="5.5" fill="#C4893F"/>
+</svg>

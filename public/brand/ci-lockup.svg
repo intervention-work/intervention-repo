@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 80" role="img" aria-label="Change Institute">
+  <style>
+    .wm { font-family: 'Inter', -apple-system, 'Segoe UI', sans-serif; letter-spacing: -0.8px; }
+    .tag { font-family: 'Inter', -apple-system, 'Segoe UI', sans-serif; font-weight: 600; letter-spacing: 2px; }
+  </style>
+  <!-- emblem (parent: two-tone slate) -->
+  <g transform="translate(2,4)">
+    <path d="M14 60 A24 24 0 0 1 62 60" fill="none" stroke="#111827" stroke-width="7" stroke-linecap="round"/>
+    <path d="M25 60 A13 13 0 0 1 51 60" fill="none" stroke="#4A7C5F" stroke-width="7" stroke-linecap="round"/>
+    <circle cx="38" cy="60" r="5.5" fill="#C4893F"/>
+  </g>
+  <!-- wordmark -->
+  <text class="wm" x="84" y="46" font-size="32" fill="#111827"><tspan font-weight="700">Change</tspan> <tspan font-weight="400" fill="#4A7C5F">Institute</tspan></text>
+  <text class="tag" x="86" y="64" font-size="9.5" fill="#6B7280">GUIDING FAMILIES SINCE 2003</text>
+</svg>

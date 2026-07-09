@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 80" role="img" aria-label="CARE Unit — a Change Institute service">
+  <style>
+    .wm { font-family: 'Inter', -apple-system, 'Segoe UI', sans-serif; font-weight: 700; letter-spacing: -0.6px; }
+    .tag { font-family: 'Inter', -apple-system, 'Segoe UI', sans-serif; font-weight: 600; letter-spacing: 2px; }
+  </style>
+  <!-- emblem with clinical '+' core -->
+  <g transform="translate(2,4)">
+    <path d="M14 60 A24 24 0 0 1 62 60" fill="none" stroke="#4A7C5F" stroke-width="7" stroke-linecap="round"/>
+    <path d="M25 60 A13 13 0 0 1 51 60" fill="none" stroke="#2F5D45" stroke-width="7" stroke-linecap="round"/>
+    <g stroke="#C4893F" stroke-width="4" stroke-linecap="round">
+      <line x1="38" y1="55" x2="38" y2="65"/>
+      <line x1="33" y1="60" x2="43" y2="60"/>
+    </g>
+  </g>
+  <!-- wordmark -->
+  <text class="wm" x="84" y="46" font-size="33" fill="#111827">CARE <tspan fill="#4A7C5F">Unit</tspan></text>
+  <text class="tag" x="86" y="64" font-size="9.5" fill="#6B7280">A CHANGE INSTITUTE SERVICE</text>
+</svg>
