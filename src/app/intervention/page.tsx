@@ -1,14 +1,20 @@
 import type { Metadata } from 'next';
 import { SectionLanding } from '@/components/section-landing';
-import { getSection } from '@/content/site';
+import { fetchSection } from '@/lib/wp';
 
-const section = getSection('intervention')!;
+export const revalidate = 3600;
 
-export const metadata: Metadata = {
-  title: `${section.label} — Intervention.com`,
-  description: section.summary,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const section = await fetchSection('intervention');
+  if (!section) return {};
+  return {
+    title: `${section.label} — Intervention.com`,
+    description: section.summary,
+  };
+}
 
-export default function InterventionPage() {
+export default async function InterventionPage() {
+  const section = await fetchSection('intervention');
+  if (!section) return null;
   return <SectionLanding section={section} />;
 }

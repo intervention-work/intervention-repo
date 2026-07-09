@@ -11,7 +11,7 @@ type PageHeroProps = {
   eyebrow?: string;
   title: string;
   summary?: string;
-  image: string;
+  image?: string;
 };
 
 export function PageHero({
@@ -23,14 +23,16 @@ export function PageHero({
 }: PageHeroProps) {
   return (
     <section className="relative flex min-h-[58vh] w-full items-end overflow-hidden bg-ink pt-[72px]">
-      <Image
-        src={image}
-        alt=""
-        fill
-        priority
-        sizes="100vw"
-        className="object-cover"
-      />
+      {image && (
+        <Image
+          src={image}
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
+        />
+      )}
       <div
         aria-hidden
         className="absolute inset-0"

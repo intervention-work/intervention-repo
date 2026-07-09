@@ -60,7 +60,8 @@ export type Section = {
   /** Kicker over the child grid */
   childrenEyebrow: string;
   childrenTitle: string;
-  image: string;
+  /** Hero background image; optional when sourced from WP without an image set */
+  image?: string;
   children: DetailContent[];
 };
 

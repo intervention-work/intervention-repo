@@ -5,11 +5,16 @@ const WP_API =
   'https://interventiodev.wpenginepowered.com/wp-json';
 
 const REVALIDATE = Number(process.env.NEXT_REVALIDATE_SECONDS ?? '3600');
+const IS_DEV = process.env.NODE_ENV === 'development';
 
 async function wpFetch<T>(path: string): Promise<T> {
-  const res = await fetch(`${WP_API}${path}`, {
-    next: { revalidate: REVALIDATE },
-  });
+  // In development, always hit WordPress live so content edits show immediately.
+  // In production, use ISR (revalidate window) for cached, fast responses.
+  const cacheOpts: RequestInit = IS_DEV
+    ? { cache: 'no-store' }
+    : { next: { revalidate: REVALIDATE } };
+
+  const res = await fetch(`${WP_API}${path}`, cacheOpts);
   if (!res.ok) {
     throw new Error(`WP fetch ${res.status}: ${WP_API}${path}`);
   }
@@ -45,25 +50,28 @@ type AcfDetailFields = AcfSectionFields & {
   parent_section: string;
 };
 
-// ACF flexible content layout -> ContentBlock
+// Normalize an ACF textarea into a single string or an array of paragraphs.
+// WordPress stores newlines as \r\n; multi-paragraph bodies split on newlines.
+function normalizeBody(raw?: string): string | string[] | undefined {
+  if (!raw) return undefined;
+  const paragraphs = raw.split(/\r?\n/).filter(Boolean);
+  return paragraphs.length > 1 ? paragraphs : raw.replace(/\r\n/g, '\n');
+}
+
+// ACF flexible content layout -> ContentBlock.
+// Every layout may carry an optional body paragraph in addition to its
+// collection (bullets / stats / features / steps).
 export function mapAcfToContentBlock(layout: AcfLayout): ContentBlock {
   const block: ContentBlock = {};
   if (layout.heading) block.heading = layout.heading;
 
-  if (layout.acf_fc_layout === 'body_block' && layout.body) {
-    block.body = layout.body.includes('\n')
-      ? layout.body.split('\n').filter(Boolean)
-      : layout.body;
-  } else if (layout.acf_fc_layout === 'bullets_block') {
-    if (layout.body) block.body = layout.body;
-    if (layout.bullets?.length) block.bullets = layout.bullets.map((b) => b.item);
-  } else if (layout.acf_fc_layout === 'stats_block' && layout.stats?.length) {
-    block.stats = layout.stats;
-  } else if (layout.acf_fc_layout === 'features_block' && layout.features?.length) {
-    block.features = layout.features;
-  } else if (layout.acf_fc_layout === 'steps_block' && layout.steps?.length) {
-    block.steps = layout.steps;
-  }
+  const body = normalizeBody(layout.body);
+  if (body) block.body = body;
+
+  if (layout.bullets?.length) block.bullets = layout.bullets.map((b) => b.item);
+  if (layout.stats?.length) block.stats = layout.stats;
+  if (layout.features?.length) block.features = layout.features;
+  if (layout.steps?.length) block.steps = layout.steps;
 
   return block;
 }
@@ -79,7 +87,7 @@ function toSection(
     title: acf.title,
     summary: acf.summary,
     intro: acf.intro,
-    image: acf.image,
+    image: acf.image || undefined,
     childrenEyebrow: acf.childrenEyebrow,
     childrenTitle: acf.childrenTitle,
     blocks: (acf.content_blocks ?? []).map(mapAcfToContentBlock),
@@ -95,7 +103,7 @@ function toDetailContent(slug: string, acf: AcfDetailFields): DetailContent {
     title: acf.title,
     summary: acf.summary,
     intro: acf.intro,
-    image: acf.image,
+    image: acf.image || undefined,
     blocks: (acf.content_blocks ?? []).map(mapAcfToContentBlock),
     faq: acf.faq ?? [],
   };
@@ -103,7 +111,7 @@ function toDetailContent(slug: string, acf: AcfDetailFields): DetailContent {
 
 async function fetchDetailsByParent(parentSlug: string): Promise<DetailContent[]> {
   const posts = await wpFetch<Array<{ slug: string; acf: AcfDetailFields }>>(
-    `/wp/v2/detail_page?_fields=slug,acf&per_page=100`
+    `/wp/v2/detail_page?_fields=slug,acf&per_page=100&acf_format=standard`
   );
   return posts
     .filter((p) => p.acf?.parent_section === parentSlug)
@@ -112,7 +120,7 @@ async function fetchDetailsByParent(parentSlug: string): Promise<DetailContent[]
 
 export async function fetchSection(slug: string): Promise<Section | null> {
   const pages = await wpFetch<Array<{ slug: string; acf: AcfSectionFields }>>(
-    `/wp/v2/pages?slug=${slug}&_fields=slug,acf`
+    `/wp/v2/pages?slug=${slug}&_fields=slug,acf&acf_format=standard`
   );
   if (!pages.length) return null;
   const children = await fetchDetailsByParent(slug);
