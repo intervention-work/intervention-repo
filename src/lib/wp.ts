@@ -93,8 +93,8 @@ function toSection(
     image: acf.image || undefined,
     childrenEyebrow: acf.childrenEyebrow,
     childrenTitle: acf.childrenTitle,
-    blocks: (acf.content_blocks ?? []).map(mapAcfToContentBlock),
-    faq: acf.faq ?? [],
+    blocks: (Array.isArray(acf.content_blocks) ? acf.content_blocks : []).map(mapAcfToContentBlock),
+    faq: Array.isArray(acf.faq) ? acf.faq : [],
     children,
   };
 }
@@ -107,8 +107,8 @@ function toDetailContent(slug: string, acf: AcfDetailFields): DetailContent {
     summary: acf.summary,
     intro: acf.intro,
     image: acf.image || undefined,
-    blocks: (acf.content_blocks ?? []).map(mapAcfToContentBlock),
-    faq: acf.faq ?? [],
+    blocks: (Array.isArray(acf.content_blocks) ? acf.content_blocks : []).map(mapAcfToContentBlock),
+    faq: Array.isArray(acf.faq) ? acf.faq : [],
     navHrefOverride: acf.nav_href_override || undefined,
   };
 }
