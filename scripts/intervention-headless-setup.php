@@ -3,7 +3,7 @@
  * Plugin Name:  Intervention Headless Setup
  * Plugin URI:   https://intervention.com
  * Description:  Registers the detail_page CPT and all ACF field groups required for the headless Next.js migration. Requires ACF PRO.
- * Version:      1.8.0
+ * Version:      1.9.0
  * Author:       Intervention.com
  */
 
@@ -27,7 +27,7 @@ add_action( 'init', function () {
         'show_in_rest' => true,
         'rest_base'    => 'detail_page',
         'has_archive'  => false,
-        'supports'     => [ 'title', 'custom-fields' ],
+        'supports'     => [ 'title', 'custom-fields', 'page-attributes' ],
         'rewrite'      => false,
     ] );
 } );
@@ -124,7 +124,7 @@ add_action( 'acf/save_post', function ( $post_id ) {
 // ---------------------------------------------------------------------------
 add_action( 'admin_init', function () {
     if ( ! function_exists( 'acf_import_field_group' ) ) return;
-    if ( get_option( 'ihs_field_groups_v180_imported' ) ) return;
+    if ( get_option( 'ihs_field_groups_v190_imported' ) ) return;
 
     // -----------------------------------------------------------------------
     // Group 1: Section Page — applied to all WP Pages
@@ -289,7 +289,14 @@ add_action( 'admin_init', function () {
                 'allow_null'    => false,
                 'default_value' => 'intervention',
             ],
-            [ 'key' => 'field_dp_label',   'name' => 'label',   'label' => 'Label (nav / card text)',    'type' => 'text' ],
+            [ 'key' => 'field_dp_label',            'name' => 'label',            'label' => 'Label (nav / card text)',                    'type' => 'text' ],
+            [
+                'key'          => 'field_dp_nav_href_override',
+                'name'         => 'nav_href_override',
+                'label'        => 'Nav URL override (optional)',
+                'type'         => 'text',
+                'instructions' => 'Leave blank — nav link auto-generates as /{parent}/{slug}. Set only when the link should point elsewhere, e.g. /interventionists-by-state.',
+            ],
             [ 'key' => 'field_dp_title',   'name' => 'title',   'label' => 'Title (H1)',                 'type' => 'text' ],
             [ 'key' => 'field_dp_summary', 'name' => 'summary', 'label' => 'Summary (meta description)', 'type' => 'textarea' ],
             [ 'key' => 'field_dp_intro',   'name' => 'intro',   'label' => 'Intro paragraph',            'type' => 'textarea' ],
@@ -435,5 +442,5 @@ add_action( 'admin_init', function () {
         ],
     ] );
 
-    update_option( 'ihs_field_groups_v180_imported', true );
+    update_option( 'ihs_field_groups_v190_imported', true );
 } );

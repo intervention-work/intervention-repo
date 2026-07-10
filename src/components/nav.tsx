@@ -13,11 +13,11 @@ type MenuItem = { label: string; href: string; external?: boolean };
 type TopLink = { label: string; href: string; items?: MenuItem[] };
 
 function buildLinks(sections: NavSection[]): TopLink[] {
-  const items = (slug: string): MenuItem[] => {
-    const section = sections.find((s) => s.slug === slug);
+  const items = (parentSlug: string): MenuItem[] => {
+    const section = sections.find((s) => s.slug === parentSlug);
     return (section?.children ?? []).map((c) => ({
       label: c.label,
-      href: `/${slug}/${c.slug}`,
+      href: c.hrefOverride ?? `/${parentSlug}/${c.slug}`,
     }));
   };
 

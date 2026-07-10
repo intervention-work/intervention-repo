@@ -49,6 +49,7 @@ type AcfSectionFields = {
 type AcfDetailFields = AcfSectionFields & {
   slug: string;
   parent_section: string;
+  nav_href_override?: string;
 };
 
 // Normalize an ACF textarea into a single string or an array of paragraphs.
@@ -108,12 +109,15 @@ function toDetailContent(slug: string, acf: AcfDetailFields): DetailContent {
     image: acf.image || undefined,
     blocks: (acf.content_blocks ?? []).map(mapAcfToContentBlock),
     faq: acf.faq ?? [],
+    navHrefOverride: acf.nav_href_override || undefined,
   };
 }
 
 async function fetchDetailsByParent(parentSlug: string): Promise<DetailContent[]> {
-  const posts = await wpFetch<Array<{ slug: string; acf: AcfDetailFields }>>(
-    `/wp/v2/detail_page?_fields=slug,acf&per_page=100&acf_format=standard`
+  // menu_order is the WP "Order" field (Page Attributes). Editors set it in WP
+  // Admin to control the nav and landing-page card order without code changes.
+  const posts = await wpFetch<Array<{ slug: string; menu_order: number; acf: AcfDetailFields }>>(
+    `/wp/v2/detail_page?_fields=slug,menu_order,acf&per_page=100&acf_format=standard&orderby=menu_order&order=asc`
   );
   return posts
     .filter((p) => p.acf?.parent_section === parentSlug)
@@ -145,7 +149,7 @@ export async function fetchDetail(
 export type NavSection = {
   slug: string;
   label: string;
-  children: Array<{ slug: string; label: string }>;
+  children: Array<{ slug: string; label: string; hrefOverride?: string }>;
 };
 
 // Nav dropdown structure for the given section slugs (label + children).
@@ -156,7 +160,11 @@ export async function fetchNavSections(slugs: string[]): Promise<NavSection[]> {
     .map((s) => ({
       slug: s.slug,
       label: s.label,
-      children: s.children.map((c) => ({ slug: c.slug, label: c.label })),
+      children: s.children.map((c) => ({
+        slug: c.slug,
+        label: c.label,
+        hrefOverride: c.navHrefOverride,
+      })),
     }));
 }
 

@@ -41,6 +41,8 @@ export type DetailContent = {
   faq?: FaqItem[];
   /** Hero background image; falls back to the parent section image */
   image?: string;
+  /** When set, the nav link uses this URL instead of the auto-generated /{parent}/{slug} */
+  navHrefOverride?: string;
 };
 
 export type Section = {
