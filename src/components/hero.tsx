@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { motion } from 'motion/react';
 import { ArrowRight, Phone, Shield, Check } from 'lucide-react';
 import { useSound } from '@/lib/sound';
-import { asset } from '@/lib/asset';
 
 const STATS = [
   { n: '20+', label: 'Years' },
@@ -36,9 +35,9 @@ export function Hero() {
         playsInline
         preload="auto"
         className="absolute inset-0 h-full w-full object-cover"
-        poster={asset('/images/hero-v2-poster.jpg')}
+        poster="/images/hero-v2-poster.jpg"
       >
-        <source src={asset('/videos/hero.mp4')} type="video/mp4" />
+        <source src="/videos/hero.mp4" type="video/mp4" />
       </video>
 
       {/* Gradient overlay */}

@@ -9,7 +9,7 @@ import { PageHero } from '@/components/page-hero';
 import { CtaBanner } from '@/components/cta-banner';
 import { ContentBlocks } from '@/components/content-blocks';
 import { FaqList } from '@/components/faq-list';
-import type { Section } from '@/content/site';
+import type { Section } from '@/content/types';
 
 export function SectionLanding({ section }: { section: Section }) {
   return (

@@ -5,8 +5,6 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "build:wp": "NEXT_PUBLIC_BASE_PATH=/wp-content/uploads/v2/intervention-v2-wordpress WP_EXPORT=1 next build",
-    "deploy:wp": "bash scripts/deploy-wp.sh",
     "start": "next start"
   },
   "dependencies": {

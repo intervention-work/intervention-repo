@@ -8,12 +8,8 @@ import { PageHero } from '@/components/page-hero';
 import { CtaBanner } from '@/components/cta-banner';
 import { ContentBlocks } from '@/components/content-blocks';
 import { FaqList } from '@/components/faq-list';
-import {
-  PHONE_DISPLAY,
-  PHONE_HREF,
-  type Section,
-  type DetailContent,
-} from '@/content/site';
+import type { Section, DetailContent } from '@/content/types';
+import { useSettings } from '@/lib/settings';
 
 const CARD_BULLETS = [
   'We respond within the hour',
@@ -28,6 +24,7 @@ export function DetailPage({
   section: Section;
   detail: DetailContent;
 }) {
+  const { phoneDisplay, phoneHref } = useSettings();
   const related = section.children.filter((c) => c.slug !== detail.slug);
 
   return (
@@ -117,11 +114,11 @@ export function DetailPage({
                   <ArrowRight size={14} strokeWidth={1.75} />
                 </Link>
                 <a
-                  href={PHONE_HREF}
+                  href={phoneHref}
                   className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-border bg-white px-5 py-3.5 font-sans text-sm text-ink transition-colors duration-200 hover:bg-surface"
                 >
                   <Phone size={13} strokeWidth={1.75} className="text-sage-500" />
-                  {PHONE_DISPLAY}
+                  {phoneDisplay}
                 </a>
               </div>
             </div>

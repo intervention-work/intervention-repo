@@ -2,7 +2,7 @@
 
 import { motion } from 'motion/react';
 import { viewport } from '@/lib/motion';
-import type { FaqItem } from '@/content/site';
+import type { FaqItem } from '@/content/types';
 
 export function FaqList({
   items,

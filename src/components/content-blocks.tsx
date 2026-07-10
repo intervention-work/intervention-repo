@@ -3,7 +3,7 @@
 import { motion } from 'motion/react';
 import { Check } from 'lucide-react';
 import { viewport } from '@/lib/motion';
-import type { ContentBlock } from '@/content/site';
+import type { ContentBlock } from '@/content/types';
 
 function toParagraphs(body?: string | string[]): string[] {
   if (!body) return [];

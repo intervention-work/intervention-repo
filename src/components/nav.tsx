@@ -6,38 +6,42 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ChevronDown, Menu, X, Phone } from 'lucide-react';
 import { SoundToggle } from './sound-toggle';
-import { SECTIONS, PHONE_DISPLAY, PHONE_HREF } from '@/content/site';
-import { asset } from '@/lib/asset';
+import { useSettings } from '@/lib/settings';
+import type { NavSection } from '@/lib/wp';
 
 type MenuItem = { label: string; href: string; external?: boolean };
 type TopLink = { label: string; href: string; items?: MenuItem[] };
 
-function sectionItems(slug: string): MenuItem[] {
-  const section = SECTIONS.find((s) => s.slug === slug);
-  return (section?.children ?? []).map((c) => ({
-    label: c.label,
-    href: `/${slug}/${c.slug}`,
-  }));
+function buildLinks(sections: NavSection[]): TopLink[] {
+  const items = (slug: string): MenuItem[] => {
+    const section = sections.find((s) => s.slug === slug);
+    return (section?.children ?? []).map((c) => ({
+      label: c.label,
+      href: `/${slug}/${c.slug}`,
+    }));
+  };
+
+  return [
+    { label: 'About', href: '/about' },
+    { label: 'Intervention', href: '/intervention', items: items('intervention') },
+    { label: 'Services', href: '/services', items: items('services') },
+    {
+      label: 'Resources',
+      href: '/resources',
+      items: [
+        { label: 'Find an Interventionist', href: '/services' },
+        { label: 'Research & Outcomes', href: '/resources' },
+        { label: 'Podcast', href: 'https://americarecovers.com/', external: true },
+      ],
+    },
+    { label: 'Family Class', href: '/family-class' },
+    { label: 'Contact', href: '/contact' },
+  ];
 }
 
-const LINKS: TopLink[] = [
-  { label: 'About', href: '/about' },
-  { label: 'Intervention', href: '/intervention', items: sectionItems('intervention') },
-  { label: 'Services', href: '/services', items: sectionItems('services') },
-  {
-    label: 'Resources',
-    href: '/resources',
-    items: [
-      { label: 'Find an Interventionist', href: '/services' },
-      { label: 'Research & Outcomes', href: '/resources' },
-      { label: 'Podcast', href: 'https://americarecovers.com/', external: true },
-    ],
-  },
-  { label: 'Family Class', href: '/family-class' },
-  { label: 'Contact', href: '/contact' },
-];
-
-export function Nav() {
+export function Nav({ sections = [] }: { sections?: NavSection[] }) {
+  const { phoneDisplay, phoneHref } = useSettings();
+  const LINKS = buildLinks(sections);
   const pathname = usePathname() ?? '/';
   const [scrolled, setScrolled] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
@@ -70,7 +74,7 @@ export function Nav() {
         {/* LEFT — logo lockup */}
         <Link href="/" aria-label="intervention.com — home" className="pointer-events-auto">
           <Image
-            src={asset(light ? '/brand/intervention-nav-rev.svg' : '/brand/intervention-nav.svg')}
+            src={light ? '/brand/intervention-nav-rev.svg' : '/brand/intervention-nav.svg'}
             alt="intervention.com"
             width={196}
             height={38}
@@ -202,7 +206,7 @@ export function Nav() {
               aria-label="intervention.com — home"
             >
               <Image
-                src={asset('/brand/intervention-nav.svg')}
+                src="/brand/intervention-nav.svg"
                 alt="intervention.com"
                 width={196}
                 height={38}
@@ -276,11 +280,11 @@ export function Nav() {
                 Get help now
               </Link>
               <a
-                href={PHONE_HREF}
+                href={phoneHref}
                 className="inline-flex items-center justify-center gap-2 rounded-full border border-border px-6 py-3.5 font-sans text-base text-ink"
               >
                 <Phone size={15} strokeWidth={1.75} className="text-sage-500" />
-                {PHONE_DISPLAY}
+                {phoneDisplay}
               </a>
             </div>
           </div>

@@ -3,8 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Shield } from 'lucide-react';
-import { PHONE_DISPLAY, PHONE_HREF, EMAIL } from '@/content/site';
-import { asset } from '@/lib/asset';
+import { useSettings } from '@/lib/settings';
 
 type Col = { title: string; links: { label: string; href: string }[] };
 
@@ -40,6 +39,7 @@ const LEGAL = [
 ];
 
 export function Footer() {
+  const { phoneDisplay, phoneHref, email } = useSettings();
   return (
     <footer className="border-t border-border bg-white">
       <div className="mx-auto max-w-[1200px] px-6 py-16">
@@ -47,7 +47,7 @@ export function Footer() {
           {/* Brand */}
           <div>
             <Image
-              src={asset('/brand/intervention.svg')}
+              src="/brand/intervention.svg"
               alt="intervention.com — a Change Institute service"
               width={230}
               height={51}
@@ -64,7 +64,7 @@ export function Footer() {
               aria-label="Change Institute — guiding families since 2003"
             >
               <Image
-                src={asset('/brand/ci-lockup.svg')}
+                src="/brand/ci-lockup.svg"
                 alt="Change Institute"
                 width={150}
                 height={33}
@@ -102,18 +102,18 @@ export function Footer() {
             <ul className="mt-4 space-y-2.5">
               <li>
                 <a
-                  href={PHONE_HREF}
+                  href={phoneHref}
                   className="font-sans text-sm text-ink-body transition-colors duration-200 hover:text-sage-700"
                 >
-                  {PHONE_DISPLAY}
+                  {phoneDisplay}
                 </a>
               </li>
               <li>
                 <a
-                  href={`mailto:${EMAIL}`}
+                  href={`mailto:${email}`}
                   className="font-sans text-sm text-ink-body transition-colors duration-200 hover:text-sage-700"
                 >
-                  {EMAIL}
+                  {email}
                 </a>
               </li>
               <li>

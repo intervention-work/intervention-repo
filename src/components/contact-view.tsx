@@ -4,12 +4,13 @@ import { useState } from 'react';
 import { motion } from 'motion/react';
 import { Phone, Mail, Clock, Check } from 'lucide-react';
 import { PageHero } from '@/components/page-hero';
-import { PHONE_DISPLAY, PHONE_HREF, EMAIL } from '@/content/site';
+import { useSettings } from '@/lib/settings';
 
 const IMAGE =
   'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600&q=85';
 
 export function ContactView() {
+  const { phoneDisplay, phoneHref, email } = useSettings();
   const [sent, setSent] = useState(false);
 
   return (
@@ -60,10 +61,10 @@ export function ContactView() {
                     A specialist will be in touch shortly. If this is urgent,
                     please call{' '}
                     <a
-                      href={PHONE_HREF}
+                      href={phoneHref}
                       className="font-medium text-sage-700 underline underline-offset-2"
                     >
-                      {PHONE_DISPLAY}
+                      {phoneDisplay}
                     </a>{' '}
                     any time.
                   </p>
@@ -149,18 +150,18 @@ export function ContactView() {
               <ul className="mt-6 space-y-5">
                 <ContactRow icon={<Phone size={16} strokeWidth={1.75} />} label="Call">
                   <a
-                    href={PHONE_HREF}
+                    href={phoneHref}
                     className="font-sans text-base font-medium text-ink transition-colors hover:text-sage-700"
                   >
-                    {PHONE_DISPLAY}
+                    {phoneDisplay}
                   </a>
                 </ContactRow>
                 <ContactRow icon={<Mail size={16} strokeWidth={1.75} />} label="Email">
                   <a
-                    href={`mailto:${EMAIL}`}
+                    href={`mailto:${email}`}
                     className="font-sans text-base font-medium text-ink transition-colors hover:text-sage-700"
                   >
-                    {EMAIL}
+                    {email}
                   </a>
                 </ContactRow>
                 <ContactRow icon={<Clock size={16} strokeWidth={1.75} />} label="Hours">

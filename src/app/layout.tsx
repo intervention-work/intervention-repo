@@ -7,6 +7,8 @@ import { DevServiceWorkerCleanup } from '@/components/dev-sw-cleanup';
 import { Nav } from '@/components/nav';
 import { Footer } from '@/components/footer';
 import { SoundProvider } from '@/lib/sound';
+import { SettingsProvider } from '@/lib/settings';
+import { fetchGlobalSettings, fetchNavSections } from '@/lib/wp';
 
 const fraunces = Fraunces({
   subsets: ['latin'],
@@ -34,9 +36,14 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const [settings, navSections] = await Promise.all([
+    fetchGlobalSettings(),
+    fetchNavSections(['intervention', 'services']),
+  ]);
+
   return (
     <html
       lang="en"
@@ -45,12 +52,14 @@ export default function RootLayout({
     >
       <body className="bg-white font-sans text-ink">
         <DevServiceWorkerCleanup />
-        <SoundProvider>
-          <CustomCursor />
-          <Nav />
-          {children}
-          <Footer />
-        </SoundProvider>
+        <SettingsProvider value={settings}>
+          <SoundProvider>
+            <CustomCursor />
+            <Nav sections={navSections} />
+            {children}
+            <Footer />
+          </SoundProvider>
+        </SettingsProvider>
       </body>
     </html>
   );

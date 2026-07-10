@@ -6,14 +6,14 @@ import { viewport } from '@/lib/motion';
 import { PageHero, type Crumb } from '@/components/page-hero';
 import { CtaBanner } from '@/components/cta-banner';
 import { ContentBlocks } from '@/components/content-blocks';
-import type { ContentBlock } from '@/content/site';
+import type { ContentBlock } from '@/content/types';
 
 type ContentPageProps = {
   crumbs: Crumb[];
   eyebrow?: string;
   title: string;
   summary?: string;
-  image: string;
+  image?: string;
   intro?: string;
   blocks?: ContentBlock[];
   children?: ReactNode;

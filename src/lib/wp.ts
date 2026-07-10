@@ -1,4 +1,4 @@
-import type { Section, DetailContent, ContentBlock } from '@/content/site';
+import type { Section, DetailContent, ContentBlock } from '@/content/types';
 
 const WP_API =
   process.env.NEXT_PUBLIC_WP_API_URL ??
@@ -35,6 +35,7 @@ type AcfLayout = {
 
 type AcfSectionFields = {
   label: string;
+  eyebrow?: string;
   title: string;
   summary: string;
   intro: string;
@@ -84,6 +85,7 @@ function toSection(
   return {
     slug,
     label: acf.label,
+    eyebrow: acf.eyebrow || undefined,
     title: acf.title,
     summary: acf.summary,
     intro: acf.intro,
@@ -140,17 +142,50 @@ export async function fetchDetail(
   return { section, detail };
 }
 
-export async function fetchGlobalSettings(): Promise<{
+export type NavSection = {
+  slug: string;
+  label: string;
+  children: Array<{ slug: string; label: string }>;
+};
+
+// Nav dropdown structure for the given section slugs (label + children).
+export async function fetchNavSections(slugs: string[]): Promise<NavSection[]> {
+  const sections = await Promise.all(slugs.map((s) => fetchSection(s)));
+  return sections
+    .filter((s): s is Section => s !== null)
+    .map((s) => ({
+      slug: s.slug,
+      label: s.label,
+      children: s.children.map((c) => ({ slug: c.slug, label: c.label })),
+    }));
+}
+
+export type GlobalSettings = {
   phoneDisplay: string;
   phoneHref: string;
   email: string;
-}> {
-  const data = await wpFetch<{
-    acf: { phone_display: string; phone_href: string; email: string };
-  }>('/acf/v3/options/options');
-  return {
-    phoneDisplay: data.acf.phone_display,
-    phoneHref: data.acf.phone_href,
-    email: data.acf.email,
-  };
+};
+
+const SETTINGS_FALLBACK: GlobalSettings = {
+  phoneDisplay: '(800) 789-1605',
+  phoneHref: 'tel:+18007891605',
+  email: 'help@intervention.com',
+};
+
+export async function fetchGlobalSettings(): Promise<GlobalSettings> {
+  try {
+    const data = await wpFetch<{
+      phone_display: string;
+      phone_href: string;
+      email: string;
+    }>('/intervention/v1/settings');
+    return {
+      phoneDisplay: data.phone_display || SETTINGS_FALLBACK.phoneDisplay,
+      phoneHref: data.phone_href || SETTINGS_FALLBACK.phoneHref,
+      email: data.email || SETTINGS_FALLBACK.email,
+    };
+  } catch {
+    // If WP is unreachable, fall back to brand defaults so pages still render.
+    return SETTINGS_FALLBACK;
+  }
 }
