@@ -8,7 +8,7 @@ import { Nav } from '@/components/nav';
 import { Footer } from '@/components/footer';
 import { SoundProvider } from '@/lib/sound';
 import { SettingsProvider } from '@/lib/settings';
-import { fetchGlobalSettings, fetchNavSections } from '@/lib/wp';
+import { fetchGlobalSettings, fetchNavSections, fetchNav } from '@/lib/wp';
 
 const fraunces = Fraunces({
   subsets: ['latin'],
@@ -39,9 +39,10 @@ export const metadata: Metadata = {
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const [settings, navSections] = await Promise.all([
+  const [settings, navSections, navMenu] = await Promise.all([
     fetchGlobalSettings(),
     fetchNavSections(['intervention', 'services']),
+    fetchNav(),
   ]);
 
   return (
@@ -55,7 +56,7 @@ export default async function RootLayout({
         <SettingsProvider value={settings}>
           <SoundProvider>
             <CustomCursor />
-            <Nav sections={navSections} />
+            <Nav sections={navSections} menu={navMenu} />
             {children}
             <Footer />
           </SoundProvider>

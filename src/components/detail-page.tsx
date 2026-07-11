@@ -7,6 +7,7 @@ import { viewport } from '@/lib/motion';
 import { PageHero } from '@/components/page-hero';
 import { CtaBanner } from '@/components/cta-banner';
 import { ContentBlocks } from '@/components/content-blocks';
+import { WpContent } from '@/components/wp-content';
 import { FaqList } from '@/components/faq-list';
 import type { Section, DetailContent } from '@/content/types';
 import { useSettings } from '@/lib/settings';
@@ -20,9 +21,12 @@ const CARD_BULLETS = [
 export function DetailPage({
   section,
   detail,
+  body = '',
 }: {
   section: Section;
   detail: DetailContent;
+  /** Sanitized WP page body HTML (real editorial content). */
+  body?: string;
 }) {
   const { phoneDisplay, phoneHref } = useSettings();
   const related = section.children.filter((c) => c.slug !== detail.slug);
@@ -61,7 +65,11 @@ export function DetailPage({
             )}
 
             <div className="mt-12">
-              <ContentBlocks blocks={detail.blocks} />
+              {body ? (
+                <WpContent html={body} />
+              ) : (
+                <ContentBlocks blocks={detail.blocks} />
+              )}
             </div>
 
             {detail.faq && detail.faq.length > 0 && (

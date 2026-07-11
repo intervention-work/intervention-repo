@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { ContentPage } from '@/components/content-page';
-import { fetchSection } from '@/lib/wp';
+import { fetchSection, fetchPageBody, mapWpContent } from '@/lib/wp';
 
 const SLUG = 'about';
 
@@ -18,6 +18,11 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function AboutPage() {
   const section = await fetchSection(SLUG);
   if (!section) return null;
+  const raw = await fetchPageBody(section.sourcePageSlug ?? SLUG);
+  const { body } = mapWpContent(raw, {
+    title: section.title,
+    summary: section.intro || section.summary,
+  });
   return (
     <ContentPage
       crumbs={[{ label: 'Home', href: '/' }, { label: section.label }]}
@@ -27,6 +32,7 @@ export default async function AboutPage() {
       image={section.image}
       intro={section.intro}
       blocks={section.blocks}
+      body={body}
     />
   );
 }

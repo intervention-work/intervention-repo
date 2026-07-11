@@ -43,6 +43,8 @@ export type DetailContent = {
   image?: string;
   /** When set, the nav link uses this URL instead of the auto-generated /{parent}/{slug} */
   navHrefOverride?: string;
+  /** WP page slug whose native content renders as the page body. Defaults to slug. */
+  sourcePageSlug?: string;
 };
 
 export type Section = {
@@ -66,5 +68,7 @@ export type Section = {
   childrenTitle: string;
   /** Hero background image; optional when sourced from WP without an image set */
   image?: string;
+  /** WP page slug whose native content renders as the page body. Defaults to slug. */
+  sourcePageSlug?: string;
   children: DetailContent[];
 };

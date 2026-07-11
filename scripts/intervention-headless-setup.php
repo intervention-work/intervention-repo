@@ -3,7 +3,7 @@
  * Plugin Name:  Intervention Headless Setup
  * Plugin URI:   https://intervention.com
  * Description:  Registers the detail_page CPT and all ACF field groups required for the headless Next.js migration. Requires ACF PRO.
- * Version:      1.9.0
+ * Version:      2.0.0
  * Author:       Intervention.com
  */
 
@@ -73,6 +73,85 @@ add_action( 'rest_api_init', function () {
             return $response;
         },
     ] );
+
+    // -----------------------------------------------------------------------
+    // Expose the WordPress nav menu(s) so the headless site renders the exact
+    // menu marketing manages under Appearance > Menus.
+    //   GET /wp-json/intervention/v1/nav          (primary/first menu)
+    //   GET /wp-json/intervention/v1/nav?menu=Foo (menu by name/slug/location)
+    // Returns a nested tree: [{ id, label, url, target, children: [...] }]
+    // -----------------------------------------------------------------------
+    register_rest_route( 'intervention/v1', '/nav', [
+        'methods'             => 'GET',
+        'permission_callback' => '__return_true',
+        'callback'            => function ( $request ) {
+            nocache_headers();
+
+            $requested = $request->get_param( 'menu' );
+            $menu_id   = 0;
+
+            // 1) explicit ?menu= (location, slug, name, or id)
+            if ( $requested ) {
+                $locations = get_nav_menu_locations();
+                if ( isset( $locations[ $requested ] ) ) {
+                    $menu_id = $locations[ $requested ];
+                } else {
+                    $obj = wp_get_nav_menu_object( $requested );
+                    if ( $obj ) $menu_id = $obj->term_id;
+                }
+            }
+
+            // 2) common primary locations
+            if ( ! $menu_id ) {
+                $locations = get_nav_menu_locations();
+                foreach ( [ 'primary', 'main', 'menu-1', 'header', 'primary-menu' ] as $loc ) {
+                    if ( ! empty( $locations[ $loc ] ) ) { $menu_id = $locations[ $loc ]; break; }
+                }
+            }
+
+            // 3) first menu that exists
+            if ( ! $menu_id ) {
+                $menus = wp_get_nav_menus();
+                if ( ! empty( $menus ) ) $menu_id = $menus[0]->term_id;
+            }
+
+            $items = $menu_id ? wp_get_nav_menu_items( $menu_id ) : [];
+            if ( ! $items ) $items = [];
+
+            // Build a flat map then nest by menu_item_parent.
+            $home = home_url();
+            $to_relative = function ( $url ) use ( $home ) {
+                if ( ! $url ) return '#';
+                $u = str_replace( $home, '', $url );
+                return $u === '' ? '/' : $u;
+            };
+
+            $nodes = [];
+            foreach ( $items as $it ) {
+                $nodes[ $it->ID ] = [
+                    'id'       => (int) $it->ID,
+                    'parent'   => (int) $it->menu_item_parent,
+                    'label'    => $it->title,
+                    'url'      => $to_relative( $it->url ),
+                    'target'   => $it->target ?: '',
+                    'children' => [],
+                ];
+            }
+            $tree = [];
+            foreach ( $nodes as $id => &$node ) {
+                if ( $node['parent'] && isset( $nodes[ $node['parent'] ] ) ) {
+                    $nodes[ $node['parent'] ]['children'][] = &$node;
+                } else {
+                    $tree[] = &$node;
+                }
+            }
+            unset( $node );
+
+            $response = new WP_REST_Response( array_values( $tree ) );
+            $response->header( 'Cache-Control', 'no-cache, no-store, must-revalidate' );
+            return $response;
+        },
+    ] );
 } );
 
 // ---------------------------------------------------------------------------
@@ -124,7 +203,7 @@ add_action( 'acf/save_post', function ( $post_id ) {
 // ---------------------------------------------------------------------------
 add_action( 'admin_init', function () {
     if ( ! function_exists( 'acf_import_field_group' ) ) return;
-    if ( get_option( 'ihs_field_groups_v190_imported' ) ) return;
+    if ( get_option( 'ihs_field_groups_v200_imported' ) ) return;
 
     // -----------------------------------------------------------------------
     // Group 1: Section Page — applied to all WP Pages
@@ -147,6 +226,13 @@ add_action( 'admin_init', function () {
                 'type'          => 'image',
                 'return_format' => 'url',
                 'preview_size'  => 'medium',
+            ],
+            [
+                'key'          => 'field_sp_source_page_slug',
+                'name'         => 'source_page_slug',
+                'label'        => 'Body content source (optional)',
+                'type'         => 'text',
+                'instructions' => 'Leave blank — the page body pulls from the WP page with this same slug. Set only when the content lives on a differently-named WP page (e.g. about-us).',
             ],
             [ 'key' => 'field_sp_children_eyebrow', 'name' => 'childrenEyebrow', 'label' => 'Children Eyebrow', 'type' => 'text' ],
             [ 'key' => 'field_sp_children_title',   'name' => 'childrenTitle',   'label' => 'Children Title',   'type' => 'text' ],
@@ -297,6 +383,13 @@ add_action( 'admin_init', function () {
                 'type'         => 'text',
                 'instructions' => 'Leave blank — nav link auto-generates as /{parent}/{slug}. Set only when the link should point elsewhere, e.g. /interventionists-by-state.',
             ],
+            [
+                'key'          => 'field_dp_source_page_slug',
+                'name'         => 'source_page_slug',
+                'label'        => 'Body content source (optional)',
+                'type'         => 'text',
+                'instructions' => 'Leave blank — the page body pulls from the WP page with this same slug. Set only when the content lives on a differently-named WP page.',
+            ],
             [ 'key' => 'field_dp_title',   'name' => 'title',   'label' => 'Title (H1)',                 'type' => 'text' ],
             [ 'key' => 'field_dp_summary', 'name' => 'summary', 'label' => 'Summary (meta description)', 'type' => 'textarea' ],
             [ 'key' => 'field_dp_intro',   'name' => 'intro',   'label' => 'Intro paragraph',            'type' => 'textarea' ],
@@ -442,5 +535,5 @@ add_action( 'admin_init', function () {
         ],
     ] );
 
-    update_option( 'ihs_field_groups_v190_imported', true );
+    update_option( 'ihs_field_groups_v200_imported', true );
 } );

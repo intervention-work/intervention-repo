@@ -6,6 +6,7 @@ import { viewport } from '@/lib/motion';
 import { PageHero, type Crumb } from '@/components/page-hero';
 import { CtaBanner } from '@/components/cta-banner';
 import { ContentBlocks } from '@/components/content-blocks';
+import { WpContent } from '@/components/wp-content';
 import type { ContentBlock } from '@/content/types';
 
 type ContentPageProps = {
@@ -16,6 +17,8 @@ type ContentPageProps = {
   image?: string;
   intro?: string;
   blocks?: ContentBlock[];
+  /** Sanitized WP page body HTML (real editorial content). */
+  body?: string;
   children?: ReactNode;
 };
 
@@ -27,6 +30,7 @@ export function ContentPage({
   image,
   intro,
   blocks = [],
+  body = '',
   children,
 }: ContentPageProps) {
   return (
@@ -54,10 +58,16 @@ export function ContentPage({
             </motion.p>
           )}
 
-          {blocks.length > 0 && (
+          {body ? (
             <div className="mt-12">
-              <ContentBlocks blocks={blocks} />
+              <WpContent html={body} />
             </div>
+          ) : (
+            blocks.length > 0 && (
+              <div className="mt-12">
+                <ContentBlocks blocks={blocks} />
+              </div>
+            )
           )}
 
           {children}

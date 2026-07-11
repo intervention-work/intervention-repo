@@ -1,0 +1,164 @@
+/* Standalone heading templates used by <WpContent>. */
+.h2Section {
+  font-family: var(--font-display), Georgia, serif;
+  font-variation-settings: "opsz" 60, "SOFT" 55, "WONK" 0;
+  color: var(--color-ink, #111827);
+  font-size: clamp(1.7rem, 3vw, 2.4rem);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+.h3Standalone {
+  font-family: var(--font-display), Georgia, serif;
+  font-variation-settings: "opsz" 36, "SOFT" 55, "WONK" 0;
+  color: var(--color-ink, #111827);
+  font-size: clamp(1.25rem, 1.8vw, 1.55rem);
+  line-height: 1.3;
+}
+
+.h4Standalone {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-weight: 600;
+  color: var(--color-ink, #111827);
+  font-size: 1.1rem;
+}
+
+.quote {
+  border-left: 3px solid var(--color-sage-400, #6BAF83);
+  padding-left: 1.25rem;
+  color: var(--color-ink, #111827);
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.35rem;
+  line-height: 1.5;
+}
+
+/* Restyles raw WordPress body content with the new design tokens. */
+.prose {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  color: var(--color-ink-body, #374151);
+  font-size: 1.0625rem;
+  line-height: 1.75;
+}
+
+.prose > *:first-child {
+  margin-top: 0;
+}
+
+.prose h2 {
+  font-family: var(--font-display), Georgia, serif;
+  font-variation-settings: "opsz" 48, "SOFT" 55, "WONK" 0;
+  color: var(--color-ink, #111827);
+  font-size: clamp(1.6rem, 2.6vw, 2.1rem);
+  line-height: 1.2;
+  margin: 2.75rem 0 1rem;
+}
+
+.prose h3 {
+  font-family: var(--font-display), Georgia, serif;
+  font-variation-settings: "opsz" 36, "SOFT" 55, "WONK" 0;
+  color: var(--color-ink, #111827);
+  font-size: clamp(1.25rem, 1.8vw, 1.5rem);
+  line-height: 1.3;
+  margin: 2rem 0 0.75rem;
+}
+
+.prose h4 {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-weight: 600;
+  color: var(--color-ink, #111827);
+  font-size: 1.1rem;
+  margin: 1.75rem 0 0.5rem;
+}
+
+.prose p {
+  margin: 0 0 1.25rem;
+}
+
+.prose a {
+  color: var(--color-sage-700, #2D5A3D);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.15s ease;
+}
+.prose a:hover {
+  color: var(--color-sage-900, #1A3526);
+}
+
+.prose strong,
+.prose b {
+  font-weight: 600;
+  color: var(--color-ink, #111827);
+}
+
+.prose ul,
+.prose ol {
+  margin: 0 0 1.25rem;
+  padding-left: 1.25rem;
+}
+.prose ul {
+  list-style: none;
+  padding-left: 0;
+}
+.prose ul > li {
+  position: relative;
+  padding-left: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+.prose ul > li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.65em;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 9999px;
+  background: var(--color-sage-400, #6BAF83);
+}
+.prose ol {
+  list-style: decimal;
+}
+.prose ol > li {
+  margin-bottom: 0.5rem;
+  padding-left: 0.25rem;
+}
+
+.prose blockquote {
+  border-left: 3px solid var(--color-sage-400, #6BAF83);
+  padding-left: 1.25rem;
+  margin: 1.75rem 0;
+  color: var(--color-ink, #111827);
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.25rem;
+  line-height: 1.5;
+}
+
+.prose img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 1rem;
+  margin: 1.75rem 0;
+}
+
+.prose hr {
+  border: none;
+  border-top: 1px solid var(--color-border, #E5EDE8);
+  margin: 2.5rem 0;
+}
+
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.75rem 0;
+  font-size: 0.95rem;
+}
+.prose th,
+.prose td {
+  border: 1px solid var(--color-border, #E5EDE8);
+  padding: 0.6rem 0.85rem;
+  text-align: left;
+}
+.prose th {
+  background: var(--color-surface, #F7F9F7);
+  font-weight: 600;
+  color: var(--color-ink, #111827);
+}

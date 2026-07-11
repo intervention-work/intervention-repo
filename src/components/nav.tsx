@@ -7,10 +7,27 @@ import { usePathname } from 'next/navigation';
 import { ChevronDown, Menu, X, Phone } from 'lucide-react';
 import { SoundToggle } from './sound-toggle';
 import { useSettings } from '@/lib/settings';
-import type { NavSection } from '@/lib/wp';
+import type { NavSection, NavNode } from '@/lib/wp';
 
 type MenuItem = { label: string; href: string; external?: boolean };
 type TopLink = { label: string; href: string; items?: MenuItem[] };
+
+// Convert the WordPress menu tree into the pill-nav shape. This is the primary
+// source once the WP menu is configured — nav mirrors Appearance > Menus.
+function linksFromMenu(menu: NavNode[]): TopLink[] {
+  const external = (url: string) => /^https?:\/\//i.test(url);
+  return menu.map((node) => ({
+    label: node.label,
+    href: node.url || '#',
+    items: node.children.length
+      ? node.children.map((c) => ({
+          label: c.label,
+          href: c.url || '#',
+          external: external(c.url),
+        }))
+      : undefined,
+  }));
+}
 
 function buildLinks(sections: NavSection[]): TopLink[] {
   const items = (parentSlug: string): MenuItem[] => {
@@ -39,9 +56,15 @@ function buildLinks(sections: NavSection[]): TopLink[] {
   ];
 }
 
-export function Nav({ sections = [] }: { sections?: NavSection[] }) {
+export function Nav({
+  sections = [],
+  menu = [],
+}: {
+  sections?: NavSection[];
+  menu?: NavNode[];
+}) {
   const { phoneDisplay, phoneHref } = useSettings();
-  const LINKS = buildLinks(sections);
+  const LINKS = menu.length ? linksFromMenu(menu) : buildLinks(sections);
   const pathname = usePathname() ?? '/';
   const [scrolled, setScrolled] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
