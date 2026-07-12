@@ -8,8 +8,8 @@ import {
   fetchPageBody,
   fetchWpPage,
   fetchWpPost,
-  mapWpContent,
 } from '@/lib/wp';
+import { mapWp } from '@/lib/wp-parse';
 
 const SECTION_SLUG = 'intervention';
 
@@ -48,18 +48,18 @@ export default async function InterventionDetailPage(
   // Curated CPT detail page (rich DetailPage layout).
   if (found) {
     const raw = await fetchPageBody(found.detail.sourcePageSlug ?? found.detail.slug);
-    const { body } = mapWpContent(raw, {
+    const { blocks } = mapWp(raw, {
       title: found.detail.title,
       summary: found.detail.intro || found.detail.summary,
     });
-    return <DetailPage section={found.section} detail={found.detail} body={body} />;
+    return <DetailPage section={found.section} detail={found.detail} bodyBlocks={blocks} />;
   }
 
   // Fallback: a plain WP page/post at this path (e.g. /intervention/eating-disorder
   // that the WP menu links to). Render its real content in the new design.
   const entry = (await fetchWpPage(slug)) ?? (await fetchWpPost(slug));
   if (!entry) notFound();
-  const mapped = mapWpContent(entry.body);
+  const mapped = mapWp(entry.body);
   return (
     <ContentPage
       crumbs={[
@@ -70,7 +70,7 @@ export default async function InterventionDetailPage(
       eyebrow={mapped.eyebrow || 'Intervention'}
       title={mapped.title || entry.title}
       summary={mapped.summary || undefined}
-      body={mapped.body}
+      bodyBlocks={mapped.blocks}
     />
   );
 }

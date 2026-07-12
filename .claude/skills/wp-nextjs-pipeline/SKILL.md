@@ -34,9 +34,12 @@ src/lib/wp.ts                 ← the ONLY WP data-access layer
   · mapWpContent: split off the duplicated hero region
   · fetchNav / fetchGlobalSettings
         ▼
-src/lib/wp-content-parse.ts   ← pure parser (sanitized HTML → Block[])
+src/lib/wp-parse.ts           ← DOM parser: walks the Elementor widget tree
+   (node-html-parser) and maps each elementor-widget-{type} → Block[].
+   wp-content-parse.ts holds only the shared Block type + helpers.
         ▼
-src/components/wp-content.tsx ← Block[] → design-system templates
+src/components/wp-content.tsx ← Block[] → design-system templates (server-parsed;
+   pages pass Block[] so the HTML parser never ships to the client)
         ▼
 Page shells (ContentPage / DetailPage) + routes → rendered UI
 ```
@@ -94,7 +97,9 @@ join the pipeline; they do not invent a parallel one.
 | File | Responsibility — change with care |
 |---|---|
 | `src/lib/wp.ts` | WP fetch (dedupe/semaphore/backoff), `sanitizeWpHtml`, all `fetch*`, `mapWpContent`, `fetchNav`, settings. |
-| `src/lib/wp-content-parse.ts` | Pure parser: `parseBlocks` (loose-text capture, `balanceAnchors`, button detect), `postProcess` (merge short lists → chips), `detectCards` (image+title+text+button → `card-group`), `groupSections` (split on H2). |
+| `src/lib/wp-parse.ts` | **DOM parser (primary)**: `parseWp(html)` walks the Elementor widget tree via node-html-parser and maps each `elementor-widget-{type}` to a Block; `mapWp(html, hero)` strips the hero region and returns `Block[]`. Widget→Block map + column/grid grouping (icon-cards, pricing, card-group, testimonials) live here. Add new widget handling in `extractWidget` + a Block kind. |
+| `src/lib/wp-content-parse.ts` | Shared `Block`/`Card`/`Section` types + `stripTags`/`wordCount`/`groupSections` only (no parsing). |
+| `scripts/screenshot-qa.py` | Full-page screenshots of pages for visual review (the real acceptance gate). |
 | `src/components/wp-content.tsx` | Block → templates: `Card`/`CardGrid`/`Carousel`, `ChipGrid`/`StateChip` (clickable vs plain), prose, buttons, images, tables, quotes. |
 | `src/components/heading.tsx` | Canonical `<Heading level={2\|3\|4}>` — the ONLY way headings render. Reused by `WpContent` (section/heading blocks) and `Card`. Keep all headings going through it. |
 | `src/components/icon-list.tsx` | `IconList` — Elementor icon-list AND grouped icon-box widgets → icon-badge grid/rows (FA icon mapped to lucide). |
@@ -134,9 +139,10 @@ or the template classes in `wp-content.tsx`. Do not touch the parser. Re-run §5
 
 Patterns already componentized: heading (`elementor-heading-title`), icon-list
 (`elementor-icon-list-items`), icon-box (`elementor-icon-box-title` → icon grid),
-accordion (`n-accordion` → native `<details>`), card group (image+title+text+
-button), chip grid, buttons, divider (`<hr>`), tables, quotes. Not yet:
-carousels/testimonial (1–2 pages, low reach).
+accordion (`n-accordion` → native `<details>`), testimonials/reviews (→ carousel),
+image/logo carousel, pricing tables (repeating title+subtitle+$price+button →
+`PricingCards`), card group (image+title+text+button), chip grid, buttons,
+divider (`<hr>`), tables, quotes. All catalogued patterns are now covered.
 
 KNOWN DATA LIMIT — two-column "photo beside text": on many Elementor pages the
 side photo is a **CSS background image** defined in Elementor's generated

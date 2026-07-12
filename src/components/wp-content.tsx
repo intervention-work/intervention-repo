@@ -4,13 +4,12 @@ import { Carousel } from './carousel';
 import { Heading } from './heading';
 import { IconList } from './icon-list';
 import { Accordion } from './accordion';
+import { groupSections, stripTags, type Block, type Card as CardData } from '@/lib/wp-content-parse';
+import { parseWp } from '@/lib/wp-parse';
 import {
-  parseBlocks,
-  groupSections,
-  stripTags,
-  type Block,
-  type Card as CardData,
-} from '@/lib/wp-content-parse';
+  Users, User, Check, CircleDot, Smile, Heart, Star, HandHeart, ShieldCheck,
+  GraduationCap, Handshake, Sparkles, type LucideIcon,
+} from 'lucide-react';
 
 /**
  * Renders the parsed WP block model through the new design system:
@@ -132,6 +131,100 @@ function Testimonials({ items }: { items: Array<{ quote: string; name: string; r
   );
 }
 
+function PricingCards({
+  cards,
+}: {
+  cards: Array<{
+    title: string;
+    subtitle: string;
+    price: string;
+    button?: { href: string; label: string; external: boolean };
+  }>;
+}) {
+  const cols = cards.length === 2 ? 'sm:grid-cols-2' : 'sm:grid-cols-2 lg:grid-cols-3';
+  return (
+    <div className={`grid grid-cols-1 gap-6 ${cols}`}>
+      {cards.map((c, i) => (
+        <div
+          key={i}
+          className="flex flex-col items-center rounded-2xl border border-border bg-white p-8 text-center transition-shadow duration-300 hover:shadow-[0_24px_60px_-24px_rgba(17,24,39,0.22)]"
+        >
+          <p className="font-sans text-lg font-semibold text-sage-700">{c.title}</p>
+          {c.subtitle && (
+            <p className="mt-2 font-sans text-xs uppercase tracking-[0.15em] text-ink-muted">
+              {c.subtitle}
+            </p>
+          )}
+          <p
+            className="my-5 font-display text-5xl text-ink"
+            style={{ fontVariationSettings: '"opsz" 72, "SOFT" 40, "WONK" 0' }}
+          >
+            {c.price}
+          </p>
+          {c.button && (
+            <a
+              href={c.button.href}
+              {...(c.button.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+              className="mt-auto inline-flex items-center justify-center rounded-full bg-sage-700 px-6 py-3 font-sans text-sm font-medium text-white transition-colors duration-300 hover:bg-sage-900"
+            >
+              {c.button.label}
+            </a>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+const ICON_MAP: Record<string, LucideIcon> = {
+  'user-friends': Users, users: Users, user: User, 'user-circle': User,
+  check: Check, 'check-circle': Check, 'circle-check': Check, smile: Smile,
+  heart: Heart, 'hand-holding-heart': HandHeart, star: Star,
+  shield: ShieldCheck, 'shield-alt': ShieldCheck, 'graduation-cap': GraduationCap,
+  handshake: Handshake, certificate: Sparkles, award: Sparkles,
+};
+const iconFor = (k: string): LucideIcon => ICON_MAP[k] ?? CircleDot;
+
+function IconCards({ items }: { items: Array<{ icon: string; title: string; desc: string }> }) {
+  const cols = items.length <= 2 ? 'sm:grid-cols-2' : 'sm:grid-cols-2 lg:grid-cols-3';
+  return (
+    <div className={`grid grid-cols-1 gap-8 ${cols}`}>
+      {items.map((it, i) => {
+        const Icon = iconFor(it.icon);
+        return (
+          <div key={i} className="flex flex-col items-center text-center">
+            <span className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-sage-50 text-sage-700">
+              <Icon size={28} strokeWidth={1.75} />
+            </span>
+            {it.title && <p className="font-sans text-base font-semibold text-ink">{it.title}</p>}
+            {it.desc && <p className="mt-2 font-sans text-sm leading-relaxed text-ink-body">{it.desc}</p>}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function MediaText({
+  image, side, blocks,
+}: {
+  image: { src: string; alt: string };
+  side: 'left' | 'right';
+  blocks: Block[];
+}) {
+  const img = (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={image.src} alt={image.alt} loading="lazy" className="h-full w-full rounded-2xl object-cover" />
+  );
+  return (
+    <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2">
+      {side === 'left' && <div className="min-h-[280px]">{img}</div>}
+      <div className="space-y-5">{renderBlocks(blocks)}</div>
+      {side === 'right' && <div className="min-h-[280px]">{img}</div>}
+    </div>
+  );
+}
+
 function BlockView({ block }: { block: Block }) {
   switch (block.kind) {
     case 'heading':
@@ -189,6 +282,12 @@ function BlockView({ block }: { block: Block }) {
       return <Accordion items={block.items} />;
     case 'testimonials':
       return <Testimonials items={block.items} />;
+    case 'pricing':
+      return <PricingCards cards={block.cards} />;
+    case 'icon-cards':
+      return <IconCards items={block.items} />;
+    case 'media-text':
+      return <MediaText image={block.image} side={block.side} blocks={block.blocks} />;
     case 'section-heading':
       return null;
   }
@@ -243,9 +342,10 @@ function renderBlocks(blocks: Block[]): ReactNode[] {
   return out;
 }
 
-export function WpContent({ html }: { html: string }) {
-  if (!html) return null;
-  const sections = groupSections(parseBlocks(html));
+export function WpContent({ html, blocks }: { html?: string; blocks?: Block[] }) {
+  const parsed = blocks ?? (html ? parseWp(html) : []);
+  if (!parsed.length) return null;
+  const sections = groupSections(parsed);
   if (!sections.length) return null;
 
   return (

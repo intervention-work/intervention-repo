@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
-import { fetchDetail, fetchPageBody, mapWpContent } from '@/lib/wp';
+import { fetchDetail, fetchPageBody } from '@/lib/wp';
+import { mapWp } from '@/lib/wp-parse';
 import { PageHero } from '@/components/page-hero';
 import { WpContent } from '@/components/wp-content';
 import { CtaBanner } from '@/components/cta-banner';
@@ -21,11 +22,10 @@ export default async function InterventionistsByStatePage() {
   const raw = await fetchPageBody(
     detail?.sourcePageSlug ?? 'interventionists-by-state'
   );
-  const mapped = mapWpContent(raw, {
+  const mapped = mapWp(raw, {
     title: detail?.title,
     summary: detail?.intro ?? detail?.summary,
   });
-  const body = mapped.body;
 
   return (
     <>
@@ -36,9 +36,9 @@ export default async function InterventionistsByStatePage() {
         summary={detail?.intro ?? detail?.summary ?? mapped.summary}
       />
 
-      {body && (
-        <section className="mx-auto max-w-4xl px-5 pb-20 md:px-7 lg:px-9">
-          <WpContent html={body} />
+      {mapped.blocks.length > 0 && (
+        <section className="mx-auto max-w-5xl px-5 pb-20 md:px-7 lg:px-9">
+          <WpContent blocks={mapped.blocks} />
         </section>
       )}
 

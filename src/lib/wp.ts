@@ -370,7 +370,7 @@ export async function fetchPageBody(slug: string): Promise<string> {
     if (!raw && slug.endsWith('-intervention')) {
       raw = await rawPageBody(slug.replace(/-intervention$/, ''));
     }
-    return sanitizeWpHtml(raw);
+    return raw;
   } catch {
     return '';
   }
@@ -438,7 +438,7 @@ export async function fetchWpPage(slug: string): Promise<WpPage | null> {
       slug: p.slug,
       path: linkToPath(p.link),
       title: decodeEntities(p.title?.rendered ?? ''),
-      body: sanitizeWpHtml(p.content?.rendered ?? ''),
+      body: p.content?.rendered ?? '',
     };
   } catch {
     return null;
@@ -579,7 +579,7 @@ export async function fetchWpPost(slug: string): Promise<WpPage | null> {
       slug: p.slug,
       path: linkToPath(p.link),
       title: decodeEntities(p.title?.rendered ?? ''),
-      body: sanitizeWpHtml(p.content?.rendered ?? ''),
+      body: p.content?.rendered ?? '',
     };
   } catch {
     return null;

@@ -7,8 +7,8 @@
  *
  * Run:  npx tsx scripts/verify-content.ts
  */
-import { sanitizeWpHtml } from '../src/lib/wp';
-import { parseBlocks, groupSections, stripTags } from '../src/lib/wp-content-parse';
+import { parseWp } from '../src/lib/wp-parse';
+import { groupSections, stripTags, type Block } from '../src/lib/wp-content-parse';
 
 const BASE = 'https://interventiodev.wpenginepowered.com/wp-json';
 const UA = { 'User-Agent': 'Mozilla/5.0 Chrome/120' };
@@ -29,7 +29,7 @@ async function getAll(type: 'pages' | 'posts') {
   return out;
 }
 
-function blockText(b: ReturnType<typeof parseBlocks>[number]): string {
+function blockText(b: Block): string {
   switch (b.kind) {
     case 'section-heading': return b.text;
     case 'heading': return stripTags(b.html);
@@ -39,6 +39,8 @@ function blockText(b: ReturnType<typeof parseBlocks>[number]): string {
     case 'button': return b.label;
     case 'list': return b.items.map(stripTags).join(' ');
     case 'image': return '';
+    case 'icon-cards': return b.items.map((i) => `${i.title} ${i.desc}`).join(' ');
+    case 'media-text': return b.blocks.map(blockText).join(' ');
     case 'card-group':
       return b.cards
         .map((c) => `${c.heading} ${stripTags(c.bodyHtml)} ${c.button?.label ?? ''}`)
@@ -48,9 +50,13 @@ function blockText(b: ReturnType<typeof parseBlocks>[number]): string {
     case 'divider':
       return '';
     case 'accordion':
-      return b.items.map((i) => `${i.title} ${stripTags(i.bodyHtml)}`).join(' ');
+      return b.items.map((i) => `${i.title} ${i.blocks.map(blockText).join(' ')}`).join(' ');
     case 'testimonials':
       return b.items.map((i) => `${i.quote} ${i.name} ${i.role}`).join(' ');
+    case 'pricing':
+      return b.cards
+        .map((c) => `${c.title} ${c.subtitle} ${c.price} ${c.button?.label ?? ''}`)
+        .join(' ');
   }
 }
 
@@ -72,9 +78,8 @@ async function main() {
     /<(?:div|p|ul|ol|h[1-6]|table|section|figure)\b/i.test(h);
 
   for (const entry of all) {
-    const sanitized = sanitizeWpHtml(entry.content);
-    const inputText = stripTags(sanitized).replace(/[^a-z0-9 ]/gi, ' ').replace(/\s+/g, ' ').trim();
-    const blocks = parseBlocks(sanitized);
+    const inputText = stripTags(entry.content).replace(/[^a-z0-9 ]/gi, ' ').replace(/\s+/g, ' ').trim();
+    const blocks = parseWp(entry.content);
     const sections = groupSections(blocks);
     const parsedText = blocks.map(blockText).join(' ').replace(/[^a-z0-9 ]/gi, ' ').replace(/\s+/g, ' ').trim();
 
@@ -100,7 +105,9 @@ async function main() {
     if (hasChips) chipPages++;
 
     const flag: string[] = [];
-    if (inLen > 200 && coverage < 0.85) flag.push(`coverage=${(coverage * 100).toFixed(0)}%`);
+    // Coverage vs raw content is only a gross-drop signal now (raw includes nav
+    // menus / chrome the parser intentionally skips). Visual QA is the real gate.
+    if (inLen > 400 && coverage < 0.5) flag.push(`LOW-COVERAGE=${(coverage * 100).toFixed(0)}%`);
     if (inLen > 100 && sections.length === 0) flag.push('NO SECTIONS');
     if (risky.length) flag.push(`RISKY:${[...new Set(risky)].join(',')}`);
 

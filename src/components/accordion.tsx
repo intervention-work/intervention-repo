@@ -1,12 +1,13 @@
 import { ChevronDown } from 'lucide-react';
 import { WpContent } from './wp-content';
+import type { Block } from '@/lib/wp-content-parse';
 
 /**
  * Reusable accordion built on native <details>/<summary> (no JS needed).
  * Body content is rendered through the shared WpContent pipeline so it gets the
  * same design-system templates as the rest of the page.
  */
-export function Accordion({ items }: { items: Array<{ title: string; bodyHtml: string }> }) {
+export function Accordion({ items }: { items: Array<{ title: string; blocks: Block[] }> }) {
   return (
     <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border">
       {items.map((item, i) => (
@@ -20,7 +21,7 @@ export function Accordion({ items }: { items: Array<{ title: string; bodyHtml: s
             />
           </summary>
           <div className="px-6 pb-6 pt-1">
-            <WpContent html={item.bodyHtml} />
+            <WpContent blocks={item.blocks} />
           </div>
         </details>
       ))}

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { ContentPage } from '@/components/content-page';
-import { fetchSection, fetchPageBody, mapWpContent } from '@/lib/wp';
+import { fetchSection, fetchPageBody } from '@/lib/wp';
+import { mapWp } from '@/lib/wp-parse';
 
 const SLUG = 'family-class';
 
@@ -19,7 +20,7 @@ export default async function FamilyClassPage() {
   const section = await fetchSection(SLUG);
   if (!section) return null;
   const raw = await fetchPageBody(section.sourcePageSlug ?? SLUG);
-  const { body } = mapWpContent(raw, {
+  const { blocks } = mapWp(raw, {
     title: section.title,
     summary: section.intro || section.summary,
   });
@@ -32,7 +33,7 @@ export default async function FamilyClassPage() {
       image={section.image}
       intro={section.intro}
       blocks={section.blocks}
-      body={body}
+      bodyBlocks={blocks}
     />
   );
 }

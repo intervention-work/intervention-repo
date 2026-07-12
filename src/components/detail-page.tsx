@@ -10,6 +10,7 @@ import { ContentBlocks } from '@/components/content-blocks';
 import { WpContent } from '@/components/wp-content';
 import { FaqList } from '@/components/faq-list';
 import type { Section, DetailContent } from '@/content/types';
+import type { Block } from '@/lib/wp-content-parse';
 import { useSettings } from '@/lib/settings';
 
 const CARD_BULLETS = [
@@ -21,13 +22,14 @@ const CARD_BULLETS = [
 export function DetailPage({
   section,
   detail,
-  body = '',
+  bodyBlocks,
 }: {
   section: Section;
   detail: DetailContent;
-  /** Sanitized WP page body HTML (real editorial content). */
-  body?: string;
+  /** Server-parsed WP body blocks (real editorial content). */
+  bodyBlocks?: Block[];
 }) {
+  const body = bodyBlocks && bodyBlocks.length > 0;
   const { phoneDisplay, phoneHref } = useSettings();
   const related = section.children.filter((c) => c.slug !== detail.slug);
 
@@ -66,7 +68,7 @@ export function DetailPage({
 
             <div className="mt-12">
               {body ? (
-                <WpContent html={body} />
+                <WpContent blocks={bodyBlocks} />
               ) : (
                 <ContentBlocks blocks={detail.blocks} />
               )}

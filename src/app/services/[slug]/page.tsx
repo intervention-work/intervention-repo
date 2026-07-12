@@ -8,8 +8,8 @@ import {
   fetchPageBody,
   fetchWpPage,
   fetchWpPost,
-  mapWpContent,
 } from '@/lib/wp';
+import { mapWp } from '@/lib/wp-parse';
 
 const SECTION_SLUG = 'services';
 
@@ -41,16 +41,16 @@ export default async function ServicesDetailPage(
 
   if (found) {
     const raw = await fetchPageBody(found.detail.sourcePageSlug ?? found.detail.slug);
-    const { body } = mapWpContent(raw, {
+    const { blocks } = mapWp(raw, {
       title: found.detail.title,
       summary: found.detail.intro || found.detail.summary,
     });
-    return <DetailPage section={found.section} detail={found.detail} body={body} />;
+    return <DetailPage section={found.section} detail={found.detail} bodyBlocks={blocks} />;
   }
 
   const entry = (await fetchWpPage(slug)) ?? (await fetchWpPost(slug));
   if (!entry) notFound();
-  const mapped = mapWpContent(entry.body);
+  const mapped = mapWp(entry.body);
   return (
     <ContentPage
       crumbs={[
@@ -61,7 +61,7 @@ export default async function ServicesDetailPage(
       eyebrow={mapped.eyebrow || 'Services'}
       title={mapped.title || entry.title}
       summary={mapped.summary || undefined}
-      body={mapped.body}
+      bodyBlocks={mapped.blocks}
     />
   );
 }

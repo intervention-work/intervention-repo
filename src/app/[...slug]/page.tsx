@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { ContentPage } from '@/components/content-page';
-import { fetchWpPage, fetchWpPost, mapWpContent } from '@/lib/wp';
+import { fetchWpPage, fetchWpPost } from '@/lib/wp';
+import { mapWp } from '@/lib/wp-parse';
 
 export const revalidate = 3600;
 // Long-tail WP pages/posts render on first request and are then cached (ISR),
@@ -47,7 +48,7 @@ export default async function CatchAllWpPage(props: PageProps<'/[...slug]'>) {
   if (!page) notFound();
 
   // Map the raw WP content into hero + body (removes the duplicated opening).
-  const mapped = mapWpContent(page.body);
+  const mapped = mapWp(page.body);
   const heroTitle = mapped.title || page.title || titleize(leaf);
 
   const crumbs = [
@@ -65,7 +66,7 @@ export default async function CatchAllWpPage(props: PageProps<'/[...slug]'>) {
       eyebrow={mapped.eyebrow || undefined}
       title={heroTitle}
       summary={mapped.summary || undefined}
-      body={mapped.body}
+      bodyBlocks={mapped.blocks}
     />
   );
 }

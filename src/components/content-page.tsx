@@ -8,6 +8,7 @@ import { CtaBanner } from '@/components/cta-banner';
 import { ContentBlocks } from '@/components/content-blocks';
 import { WpContent } from '@/components/wp-content';
 import type { ContentBlock } from '@/content/types';
+import type { Block } from '@/lib/wp-content-parse';
 
 type ContentPageProps = {
   crumbs: Crumb[];
@@ -17,8 +18,8 @@ type ContentPageProps = {
   image?: string;
   intro?: string;
   blocks?: ContentBlock[];
-  /** Sanitized WP page body HTML (real editorial content). */
-  body?: string;
+  /** Server-parsed WP body blocks (real editorial content). */
+  bodyBlocks?: Block[];
   children?: ReactNode;
 };
 
@@ -30,7 +31,7 @@ export function ContentPage({
   image,
   intro,
   blocks = [],
-  body = '',
+  bodyBlocks,
   children,
 }: ContentPageProps) {
   return (
@@ -44,7 +45,7 @@ export function ContentPage({
       />
 
       <section className="bg-white py-24 lg:py-32">
-        <div className="mx-auto max-w-3xl px-6">
+        <div className="mx-auto max-w-5xl px-6">
           {intro && (
             <motion.p
               initial={{ opacity: 0, y: 14 }}
@@ -58,9 +59,9 @@ export function ContentPage({
             </motion.p>
           )}
 
-          {body ? (
+          {bodyBlocks && bodyBlocks.length > 0 ? (
             <div className="mt-12">
-              <WpContent html={body} />
+              <WpContent blocks={bodyBlocks} />
             </div>
           ) : (
             blocks.length > 0 && (
