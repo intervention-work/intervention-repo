@@ -71,6 +71,17 @@ join the pipeline; they do not invent a parallel one.
    kind + template inside the shared component, applied to all pages at once.
 8. **ISR + revalidation, not static export.** `revalidate = 3600`; WP save pings
    `/api/revalidate`. Do not reintroduce `output: 'export'`.
+9. **Content lifecycle must stay automatic.** New/edited/deleted/unpublished WP
+   content must reach the site without a redeploy. Two mechanisms, both required:
+   (a) catch-all + `[slug]` use `dynamicParams` so any new URL renders on first
+   visit; (b) the plugin's revalidation hooks ping `/api/revalidate` on
+   `save_post`, `transition_post_status`, `before_delete_post`, `acf/save_post`,
+   and `wp_update_nav_menu`, covering pages, detail_pages, posts, their listing
+   pages (`/intervention`, `/services`, `/intervention-blog`) and the layout/nav.
+   Never make `generateStaticParams` enumerate the long tail, and never drop these
+   hooks — doing either breaks add/delete propagation. Known accepted limits: a
+   new detail/post does NOT auto-join the nav (nav = WP menu; add it there), and a
+   slug change leaves the old URL cached until its ISR window.
 
 ---
 

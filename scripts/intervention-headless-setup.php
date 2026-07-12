@@ -3,7 +3,7 @@
  * Plugin Name:  Intervention Headless Setup
  * Plugin URI:   https://intervention.com
  * Description:  Registers the detail_page CPT and all ACF field groups required for the headless Next.js migration. Requires ACF PRO.
- * Version:      2.0.0
+ * Version:      2.1.0
  * Author:       Intervention.com
  */
 
@@ -173,28 +173,72 @@ function ihs_ping_revalidate( $paths = [], $layout = false ) {
     wp_remote_post( $endpoint, [ 'timeout' => 5, 'blocking' => false ] );
 }
 
-// Section pages (WP Pages) and detail_page CPT items.
+// Compute the paths to revalidate for a given post, and fire the ping.
+// Handles the three content types the site renders and their listing pages so
+// adds, edits, unpublishes and deletes all propagate — not just publishes.
+function ihs_revalidate_for_post( $post ) {
+    if ( ! $post instanceof WP_Post ) return;
+
+    switch ( $post->post_type ) {
+        case 'page':
+            // Full hierarchical path (get_page_uri handles nested/child pages
+            // like /interventionists-by-state/california). Nav may change → layout.
+            $uri = get_page_uri( $post );
+            $path = $uri ? '/' . $uri : '/' . $post->post_name;
+            ihs_ping_revalidate( [ $path ], true );
+            break;
+
+        case 'detail_page':
+            $parent = get_field( 'parent_section', $post->ID );
+            $slug   = get_field( 'slug', $post->ID );
+            $paths  = [];
+            if ( $parent && $slug ) {
+                $paths[] = '/' . $parent . '/' . $slug; // the detail page
+                $paths[] = '/' . $parent;               // the section landing grid
+            }
+            ihs_ping_revalidate( $paths, true );
+            break;
+
+        case 'post':
+            // Blog article: its own page + the blog index listing.
+            ihs_ping_revalidate(
+                [ '/intervention-blog/' . $post->post_name, '/intervention-blog' ],
+                false
+            );
+            break;
+    }
+}
+
+// 1) Content saved/published (edits + new publishes).
 add_action( 'save_post', function ( $post_id, $post ) {
     if ( wp_is_post_revision( $post_id ) || wp_is_post_autosave( $post_id ) ) return;
     if ( $post->post_status !== 'publish' ) return;
-
-    if ( $post->post_type === 'page' ) {
-        // Nav labels may change, so revalidate the layout too.
-        ihs_ping_revalidate( [ '/' . $post->post_name ], true );
-    } elseif ( $post->post_type === 'detail_page' ) {
-        $parent = get_field( 'parent_section', $post_id );
-        $slug   = get_field( 'slug', $post_id );
-        if ( $parent && $slug ) {
-            ihs_ping_revalidate( [ '/' . $parent . '/' . $slug, '/' . $parent ], true );
-        }
-    }
+    ihs_revalidate_for_post( $post );
 }, 20, 2 );
 
-// Global Settings options page (phone/email affect nav + footer everywhere).
+// 2) Status transitions crossing the publish boundary (new publish, unpublish,
+//    move to trash). Covers removal from the live site.
+add_action( 'transition_post_status', function ( $new_status, $old_status, $post ) {
+    if ( $new_status === $old_status ) return;
+    if ( $new_status !== 'publish' && $old_status !== 'publish' ) return;
+    ihs_revalidate_for_post( $post );
+}, 20, 3 );
+
+// 3) Permanent deletion (ACF fields + slug still readable in before_delete).
+add_action( 'before_delete_post', function ( $post_id ) {
+    ihs_revalidate_for_post( get_post( $post_id ) );
+}, 20 );
+
+// 4) Global Settings options page (phone/email affect nav + footer everywhere).
 add_action( 'acf/save_post', function ( $post_id ) {
     if ( $post_id === 'options' ) {
         ihs_ping_revalidate( [], true );
     }
+}, 20 );
+
+// 5) WP nav menu edited (nav is WordPress-menu-driven) → refresh the layout.
+add_action( 'wp_update_nav_menu', function () {
+    ihs_ping_revalidate( [], true );
 }, 20 );
 
 // ---------------------------------------------------------------------------
