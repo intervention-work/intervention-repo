@@ -57,12 +57,33 @@ async function main() {
   const problems: string[] = [];
   let chipPages = 0;
 
+  // Structural safety: HTML that would break React hydration when rendered.
+  const unbalancedAnchors = (h: string) =>
+    (h.match(/<a\b[^>]*>/gi) || []).length !== (h.match(/<\/a>/gi) || []).length;
+  const hasBlockLevel = (h: string) =>
+    /<(?:div|p|ul|ol|h[1-6]|table|section|figure)\b/i.test(h);
+
   for (const entry of all) {
     const sanitized = sanitizeWpHtml(entry.content);
     const inputText = stripTags(sanitized).replace(/[^a-z0-9 ]/gi, ' ').replace(/\s+/g, ' ').trim();
     const blocks = parseBlocks(sanitized);
     const sections = groupSections(blocks);
     const parsedText = blocks.map(blockText).join(' ').replace(/[^a-z0-9 ]/gi, ' ').replace(/\s+/g, ' ').trim();
+
+    // Check every HTML fragment that gets wrapped in <p>/<div>/heading on render.
+    const risky: string[] = [];
+    for (const b of blocks) {
+      if (b.kind === 'paragraph' || b.kind === 'heading') {
+        if (unbalancedAnchors(b.html)) risky.push('unbalanced-anchor');
+        if (hasBlockLevel(b.html)) risky.push('block-in-inline');
+      }
+      if (b.kind === 'card-group') {
+        for (const c of b.cards) {
+          if (unbalancedAnchors(c.bodyHtml)) risky.push('card-unbalanced-anchor');
+          if (hasBlockLevel(c.bodyHtml)) risky.push('card-block-in-inline');
+        }
+      }
+    }
 
     const inLen = inputText.length;
     const outLen = parsedText.length;
@@ -73,9 +94,7 @@ async function main() {
     const flag: string[] = [];
     if (inLen > 200 && coverage < 0.85) flag.push(`coverage=${(coverage * 100).toFixed(0)}%`);
     if (inLen > 100 && sections.length === 0) flag.push('NO SECTIONS');
-    // Leftover structural tags the parser would drop:
-    const leftover = sanitized.match(/<(figure|figcaption|dl|dt|dd|section|article|h1)\b/gi);
-    if (leftover) flag.push(`leftover:${[...new Set(leftover.map((s) => s.toLowerCase()))].join(',')}`);
+    if (risky.length) flag.push(`RISKY:${[...new Set(risky)].join(',')}`);
 
     if (flag.length) {
       problems.push(
