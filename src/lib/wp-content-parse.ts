@@ -20,7 +20,11 @@ export type Block =
   | { kind: 'image'; src: string; alt: string }
   | { kind: 'quote'; html: string }
   | { kind: 'table'; html: string }
-  | { kind: 'card-group'; cards: Card[] };
+  | { kind: 'card-group'; cards: Card[] }
+  | { kind: 'icon-list'; items: Array<{ icon: string; label: string }> }
+  | { kind: 'divider' }
+  | { kind: 'accordion'; items: Array<{ title: string; bodyHtml: string }> }
+  | { kind: 'testimonials'; items: Array<{ quote: string; name: string; role: string }> };
 
 export type Section = { heading?: string; blocks: Block[] };
 
@@ -85,7 +89,7 @@ function pushInline(blocks: Block[], rawInner: string): void {
 
 export function parseBlocks(html: string): Block[] {
   const re =
-    /<(h[2-6]|p|ul|ol|blockquote|table)\b[^>]*>([\s\S]*?)<\/\1>|<img\b[^>]*>/gi;
+    /<(h[2-6]|p|ul|ol|blockquote|table|details)\b[^>]*>([\s\S]*?)<\/\1>|<img\b[^>]*>|<hr\b[^>]*>/gi;
   const blocks: Block[] = [];
   let last = 0;
   let m: RegExpExecArray | null;
@@ -100,6 +104,10 @@ export function parseBlocks(html: string): Block[] {
     const tag = (m[1] ?? '').toLowerCase();
     const inner = m[2] ?? '';
 
+    if (raw.startsWith('<hr')) {
+      blocks.push({ kind: 'divider' });
+      continue;
+    }
     if (raw.startsWith('<img')) {
       const src = /src\s*=\s*"([^"]*)"/i.exec(raw)?.[1] ?? '';
       const alt = /alt\s*=\s*"([^"]*)"/i.exec(raw)?.[1] ?? '';
@@ -123,11 +131,37 @@ export function parseBlocks(html: string): Block[] {
       blocks.push({ kind: 'table', html: raw });
       continue;
     }
+    if (tag === 'details') {
+      // Native accordion item. Group consecutive <details> into one accordion.
+      const title = stripTags(
+        /<summary\b[^>]*>([\s\S]*?)<\/summary>/i.exec(inner)?.[1] ?? ''
+      );
+      const bodyHtml = inner.replace(/<summary\b[^>]*>[\s\S]*?<\/summary>/i, '').trim();
+      const prev = blocks[blocks.length - 1];
+      if (prev && prev.kind === 'accordion') prev.items.push({ title, bodyHtml });
+      else blocks.push({ kind: 'accordion', items: [{ title, bodyHtml }] });
+      continue;
+    }
     if (tag === 'ul' || tag === 'ol') {
       const items = [...inner.matchAll(/<li\b[^>]*>([\s\S]*?)<\/li>/gi)].map((x) =>
         x[1].trim()
       );
-      if (items.length) blocks.push({ kind: 'list', ordered: tag === 'ol', items });
+      if (!items.length) continue;
+      // Icon list: sanitize marks Elementor icon-list items as [[icon:KEY]]Label.
+      const iconItems = items.map((it) =>
+        /^\s*\[\[icon:([a-z0-9-]+)\]\]([\s\S]*)$/i.exec(it)
+      );
+      if (tag === 'ul' && iconItems.every(Boolean)) {
+        blocks.push({
+          kind: 'icon-list',
+          items: iconItems.map((mm) => ({
+            icon: mm![1].toLowerCase(),
+            label: stripTags(mm![2]).trim(),
+          })),
+        });
+        continue;
+      }
+      blocks.push({ kind: 'list', ordered: tag === 'ol', items });
       continue;
     }
     if (tag === 'p') {
@@ -138,7 +172,65 @@ export function parseBlocks(html: string): Block[] {
   // Trailing loose content after the last block.
   if (last < html.length) pushInline(blocks, html.slice(last));
 
-  return detectCards(postProcess(blocks));
+  return detectCards(detectTestimonials(detectIconBoxes(postProcess(blocks))));
+}
+
+// Group [[quote]]/[[qname]]/[[qtitle]] sentinel paragraphs into a testimonials
+// block (rendered as a carousel of quote cards).
+function detectTestimonials(blocks: Block[]): Block[] {
+  const out: Block[] = [];
+  let i = 0;
+  const tag = (b: Block, t: string) =>
+    b.kind === 'paragraph' && new RegExp(`^\\s*\\[\\[${t}\\]\\]`, 'i').test(b.html);
+  const strip = (b: Block, t: string) =>
+    stripTags((b as Extract<Block, { kind: 'paragraph' }>).html.replace(new RegExp(`^\\s*\\[\\[${t}\\]\\]`, 'i'), '')).trim();
+
+  while (i < blocks.length) {
+    if (tag(blocks[i], 'quote')) {
+      const items: Array<{ quote: string; name: string; role: string }> = [];
+      while (i < blocks.length && tag(blocks[i], 'quote')) {
+        const quote = strip(blocks[i], 'quote');
+        i++;
+        let name = '';
+        let role = '';
+        if (i < blocks.length && tag(blocks[i], 'qname')) { name = strip(blocks[i], 'qname'); i++; }
+        if (i < blocks.length && tag(blocks[i], 'qtitle')) { role = strip(blocks[i], 'qtitle'); i++; }
+        if (quote) items.push({ quote, name, role });
+      }
+      if (items.length) out.push({ kind: 'testimonials', items });
+      continue;
+    }
+    out.push(blocks[i]);
+    i++;
+  }
+  return out;
+}
+
+// Merge consecutive icon-box sentinel paragraphs ([[iconbox]]Title) into a
+// single icon-list block rendered as an icon-badge grid.
+function detectIconBoxes(blocks: Block[]): Block[] {
+  const out: Block[] = [];
+  let i = 0;
+  const isIconBox = (b: Block) =>
+    b.kind === 'paragraph' && /^\s*\[\[iconbox\]\]/i.test(b.html);
+  while (i < blocks.length) {
+    if (isIconBox(blocks[i])) {
+      const items: Array<{ icon: string; label: string }> = [];
+      while (i < blocks.length && isIconBox(blocks[i])) {
+        const label = stripTags(
+          (blocks[i] as Extract<Block, { kind: 'paragraph' }>).html.replace(/^\s*\[\[iconbox\]\]/i, '')
+        ).trim();
+        if (label) items.push({ icon: 'user-friends', label });
+        i++;
+      }
+      if (items.length >= 2) out.push({ kind: 'icon-list', items });
+      else if (items.length === 1) out.push({ kind: 'paragraph', html: items[0].label });
+      continue;
+    }
+    out.push(blocks[i]);
+    i++;
+  }
+  return out;
 }
 
 // Detect the repeating "icon/photo + heading + text + (button)" pattern used

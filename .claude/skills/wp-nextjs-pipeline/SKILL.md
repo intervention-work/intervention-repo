@@ -48,13 +48,17 @@ join the pipeline; they do not invent a parallel one.
 
 ## 2. Invariants — MUST NOT break
 
-1. **No hardcoded content or nav.** Labels, copy, ordering, menus come from WP
-   (ACF fields, `content.rendered`, the `/intervention/v1/nav` menu). Hardcoding
-   was rejected twice by the user. Nav order = WP `menu_order`; nav structure =
-   WP menu.
+1. **No hardcoded or duplicated/parallel content.** Labels, copy, ordering, menus
+   come from WP (ACF fields, `content.rendered`, the `/intervention/v1/nav` menu).
+   Hardcoding was rejected twice. Nav order = WP `menu_order`; structure = WP menu.
+   The WP `content.rendered` body is the source of truth — do NOT ALSO render a
+   parallel ACF copy of the same content (e.g. the ACF `faq` field is only shown
+   as a fallback when there's no body, else it duplicates the body's FAQ accordion).
 2. **All WP HTML passes through `sanitizeWpHtml`.** Never `dangerouslySetInnerHTML`
    with raw WP HTML. Sanitize strips scripts/Elementor wrappers, self-closes void
-   tags, keeps image `src` **absolute**, rewrites internal links **relative**.
+   tags, keeps image `src` **absolute**, rewrites internal links **relative**, and
+   **recovers Elementor heading widgets** (`elementor-heading-title` divs) as
+   semantic `<h3>` — don't remove this or headings become plain body text.
 3. **No hydration-hostile HTML.** Two classes cause React #418 and are checked by
    the verifier: (a) **unbalanced `<a>`** (fixed via `balanceAnchors`), (b) any
    **block-level tag inside an inline fragment** that gets wrapped in `<p>`/heading/
@@ -92,6 +96,12 @@ join the pipeline; they do not invent a parallel one.
 | `src/lib/wp.ts` | WP fetch (dedupe/semaphore/backoff), `sanitizeWpHtml`, all `fetch*`, `mapWpContent`, `fetchNav`, settings. |
 | `src/lib/wp-content-parse.ts` | Pure parser: `parseBlocks` (loose-text capture, `balanceAnchors`, button detect), `postProcess` (merge short lists → chips), `detectCards` (image+title+text+button → `card-group`), `groupSections` (split on H2). |
 | `src/components/wp-content.tsx` | Block → templates: `Card`/`CardGrid`/`Carousel`, `ChipGrid`/`StateChip` (clickable vs plain), prose, buttons, images, tables, quotes. |
+| `src/components/heading.tsx` | Canonical `<Heading level={2\|3\|4}>` — the ONLY way headings render. Reused by `WpContent` (section/heading blocks) and `Card`. Keep all headings going through it. |
+| `src/components/icon-list.tsx` | `IconList` — Elementor icon-list AND grouped icon-box widgets → icon-badge grid/rows (FA icon mapped to lucide). |
+| `src/components/accordion.tsx` | `Accordion` — native `<details>`/`<summary>` (Elementor `n-accordion`), body via nested `WpContent`. No JS. |
+| `src/components/carousel.tsx` | `Carousel` — reused by card groups (≥5), testimonials (≥3), and logo/image runs (≥5). |
+| (in `wp-content.tsx`) `Testimonials` | Elementor testimonial/reviews carousel → quote cards in a `Carousel`. |
+| `scripts/audit-widgets.ts` | Deep-dive: catalogs every Elementor widget type + structural pattern across all pages/posts. Run this FIRST when asked to componentize a new WP pattern. |
 | `src/components/wp-prose.module.css` | Typography tokens for prose + headings + quotes. |
 | `src/components/carousel.tsx` | Client carousel (≥5 cards). |
 | `src/components/content-page.tsx` / `detail-page.tsx` | Page shells; render hero + `WpContent`. |
@@ -110,11 +120,30 @@ join the pipeline; they do not invent a parallel one.
 **Restyle existing content (fonts/colors/spacing):** edit `wp-prose.module.css`
 or the template classes in `wp-content.tsx`. Do not touch the parser. Re-run §5.
 
-**Support a new content pattern (e.g. accordions, stat rows):**
-1. Add a `Block` kind in `wp-content-parse.ts`; detect it in `parseBlocks`/post-process.
-2. Add a template branch in `wp-content.tsx` (`BlockView`).
-3. Keep detection strict so it doesn't swallow unrelated content.
-4. Re-run §5; coverage and risk must stay 0.
+**Componentize a new WP/Elementor pattern (THE reusable-component workflow):**
+1. Run `npx tsx scripts/audit-widgets.ts` to see which Elementor widgets/patterns
+   exist and how many pages use them — prioritize by reach.
+2. Inspect the real HTML of a representative page for that widget's structure/classes.
+3. If the signal is a class/attribute or inline SVG that `sanitizeWpHtml` would
+   strip, add a **sanitize pre-pass** that converts it to a durable sentinel
+   (e.g. icon-list → `<li>[[icon:KEY]]Label</li>`; heading widget → `<h3>`).
+4. Add a `Block` kind in `wp-content-parse.ts`; detect it in `parseBlocks`.
+5. Build a reusable component and add a `BlockView` branch in `wp-content.tsx`.
+6. Keep detection strict so it doesn't swallow unrelated content.
+7. Re-run §5; coverage and risk must stay 0. Spot-render a page that uses it.
+
+Patterns already componentized: heading (`elementor-heading-title`), icon-list
+(`elementor-icon-list-items`), icon-box (`elementor-icon-box-title` → icon grid),
+accordion (`n-accordion` → native `<details>`), card group (image+title+text+
+button), chip grid, buttons, divider (`<hr>`), tables, quotes. Not yet:
+carousels/testimonial (1–2 pages, low reach).
+
+KNOWN DATA LIMIT — two-column "photo beside text": on many Elementor pages the
+side photo is a **CSS background image** defined in Elementor's generated
+stylesheet (keyed by element ID), NOT an `<img>` in `content.rendered`. It is
+therefore **absent from the REST payload and cannot be rendered** from the API.
+Real `<img>` elements (bios, maps, content images) DO render. Don't waste effort
+trying to reconstruct background-image columns — the data isn't there.
 
 **Add a new page/route:** prefer letting the catch-all handle it. If it needs a
 bespoke shell, fetch via `src/lib/wp.ts`, run body through `mapWpContent` +

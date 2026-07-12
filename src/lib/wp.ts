@@ -219,6 +219,7 @@ const ALLOWED_TAGS = new Set([
   'blockquote', 'br', 'hr',
   'table', 'thead', 'tbody', 'tr', 'th', 'td',
   'img',
+  'details', 'summary',
 ]);
 
 // WP host whose absolute internal links should become site-relative.
@@ -233,12 +234,77 @@ const WP_HOST = (() => {
 export function sanitizeWpHtml(html: string): string {
   let out = html;
 
+  // Elementor icon lists → a sentinel list the parser turns into an icon grid.
+  // Must run BEFORE <svg> is stripped so we can read the icon type. Each item
+  // becomes <li>[[icon:KEY]]Label</li>; the marker survives sanitisation.
+  out = out.replace(
+    /<ul\b[^>]*class="[^"]*elementor-icon-list-items[^"]*"[^>]*>([\s\S]*?)<\/ul>/gi,
+    (_m, inner: string) => {
+      const lis = [...inner.matchAll(/<li\b[^>]*>([\s\S]*?)<\/li>/gi)]
+        .map((li) => {
+          const icon =
+            /e-(?:fas|far|fab|fal)-([a-z0-9-]+)/i.exec(li[1])?.[1] ?? 'dot';
+          const text = li[1]
+            .replace(/<svg[\s\S]*?<\/svg>/gi, '')
+            .replace(/<[^>]+>/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+          return text ? `<li>[[icon:${icon}]]${text}</li>` : '';
+        })
+        .join('');
+      return lis ? `<ul>${lis}</ul>` : '';
+    }
+  );
+
+  // Elementor icon-box widgets → sentinel paragraphs the parser groups into an
+  // icon grid. Icons here are decorative FontAwesome glyphs; we map the FA class
+  // when present, else use a neutral default. Title text is kept.
+  out = out.replace(
+    /<(h[1-6]|div|span|p)\b[^>]*class="[^"]*elementor-icon-box-title[^"]*"[^>]*>([\s\S]*?)<\/\1>/gi,
+    (_m, _tag: string, inner: string) => {
+      const text = inner.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+      return text ? `<p>[[iconbox]]${text}</p>` : '';
+    }
+  );
+
+  // Elementor testimonials → sentinel paragraphs the parser groups into a
+  // testimonial carousel. Each slide has quote text + name + role, in that order.
+  const tclean = (s: string) => s.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  out = out.replace(
+    /<(div|p|span|h[1-6])\b[^>]*class="[^"]*elementor-testimonial__text[^"]*"[^>]*>([\s\S]*?)<\/\1>/gi,
+    (_m, _t, inner: string) => { const x = tclean(inner); return x ? `<p>[[quote]]${x}</p>` : ''; }
+  );
+  out = out.replace(
+    /<(div|p|span|h[1-6])\b[^>]*class="[^"]*elementor-testimonial__name[^"]*"[^>]*>([\s\S]*?)<\/\1>/gi,
+    (_m, _t, inner: string) => { const x = tclean(inner); return x ? `<p>[[qname]]${x}</p>` : ''; }
+  );
+  out = out.replace(
+    /<(div|p|span|h[1-6])\b[^>]*class="[^"]*elementor-testimonial__title[^"]*"[^>]*>([\s\S]*?)<\/\1>/gi,
+    (_m, _t, inner: string) => { const x = tclean(inner); return x ? `<p>[[qtitle]]${x}</p>` : ''; }
+  );
+
   // Drop whole blocks we never want.
   out = out.replace(/<(script|style|noscript|iframe|form|button|svg)[^>]*>[\s\S]*?<\/\1>/gi, '');
   // Drop self-closing / void junk.
   out = out.replace(/<(input|source|track)[^>]*\/?>/gi, '');
   // Elementor comments.
   out = out.replace(/<!--[\s\S]*?-->/g, '');
+
+  // Recover Elementor heading widgets as semantic headings. Elementor often
+  // renders headings as <div class="elementor-heading-title"> (not <h2>/<h3>),
+  // which would otherwise unwrap to plain body text. Keep an existing semantic
+  // tag; map div/p/span heading widgets to <h3> when short, else a paragraph
+  // (long "headings" are really lead copy).
+  out = out.replace(
+    /<(h[1-6]|div|p|span)\b[^>]*\bclass="[^"]*elementor-heading-title[^"]*"[^>]*>([\s\S]*?)<\/\1>/gi,
+    (_m, tag: string, inner: string) => {
+      const text = inner.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+      if (!text) return '';
+      const t = tag.toLowerCase();
+      if (/^h[1-6]$/.test(t)) return `<${t}>${inner}</${t}>`;
+      return text.split(' ').length <= 12 ? `<h3>${inner}</h3>` : `<p>${inner}</p>`;
+    }
+  );
 
   // Demote H1 to H2 (hero already shows the H1).
   out = out.replace(/<(\/?)h1(\s[^>]*)?>/gi, '<$1h2>');

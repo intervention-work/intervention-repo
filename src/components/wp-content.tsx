@@ -1,6 +1,9 @@
 import type { ReactNode } from 'react';
 import styles from './wp-prose.module.css';
 import { Carousel } from './carousel';
+import { Heading } from './heading';
+import { IconList } from './icon-list';
+import { Accordion } from './accordion';
 import {
   parseBlocks,
   groupSections,
@@ -59,12 +62,7 @@ function Card({ card }: { card: CardData }) {
           <img src={card.image.src} alt={card.image.alt} loading="lazy" className="h-16 w-auto object-contain" />
         </div>
       )}
-      <h3
-        className="font-display text-xl leading-snug text-ink"
-        style={{ fontVariationSettings: '"opsz" 32, "SOFT" 55, "WONK" 0' }}
-      >
-        {card.heading}
-      </h3>
+      <Heading level={3}>{card.heading}</Heading>
       {card.bodyHtml && (
         <div
           className={`${styles.prose} mt-3 flex-1 text-[15px]`}
@@ -105,14 +103,39 @@ function CardGroup({ cards }: { cards: CardData[] }) {
   );
 }
 
+function Testimonials({ items }: { items: Array<{ quote: string; name: string; role: string }> }) {
+  const cards = items.map((t, i) => (
+    <figure
+      key={i}
+      className="flex h-full flex-col rounded-2xl border border-border bg-white p-7"
+    >
+      <blockquote
+        className="flex-1 font-display text-lg leading-relaxed text-ink"
+        style={{ fontVariationSettings: '"opsz" 28, "SOFT" 50, "WONK" 0' }}
+      >
+        “{t.quote}”
+      </blockquote>
+      {(t.name || t.role) && (
+        <figcaption className="mt-5 border-t border-border pt-4 font-sans">
+          {t.name && <span className="block text-sm font-semibold text-ink">{t.name}</span>}
+          {t.role && <span className="block text-sm text-ink-muted">{t.role}</span>}
+        </figcaption>
+      )}
+    </figure>
+  ));
+  // Many → carousel; one/two → grid.
+  if (items.length >= 3) return <Carousel>{cards}</Carousel>;
+  return (
+    <div className={`grid grid-cols-1 gap-6 ${items.length === 2 ? 'sm:grid-cols-2' : ''}`}>
+      {cards}
+    </div>
+  );
+}
+
 function BlockView({ block }: { block: Block }) {
   switch (block.kind) {
     case 'heading':
-      return block.level === 3 ? (
-        <h3 className={styles.h3Standalone} dangerouslySetInnerHTML={{ __html: block.html }} />
-      ) : (
-        <h4 className={styles.h4Standalone} dangerouslySetInnerHTML={{ __html: block.html }} />
-      );
+      return <Heading level={block.level} html={block.html} />;
     case 'paragraph':
       return (
         <div className={styles.prose} dangerouslySetInnerHTML={{ __html: `<p>${block.html}</p>` }} />
@@ -158,6 +181,14 @@ function BlockView({ block }: { block: Block }) {
     }
     case 'card-group':
       return <CardGroup cards={block.cards} />;
+    case 'icon-list':
+      return <IconList items={block.items} />;
+    case 'divider':
+      return <hr className="border-0 border-t border-border" />;
+    case 'accordion':
+      return <Accordion items={block.items} />;
+    case 'testimonials':
+      return <Testimonials items={block.items} />;
     case 'section-heading':
       return null;
   }
@@ -184,17 +215,26 @@ function renderBlocks(blocks: Block[]): ReactNode[] {
     if (b.kind === 'image') {
       const group: Block[] = [];
       while (i < blocks.length && blocks[i].kind === 'image') group.push(blocks[i++]);
-      out.push(
-        group.length > 1 ? (
+      if (group.length >= 5) {
+        // Logo/image carousel.
+        out.push(
+          <Carousel key={`img-${i}`}>
+            {group.map((g, k) => (
+              <BlockView key={k} block={g} />
+            ))}
+          </Carousel>
+        );
+      } else if (group.length > 1) {
+        out.push(
           <div key={`img-${i}`} className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             {group.map((g, k) => (
               <BlockView key={k} block={g} />
             ))}
           </div>
-        ) : (
-          <BlockView key={`img-${i}`} block={group[0]} />
-        )
-      );
+        );
+      } else {
+        out.push(<BlockView key={`img-${i}`} block={group[0]} />);
+      }
       continue;
     }
     out.push(<BlockView key={i} block={b} />);
@@ -212,7 +252,7 @@ export function WpContent({ html }: { html: string }) {
     <div className="space-y-10">
       {sections.map((section, idx) => (
         <section key={idx} className="space-y-5">
-          {section.heading && <h2 className={styles.h2Section}>{section.heading}</h2>}
+          {section.heading && <Heading level={2}>{section.heading}</Heading>}
           {renderBlocks(section.blocks)}
         </section>
       ))}

@@ -72,7 +72,10 @@ export function DetailPage({
               )}
             </div>
 
-            {detail.faq && detail.faq.length > 0 && (
+            {/* Only render the ACF faq when there's no WP body — the body is the
+                source of truth and already carries the FAQ (as an accordion), so
+                rendering both duplicates it. */}
+            {!body && detail.faq && detail.faq.length > 0 && (
               <div className="mt-16 border-t border-border pt-14">
                 <FaqList items={detail.faq} />
               </div>

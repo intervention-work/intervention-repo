@@ -1,26 +1,35 @@
-/* Standalone heading templates used by <WpContent>. */
+/* Canonical heading templates (rendered via <Heading>). Distinct, consistent
+   hierarchy across every page. scroll-margin keeps anchor jumps clear of the
+   fixed nav. */
 .h2Section {
   font-family: var(--font-display), Georgia, serif;
-  font-variation-settings: "opsz" 60, "SOFT" 55, "WONK" 0;
+  font-variation-settings: "opsz" 72, "SOFT" 55, "WONK" 0;
   color: var(--color-ink, #111827);
-  font-size: clamp(1.7rem, 3vw, 2.4rem);
-  line-height: 1.15;
-  letter-spacing: -0.01em;
+  font-size: clamp(1.9rem, 3.2vw, 2.6rem);
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+  scroll-margin-top: 6rem;
 }
 
 .h3Standalone {
   font-family: var(--font-display), Georgia, serif;
-  font-variation-settings: "opsz" 36, "SOFT" 55, "WONK" 0;
+  font-variation-settings: "opsz" 40, "SOFT" 55, "WONK" 0;
   color: var(--color-ink, #111827);
-  font-size: clamp(1.25rem, 1.8vw, 1.55rem);
-  line-height: 1.3;
+  font-size: clamp(1.4rem, 2.1vw, 1.85rem);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  margin-top: 0.5rem;
+  scroll-margin-top: 6rem;
 }
 
 .h4Standalone {
   font-family: var(--font-sans), system-ui, sans-serif;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--color-ink, #111827);
-  font-size: 1.1rem;
+  font-size: 1.2rem;
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+  scroll-margin-top: 6rem;
 }
 
 .quote {

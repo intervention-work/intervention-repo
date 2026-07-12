@@ -43,6 +43,14 @@ function blockText(b: ReturnType<typeof parseBlocks>[number]): string {
       return b.cards
         .map((c) => `${c.heading} ${stripTags(c.bodyHtml)} ${c.button?.label ?? ''}`)
         .join(' ');
+    case 'icon-list':
+      return b.items.map((i) => i.label).join(' ');
+    case 'divider':
+      return '';
+    case 'accordion':
+      return b.items.map((i) => `${i.title} ${stripTags(i.bodyHtml)}`).join(' ');
+    case 'testimonials':
+      return b.items.map((i) => `${i.quote} ${i.name} ${i.role}`).join(' ');
   }
 }
 
