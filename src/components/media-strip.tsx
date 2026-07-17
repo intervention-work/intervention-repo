@@ -25,7 +25,6 @@ function Row() {
       {OUTLETS.map((outlet, i) => (
         <li
           key={`${outlet}-${i}`}
-          style={{ fontVariationSettings: '"opsz" 24, "SOFT" 40, "WONK" 0' }}
         >
           {outlet}
         </li>

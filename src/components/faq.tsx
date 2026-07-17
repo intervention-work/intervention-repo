@@ -81,12 +81,11 @@ export function Faq() {
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="text-center"
         >
-          <p className="font-sans text-[13px] tracking-[0.22em] uppercase text-sage-500">
+          <p className="font-sans text-sm tracking-[0.22em] uppercase text-sage-500">
             FAQ
           </p>
           <h2
             className="mt-4 font-display text-3xl leading-[1.1] text-ink md:text-4xl lg:text-[2.75rem]"
-            style={{ fontVariationSettings: '"opsz" 72, "SOFT" 60, "WONK" 0' }}
           >
             Frequently asked questions.
           </h2>
@@ -150,7 +149,7 @@ export function Faq() {
                 className="border-b border-border"
               >
                 <Accordion.Header>
-                  <Accordion.Trigger className="group flex w-full items-center justify-between gap-4 py-5 text-left font-sans text-lg text-ink transition-colors duration-200 hover:text-sage-500">
+                  <Accordion.Trigger className="group flex w-full items-center justify-between gap-4 py-5 text-left font-sans text-xl text-ink transition-colors duration-200 hover:text-sage-500">
                     <span>{faq.q}</span>
                     <Plus
                       size={16}
@@ -159,7 +158,7 @@ export function Faq() {
                     />
                   </Accordion.Trigger>
                 </Accordion.Header>
-                <Accordion.Content className="overflow-hidden font-sans text-base leading-relaxed text-ink-body data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
+                <Accordion.Content className="overflow-hidden font-sans text-lg leading-relaxed text-ink-body data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
                   <p className="pr-8 pb-5">{faq.a}</p>
                 </Accordion.Content>
               </Accordion.Item>

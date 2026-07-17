@@ -24,7 +24,7 @@
   --color-border:  #E5EDE8;
 
   /* Fonts (provided via next/font in layout) */
-  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-display: var(--font-serif-display), Georgia, serif;
   --font-sans:    var(--font-dm-sans), system-ui, sans-serif;
 
   /* Easings */
@@ -65,11 +65,6 @@ body {
   background: #ffffff;
   color: var(--color-ink);
   font-family: var(--font-sans);
-}
-
-/* Hide native cursor on pointer-fine devices — custom cursor renders */
-@media (pointer: fine) {
-  *, *::before, *::after { cursor: none !important; }
 }
 
 ::selection {

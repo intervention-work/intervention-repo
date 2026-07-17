@@ -16,13 +16,12 @@ export function Testimonials() {
           viewport={viewport}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
         >
-          <p className="font-sans text-[13px] tracking-[0.22em] uppercase text-sage-500">
+          <p className="font-sans text-sm tracking-[0.22em] uppercase text-sage-500">
             In a family&apos;s words
           </p>
 
           <blockquote
             className="mt-6 font-display text-[1.75rem] leading-snug text-ink md:text-4xl"
-            style={{ fontVariationSettings: '"opsz" 96, "SOFT" 70, "WONK" 0' }}
           >
             &ldquo;I had been holding my breath for nine years. The morning
             after the intervention, I exhaled for the first time. My son is two

@@ -31,7 +31,6 @@ export function SectionLanding({ section }: { section: Section }) {
             viewport={viewport}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
             className="font-display text-2xl leading-[1.45] text-ink-body md:text-[1.6rem]"
-            style={{ fontVariationSettings: '"opsz" 32, "SOFT" 40, "WONK" 0' }}
           >
             {section.intro}
           </motion.p>
@@ -61,12 +60,11 @@ export function SectionLanding({ section }: { section: Section }) {
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             className="mx-auto max-w-2xl text-center"
           >
-            <p className="font-sans text-[13px] tracking-[0.22em] uppercase text-sage-500">
+            <p className="font-sans text-sm tracking-[0.22em] uppercase text-sage-500">
               {section.childrenEyebrow}
             </p>
             <h2
               className="mt-4 font-display text-3xl leading-[1.1] text-ink md:text-4xl lg:text-[2.75rem]"
-              style={{ fontVariationSettings: '"opsz" 72, "SOFT" 60, "WONK" 0' }}
             >
               {section.childrenTitle}
             </h2>
@@ -111,13 +109,10 @@ export function SectionLanding({ section }: { section: Section }) {
                   <div className="flex flex-1 flex-col p-7">
                     <h3
                       className="font-display text-xl leading-snug text-ink transition-colors duration-200 group-hover:text-sage-700 md:text-[1.35rem]"
-                      style={{
-                        fontVariationSettings: '"opsz" 48, "SOFT" 60, "WONK" 0',
-                      }}
                     >
                       {child.label}
                     </h3>
-                    <p className="mt-3 flex-1 font-sans text-sm leading-relaxed text-ink-muted">
+                    <p className="mt-3 flex-1 font-sans text-base leading-relaxed text-ink-muted">
                       {child.summary}
                     </p>
                     <span className="mt-5 inline-flex items-center gap-1.5 font-sans text-sm font-medium text-sage-500">

@@ -77,7 +77,7 @@ export function PageHero({
           transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1], delay: 0.08 }}
         >
           {eyebrow && (
-            <p className="mb-4 font-sans text-[11px] tracking-[0.24em] uppercase text-white/60">
+            <p className="mb-4 font-sans text-xs font-medium tracking-[0.24em] uppercase text-white/90">
               {eyebrow}
             </p>
           )}
@@ -85,7 +85,6 @@ export function PageHero({
             className="max-w-[840px] font-display leading-[1.06] text-white"
             style={{
               fontSize: 'clamp(2.1rem, 4vw, 3.75rem)',
-              fontVariationSettings: '"opsz" 96, "SOFT" 65, "WONK" 0',
             }}
           >
             {title}

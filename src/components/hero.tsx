@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { motion } from 'motion/react';
 import { ArrowRight, Phone, Shield, Check } from 'lucide-react';
-import { useSound } from '@/lib/sound';
 
 const STATS = [
   { n: '20+', label: 'Years' },
@@ -18,17 +17,13 @@ const CARD_BULLETS = [
 ];
 
 export function Hero() {
-  const { registerMedia } = useSound();
-
   return (
     <section
       id="top"
       className="relative h-screen min-h-[720px] w-full overflow-hidden bg-ink"
     >
-      {/* VIDEO BG — the water-droplet hero clip. Its ref registers with
-       * SoundProvider so the Sound toggle unmutes this element. */}
+      {/* VIDEO BG, the water-droplet hero clip (no audio track). */}
       <video
-        ref={registerMedia}
         autoPlay
         muted
         loop
@@ -61,7 +56,7 @@ export function Hero() {
         }}
         className="absolute bottom-10 left-6 z-10 w-[calc(100%-3rem)] max-w-[720px] md:bottom-14 md:left-12 md:w-[60%] lg:bottom-20 lg:left-16"
       >
-        <p className="mb-5 font-sans text-[11px] tracking-[0.24em] uppercase text-white/60">
+        <p className="mb-5 font-sans text-xs font-medium tracking-[0.24em] uppercase text-white/90">
           Nation&apos;s leading interventionists · Since 2003
         </p>
 
@@ -69,18 +64,11 @@ export function Hero() {
           className="font-display leading-[1.05] text-white"
           style={{
             fontSize: 'clamp(2.5rem, 4.8vw, 4.5rem)',
-            fontVariationSettings: '"opsz" 96, "SOFT" 65, "WONK" 0',
           }}
         >
-          When nothing else worked,{' '}
-          <em
-            className="not-italic"
-            style={{
-              color: '#A2C8B0',
-              fontVariationSettings: '"opsz" 96, "SOFT" 90, "WONK" 1',
-            }}
-          >
-            an intervention can change everything.
+          When nothing else has worked,{' '}
+          <em className="not-italic" style={{ color: '#A2C8B0' }}>
+            an intervention changes everything.
           </em>
         </h1>
 
@@ -112,7 +100,6 @@ export function Hero() {
               <p
                 className="font-display text-2xl leading-none text-white"
                 style={{
-                  fontVariationSettings: '"opsz" 32, "SOFT" 20, "WONK" 0',
                   fontFeatureSettings: '"tnum"',
                 }}
               >
@@ -149,9 +136,6 @@ export function Hero() {
           </p>
           <p
             className="mb-4 font-display text-lg leading-snug text-white md:text-xl"
-            style={{
-              fontVariationSettings: '"opsz" 32, "SOFT" 60, "WONK" 0',
-            }}
           >
             Talk to a specialist today.
           </p>

@@ -1,20 +1,18 @@
 import type { Metadata } from 'next';
-import { Fraunces, DM_Sans } from 'next/font/google';
+import { Source_Serif_4, DM_Sans } from 'next/font/google';
 import './globals.css';
 
-import { CustomCursor } from '@/components/custom-cursor';
 import { DevServiceWorkerCleanup } from '@/components/dev-sw-cleanup';
 import { Nav } from '@/components/nav';
 import { Footer } from '@/components/footer';
-import { SoundProvider } from '@/lib/sound';
 import { SettingsProvider } from '@/lib/settings';
 import { fetchGlobalSettings, fetchNavSections, fetchNav } from '@/lib/wp';
 
-const fraunces = Fraunces({
+const sourceSerif = Source_Serif_4({
   subsets: ['latin'],
-  variable: '--font-fraunces',
+  variable: '--font-serif-display',
   display: 'swap',
-  axes: ['opsz', 'SOFT', 'WONK'],
+  axes: ['opsz'],
 });
 
 const dmSans = DM_Sans({
@@ -48,18 +46,15 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${fraunces.variable} ${dmSans.variable}`}
+      className={`${sourceSerif.variable} ${dmSans.variable}`}
       suppressHydrationWarning
     >
       <body className="bg-white font-sans text-ink">
         <DevServiceWorkerCleanup />
         <SettingsProvider value={settings}>
-          <SoundProvider>
-            <CustomCursor />
-            <Nav sections={navSections} menu={navMenu} />
-            {children}
-            <Footer />
-          </SoundProvider>
+          <Nav sections={navSections} menu={navMenu} />
+          {children}
+          <Footer />
         </SettingsProvider>
       </body>
     </html>

@@ -17,7 +17,6 @@ export function FaqList({
     <div>
       <h2
         className="font-display text-2xl leading-tight text-ink md:text-3xl"
-        style={{ fontVariationSettings: '"opsz" 64, "SOFT" 60, "WONK" 0' }}
       >
         {title}
       </h2>
@@ -33,7 +32,6 @@ export function FaqList({
           >
             <dt
               className="font-display text-lg text-ink md:text-xl"
-              style={{ fontVariationSettings: '"opsz" 32, "SOFT" 60, "WONK" 0' }}
             >
               {item.q}
             </dt>

@@ -18,18 +18,17 @@ export function CtaBanner() {
           viewport={viewport}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
         >
-          <p className="font-sans text-[13px] tracking-[0.22em] uppercase text-sage-500">
+          <p className="font-sans text-sm tracking-[0.22em] uppercase text-sage-500">
             Free consultation
           </p>
           <h2
             className="mt-4 font-display text-4xl leading-[1.05] text-ink md:text-5xl lg:text-[3.5rem]"
-            style={{ fontVariationSettings: '"opsz" 96, "SOFT" 70, "WONK" 0' }}
           >
             The hardest part is
             <br />
             picking up the phone.
           </h2>
-          <p className="mt-5 font-sans text-base text-ink-muted md:text-lg">
+          <p className="mt-5 font-sans text-lg text-ink-muted md:text-xl">
             We make everything else possible. No pressure, no obligation.
           </p>
 

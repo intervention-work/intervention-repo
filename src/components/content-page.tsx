@@ -53,7 +53,6 @@ export function ContentPage({
               viewport={viewport}
               transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
               className="font-display text-2xl leading-[1.4] text-ink md:text-[1.7rem]"
-              style={{ fontVariationSettings: '"opsz" 32, "SOFT" 50, "WONK" 0' }}
             >
               {intro}
             </motion.p>

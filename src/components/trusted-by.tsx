@@ -41,16 +41,15 @@ export function TrustedBy() {
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
           className="mx-auto max-w-xl text-center"
         >
-          <p className="font-sans text-[13px] tracking-[0.22em] uppercase text-sage-500">
+          <p className="font-sans text-sm tracking-[0.22em] uppercase text-sage-500">
             Trusted by the field
           </p>
           <h2
             className="mt-4 font-display text-3xl leading-[1.1] text-ink md:text-4xl lg:text-[2.75rem]"
-            style={{ fontVariationSettings: '"opsz" 72, "SOFT" 60, "WONK" 0' }}
           >
             Twenty years. Ten thousand families.
           </h2>
-          <p className="mt-4 font-sans text-base text-ink-muted md:text-lg">
+          <p className="mt-4 font-sans text-lg text-ink-muted md:text-xl">
             Certified by the professional bodies that set the standard.
           </p>
         </motion.div>

@@ -54,7 +54,6 @@ export function BlogList({ posts }: { posts: PostCard[] }) {
               )}
               <h2
                 className="font-display text-xl leading-snug text-ink"
-                style={{ fontVariationSettings: '"opsz" 32, "SOFT" 55, "WONK" 0' }}
               >
                 {post.title}
               </h2>

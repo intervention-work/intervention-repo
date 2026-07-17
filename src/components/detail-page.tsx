@@ -58,9 +58,6 @@ export function DetailPage({
                 viewport={viewport}
                 transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
                 className="font-display text-2xl leading-[1.4] text-ink md:text-[1.7rem]"
-                style={{
-                  fontVariationSettings: '"opsz" 32, "SOFT" 50, "WONK" 0',
-                }}
               >
                 {detail.intro}
               </motion.p>
@@ -93,7 +90,6 @@ export function DetailPage({
               </div>
               <p
                 className="font-display text-xl leading-snug text-ink md:text-2xl"
-                style={{ fontVariationSettings: '"opsz" 32, "SOFT" 60, "WONK" 0' }}
               >
                 Talk to a specialist today.
               </p>

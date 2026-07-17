@@ -5,7 +5,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ChevronDown, Menu, X, Phone } from 'lucide-react';
-import { SoundToggle } from './sound-toggle';
 import { useSettings } from '@/lib/settings';
 import type { NavSection, NavNode } from '@/lib/wp';
 
@@ -189,9 +188,8 @@ export function Nav({
           })}
         </nav>
 
-        {/* RIGHT — sound, CTA, hamburger */}
+        {/* RIGHT: CTA, hamburger */}
         <div className="pointer-events-auto flex items-center gap-2">
-          <SoundToggle light={light} />
           <Link
             href="/contact"
             className={
@@ -255,9 +253,6 @@ export function Nav({
                     href={link.href}
                     onClick={() => setMobileOpen(false)}
                     className="block py-3 font-display text-2xl text-ink"
-                    style={{
-                      fontVariationSettings: '"opsz" 48, "SOFT" 55, "WONK" 0',
-                    }}
                   >
                     {link.label}
                   </Link>

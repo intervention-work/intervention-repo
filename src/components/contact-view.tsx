@@ -1,9 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { motion } from 'motion/react';
-import { Phone, Mail, Clock, Check } from 'lucide-react';
+import { Phone, Mail, Clock } from 'lucide-react';
 import { PageHero } from '@/components/page-hero';
+import { HubSpotContactForm } from '@/components/hubspot-form';
 import { useSettings } from '@/lib/settings';
 
 const IMAGE =
@@ -11,7 +10,6 @@ const IMAGE =
 
 export function ContactView() {
   const { phoneDisplay, phoneHref, email } = useSettings();
-  const [sent, setSent] = useState(false);
 
   return (
     <main>
@@ -29,108 +27,24 @@ export function ContactView() {
           <div>
             <h2
               className="font-display text-3xl leading-tight text-ink md:text-4xl"
-              style={{ fontVariationSettings: '"opsz" 72, "SOFT" 60, "WONK" 0' }}
             >
               Send us a message.
             </h2>
-            <p className="mt-4 font-sans text-base text-ink-muted md:text-lg">
+            <p className="mt-4 font-sans text-lg text-ink-muted md:text-xl">
               Tell us a little about what’s happening. A specialist will reach
               out — usually within the hour.
             </p>
 
-            {sent ? (
-              <motion.div
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                className="mt-10 flex items-start gap-4 rounded-3xl border border-sage-200 bg-sage-50 p-8"
-              >
-                <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sage-500 text-white">
-                  <Check size={18} strokeWidth={2.25} />
-                </span>
-                <div>
-                  <p
-                    className="font-display text-xl text-ink"
-                    style={{
-                      fontVariationSettings: '"opsz" 32, "SOFT" 60, "WONK" 0',
-                    }}
-                  >
-                    Thank you — your message is on its way.
-                  </p>
-                  <p className="mt-2 font-sans text-sm leading-relaxed text-ink-body">
-                    A specialist will be in touch shortly. If this is urgent,
-                    please call{' '}
-                    <a
-                      href={phoneHref}
-                      className="font-medium text-sage-700 underline underline-offset-2"
-                    >
-                      {phoneDisplay}
-                    </a>{' '}
-                    any time.
-                  </p>
-                </div>
-              </motion.div>
-            ) : (
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  setSent(true);
-                }}
-                className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2"
-              >
-                <Field label="Your name" htmlFor="name">
-                  <input
-                    id="name"
-                    name="name"
-                    type="text"
-                    required
-                    autoComplete="name"
-                    className={inputClass}
-                  />
-                </Field>
-                <Field label="Phone" htmlFor="phone">
-                  <input
-                    id="phone"
-                    name="phone"
-                    type="tel"
-                    required
-                    inputMode="tel"
-                    autoComplete="tel"
-                    className={inputClass}
-                  />
-                </Field>
-                <Field label="Email" htmlFor="email" full>
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    required
-                    autoComplete="email"
-                    className={inputClass}
-                  />
-                </Field>
-                <Field label="How can we help?" htmlFor="message" full>
-                  <textarea
-                    id="message"
-                    name="message"
-                    rows={5}
-                    className={`${inputClass} resize-none`}
-                  />
-                </Field>
-                <div className="sm:col-span-2">
-                  <button
-                    type="submit"
-                    className="inline-flex items-center justify-center rounded-full bg-sage-700 px-8 py-4 font-sans text-base font-medium text-white transition-colors duration-300 hover:bg-sage-900"
-                  >
-                    Send message
-                  </button>
-                  <p className="mt-4 font-sans text-xs text-ink-muted">
-                    Your information is confidential and will only be used to
-                    reach you about your inquiry.
-                  </p>
-                </div>
-              </form>
-            )}
+            <div className="relative mt-10">
+              <HubSpotContactForm
+                phoneDisplay={phoneDisplay}
+                phoneHref={phoneHref}
+              />
+              <p className="mt-4 font-sans text-xs text-ink-muted">
+                Your information is confidential and will only be used to
+                reach you about your inquiry.
+              </p>
+            </div>
           </div>
 
           {/* Contact details */}
@@ -138,7 +52,6 @@ export function ContactView() {
             <div className="rounded-3xl border border-border bg-surface p-8">
               <p
                 className="font-display text-xl text-ink md:text-2xl"
-                style={{ fontVariationSettings: '"opsz" 32, "SOFT" 60, "WONK" 0' }}
               >
                 Prefer to talk now?
               </p>
@@ -175,30 +88,6 @@ export function ContactView() {
         </div>
       </section>
     </main>
-  );
-}
-
-const inputClass =
-  'w-full rounded-xl border border-border bg-white px-4 py-3 font-sans text-sm text-ink outline-none transition-colors placeholder:text-ink-muted/60 focus:border-sage-400';
-
-function Field({
-  label,
-  htmlFor,
-  full,
-  children,
-}: {
-  label: string;
-  htmlFor: string;
-  full?: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <label htmlFor={htmlFor} className={full ? 'sm:col-span-2' : undefined}>
-      <span className="mb-2 block font-sans text-[13px] font-medium text-ink-body">
-        {label}
-      </span>
-      {children}
-    </label>
   );
 }
 

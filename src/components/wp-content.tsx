@@ -110,7 +110,6 @@ function Testimonials({ items }: { items: Array<{ quote: string; name: string; r
     >
       <blockquote
         className="flex-1 font-display text-lg leading-relaxed text-ink"
-        style={{ fontVariationSettings: '"opsz" 28, "SOFT" 50, "WONK" 0' }}
       >
         “{t.quote}”
       </blockquote>
@@ -157,7 +156,6 @@ function PricingCards({
           )}
           <p
             className="my-5 font-display text-5xl text-ink"
-            style={{ fontVariationSettings: '"opsz" 72, "SOFT" 40, "WONK" 0' }}
           >
             {c.price}
           </p>

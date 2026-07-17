@@ -26,7 +26,6 @@ export function ContentBlocks({ blocks }: { blocks: ContentBlock[] }) {
           {block.heading && (
             <h2
               className="font-display text-2xl leading-tight text-ink md:text-3xl"
-              style={{ fontVariationSettings: '"opsz" 64, "SOFT" 60, "WONK" 0' }}
             >
               {block.heading}
             </h2>
@@ -71,9 +70,6 @@ export function ContentBlocks({ blocks }: { blocks: ContentBlock[] }) {
                 >
                   <p
                     className="font-display text-3xl leading-none text-sage-700 md:text-4xl"
-                    style={{
-                      fontVariationSettings: '"opsz" 48, "SOFT" 40, "WONK" 0',
-                    }}
                   >
                     {stat.value}
                   </p>
@@ -94,9 +90,6 @@ export function ContentBlocks({ blocks }: { blocks: ContentBlock[] }) {
                 >
                   <h3
                     className="font-display text-lg text-ink md:text-xl"
-                    style={{
-                      fontVariationSettings: '"opsz" 32, "SOFT" 60, "WONK" 0',
-                    }}
                   >
                     {feature.title}
                   </h3>
@@ -121,9 +114,6 @@ export function ContentBlocks({ blocks }: { blocks: ContentBlock[] }) {
                   <div className="pt-1">
                     <h3
                       className="font-display text-lg text-ink md:text-xl"
-                      style={{
-                        fontVariationSettings: '"opsz" 32, "SOFT" 60, "WONK" 0',
-                      }}
                     >
                       {step.title}
                     </h3>
