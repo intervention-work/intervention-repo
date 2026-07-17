@@ -47,9 +47,9 @@ export function Footer() {
           {/* Brand */}
           <div>
             <Image
-              src="/brand/intervention.png"
+              src="/brand/intervention.svg"
               alt="intervention.com — a Change Institute service"
-              width={261}
+              width={191}
               height={44}
               unoptimized
               className="h-11 w-auto"

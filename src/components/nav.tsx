@@ -95,14 +95,34 @@ export function Nav({
       <div className="flex h-[72px] items-center justify-between gap-3 px-5 md:px-7 lg:px-9">
         {/* LEFT — logo lockup */}
         <Link href="/" aria-label="intervention.com — home" className="pointer-events-auto">
+          {/* Icon-only mark on mobile, in its own backdrop pill so it never
+              blends into whatever page content sits under the fixed header. */}
+          <div
+            className={
+              'flex h-10 w-10 items-center justify-center rounded-full border backdrop-blur-md transition-colors duration-300 sm:hidden ' +
+              (light
+                ? 'border-white/25 bg-white/15'
+                : 'border-border bg-white shadow-sm')
+            }
+          >
+            <Image
+              src={light ? '/brand/intervention-mark-rev.png' : '/brand/intervention-mark.png'}
+              alt="intervention.com"
+              width={38}
+              height={38}
+              priority
+              unoptimized
+              className="h-6 w-6"
+            />
+          </div>
           <Image
-            src={light ? '/brand/intervention-nav-rev.png' : '/brand/intervention-nav.png'}
+            src={light ? '/brand/intervention-nav-rev.svg' : '/brand/intervention-nav.svg'}
             alt="intervention.com"
-            width={225}
+            width={165}
             height={38}
             priority
             unoptimized
-            className="h-9 w-auto"
+            className="hidden h-9 w-auto sm:block"
           />
         </Link>
 
@@ -227,12 +247,12 @@ export function Nav({
               aria-label="intervention.com — home"
             >
               <Image
-                src="/brand/intervention-nav.png"
+                src="/brand/intervention-mark.png"
                 alt="intervention.com"
-                width={225}
+                width={38}
                 height={38}
                 unoptimized
-                className="h-9 w-auto"
+                className="h-9 w-9"
               />
             </Link>
             <button
