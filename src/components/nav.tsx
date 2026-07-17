@@ -96,9 +96,9 @@ export function Nav({
         {/* LEFT — logo lockup */}
         <Link href="/" aria-label="intervention.com — home" className="pointer-events-auto">
           <Image
-            src={light ? '/brand/intervention-nav-rev.svg' : '/brand/intervention-nav.svg'}
+            src={light ? '/brand/intervention-nav-rev.png' : '/brand/intervention-nav.png'}
             alt="intervention.com"
-            width={196}
+            width={225}
             height={38}
             priority
             unoptimized
@@ -227,9 +227,9 @@ export function Nav({
               aria-label="intervention.com — home"
             >
               <Image
-                src="/brand/intervention-nav.svg"
+                src="/brand/intervention-nav.png"
                 alt="intervention.com"
-                width={196}
+                width={225}
                 height={38}
                 unoptimized
                 className="h-9 w-auto"
