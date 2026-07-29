@@ -10,6 +10,8 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: `${section.label} — Intervention.com`,
     description: section.summary,
+    alternates: { canonical: '/services' },
+    openGraph: section.image ? { images: [{ url: section.image }] } : undefined,
   };
 }
 

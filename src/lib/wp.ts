@@ -411,6 +411,7 @@ export type WpPage = {
   slug: string;
   path: string;
   title: string;
+  excerpt: string;
   body: string;
 };
 
@@ -430,14 +431,15 @@ export async function fetchAllPagePaths(): Promise<string[]> {
 export async function fetchWpPage(slug: string): Promise<WpPage | null> {
   try {
     const pages = await wpFetch<
-      Array<{ slug: string; link: string; title: { rendered: string }; content: { rendered: string } }>
-    >(`/wp/v2/pages?slug=${encodeURIComponent(slug)}&_fields=slug,link,title,content`);
+      Array<{ slug: string; link: string; title: { rendered: string }; excerpt: { rendered: string }; content: { rendered: string } }>
+    >(`/wp/v2/pages?slug=${encodeURIComponent(slug)}&_fields=slug,link,title,excerpt,content`);
     if (!pages.length) return null;
     const p = pages[0];
     return {
       slug: p.slug,
       path: linkToPath(p.link),
       title: decodeEntities(p.title?.rendered ?? ''),
+      excerpt: stripTags(decodeEntities(p.excerpt?.rendered ?? '')).slice(0, 200),
       body: p.content?.rendered ?? '',
     };
   } catch {
@@ -571,14 +573,15 @@ export type PostCard = {
 export async function fetchWpPost(slug: string): Promise<WpPage | null> {
   try {
     const posts = await wpFetch<
-      Array<{ slug: string; link: string; title: { rendered: string }; content: { rendered: string } }>
-    >(`/wp/v2/posts?slug=${encodeURIComponent(slug)}&_fields=slug,link,title,content`);
+      Array<{ slug: string; link: string; title: { rendered: string }; excerpt: { rendered: string }; content: { rendered: string } }>
+    >(`/wp/v2/posts?slug=${encodeURIComponent(slug)}&_fields=slug,link,title,excerpt,content`);
     if (!posts.length) return null;
     const p = posts[0];
     return {
       slug: p.slug,
       path: linkToPath(p.link),
       title: decodeEntities(p.title?.rendered ?? ''),
+      excerpt: stripTags(decodeEntities(p.excerpt?.rendered ?? '')).slice(0, 200),
       body: p.content?.rendered ?? '',
     };
   } catch {

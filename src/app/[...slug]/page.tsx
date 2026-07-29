@@ -38,7 +38,11 @@ export async function generateMetadata(
   const { slug } = await props.params;
   const page = await loadEntry(slug[slug.length - 1]);
   if (!page) return {};
-  return { title: `${page.title} — Intervention.com` };
+  return {
+    title: `${page.title} — Intervention.com`,
+    description: page.excerpt || undefined,
+    alternates: { canonical: `/${slug.join('/')}` },
+  };
 }
 
 export default async function CatchAllWpPage(props: PageProps<'/[...slug]'>) {

@@ -21,15 +21,16 @@ const dmSans = DM_Sans({
   display: 'swap',
 });
 
+const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://intervention.com';
+
 export const metadata: Metadata = {
-  title:
-    'Intervention — Compassionate, certified interventions for families | A Change Institute Brand',
-  description:
-    'Nation’s leading interventionists since 2003. Free, confidential consultation for addiction, mental health, and eating disorders. Available 24/7 nationwide.',
+  metadataBase: new URL(SITE),
+  title: "Intervention — Compassionate, certified interventions for families | A Change Institute Brand",
+  description: "Nation’s leading interventionists since 2003. Free, confidential consultation for addiction, mental health, and eating disorders. Available 24/7 nationwide.",
+  alternates: { canonical: '/' },
   openGraph: {
-    title: 'Intervention — Help families find their way forward',
-    description:
-      'Compassionate, structured interventions for substance use, mental health, and behavioral challenges. Free consultation. Nationwide.',
+    title: "Intervention — Help families find their way forward",
+    description: "Compassionate, structured interventions for substance use, mental health, and behavioral challenges. Free consultation. Nationwide.",
     type: 'website',
   },
 };

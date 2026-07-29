@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Page and Route Inventory</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      white-space: pre-wrap;
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Page and Route Inventory</h1>
+</header>
+<h1 id="page-and-route-inventory-wordpress---next.js">Page and Route
+Inventory (WordPress -&gt; Next.js)</h1>
+<p>Generated 2026-07-17 from the WordPress REST API
+(interventiodev.wpenginepowered.com).</p>
+<h2 id="where-the-131-pages-come-from">Where the “131 pages” come
+from</h2>
+<p>The site does not have 131 hand-built pages. The number is the
+WordPress long tail:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Source</th>
+<th>Count</th>
+<th>Route on the Next.js site</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>WP Pages (native)</td>
+<td>75</td>
+<td>Mirrored path, rendered by the catch-all or a dedicated shell</td>
+</tr>
+<tr>
+<td>WP Posts (blog)</td>
+<td>47</td>
+<td>/intervention-blog/[slug] via the catch-all</td>
+</tr>
+<tr>
+<td>detail_page CPT (service cards)</td>
+<td>13</td>
+<td>/intervention/[slug] or /services/[slug]</td>
+</tr>
+<tr>
+<td><strong>Total WP entries</strong></td>
+<td><strong>135</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Every entry flows automatically through the WP -&gt; sanitize -&gt;
+parse -&gt; WpContent pipeline (nothing is hardcoded), so “migrating” a
+page means its template renders it, not that anyone rebuilt it. The
+crawl that found ~131 URLs is this same set minus a few unlinked utility
+pages.</p>
+<h2 id="the-5-templates-already-in-place-reused-across-all-pages">The 5
+templates (already in place, reused across all pages)</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>#</th>
+<th>Template</th>
+<th>Component</th>
+<th>Used by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Home</td>
+<td>src/app/page.tsx (Hero, HowItWorks, Testimonials, FAQ, CTA)</td>
+<td>/ only</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Section landing (hub)</td>
+<td>SectionLanding</td>
+<td>/intervention, /services, /resources</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Service detail</td>
+<td>DetailPage</td>
+<td>13 detail_page CPTs under /intervention/* and /services/*</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Content page (generic WP page)</td>
+<td>ContentPage + WpContent blocks</td>
+<td>The bulk: state/city SEO pages, does-my-X pages, about, insurance,
+family-class, legal</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Blog</td>
+<td>BlogList index + ContentPage prose for posts</td>
+<td>/intervention-blog + 47 posts</td>
+</tr>
+</tbody>
+</table>
+<p>Contact is a one-off shell (ContactView) with the HubSpot form
+embed.</p>
+<h2 id="full-inventory">Full inventory</h2>
+<h3 id="core-pages-template-1-2-4-one-off-contact">Core pages (template
+1, 2, 4, one-off contact)</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Route</th>
+<th>Title</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/</td>
+<td>Find an Interventionist &amp; Help Your Loved One Get Better</td>
+<td></td>
+</tr>
+<tr>
+<td>/about-us/</td>
+<td>About Us: Our Mission and Values</td>
+<td>Older duplicate of /about. Redirect to /about.</td>
+</tr>
+<tr>
+<td>/about-us/faq/</td>
+<td>FAQ</td>
+<td></td>
+</tr>
+<tr>
+<td>/about/</td>
+<td>About</td>
+<td></td>
+</tr>
+<tr>
+<td>/breakfree-journey/</td>
+<td>Breakfree Journey</td>
+<td>Also exists as a detail_page service card. Keep one canonical
+page.</td>
+</tr>
+<tr>
+<td>/care-unit-assessment/</td>
+<td>CARE Unit Assessment</td>
+<td>Also exists as a detail_page service card.</td>
+</tr>
+<tr>
+<td>/contact/</td>
+<td>Contact</td>
+<td></td>
+</tr>
+<tr>
+<td>/does-my-child-need-a-drug-intervention/</td>
+<td>Does My Child Need a Drug Intervention?</td>
+<td></td>
+</tr>
+<tr>
+<td>/does-my-employee-need-a-drug-intervention/</td>
+<td>Does My Employee Need a Drug Intervention?</td>
+<td></td>
+</tr>
+<tr>
+<td>/does-my-friend-need-a-drug-intervention/</td>
+<td>Does My Friend Need a Drug Intervention?</td>
+<td></td>
+</tr>
+<tr>
+<td>/does-my-loved-one-need-a-drug-intervention/</td>
+<td>Does My Loved One Need A Drug Intervention?</td>
+<td></td>
+</tr>
+<tr>
+<td>/does-my-parent-need-a-drug-intervention/</td>
+<td>Does My Parent Need a Drug Intervention?</td>
+<td></td>
+</tr>
+<tr>
+<td>/does-my-sibling-need-a-drug-intervention/</td>
+<td>Does My Sibling Need a Drug Intervention?</td>
+<td></td>
+</tr>
+<tr>
+<td>/eyewitness-information/</td>
+<td>Eyewitness Information</td>
+<td></td>
+</tr>
+<tr>
+<td>/family-class/</td>
+<td>Family Class</td>
+<td></td>
+</tr>
+<tr>
+<td>/free-resources/</td>
+<td>Free Resources</td>
+<td>Overlaps /resources. Consolidate.</td>
+</tr>
+<tr>
+<td>/georgia/</td>
+<td>Addiction Intervention in Georgia</td>
+<td>Stray duplicate of /interventionists-by-state/georgia.
+Redirect.</td>
+</tr>
+<tr>
+<td>/insurance/</td>
+<td>Insurance</td>
+<td></td>
+</tr>
+<tr>
+<td>/intervention-blog/</td>
+<td>Intervention Blog</td>
+<td></td>
+</tr>
+<tr>
+<td>/intervention-help/</td>
+<td>Intervention Specialists</td>
+<td>Legacy landing overlapping /intervention. Review, likely
+redirect.</td>
+</tr>
+<tr>
+<td>/intervention-help/thank-you/</td>
+<td>Thank You</td>
+<td></td>
+</tr>
+<tr>
+<td>/intervention/</td>
+<td>Comprehensive Intervention Services: Your Path to Recovery</td>
+<td></td>
+</tr>
+<tr>
+<td>/iteam-information/</td>
+<td>iTeam Information</td>
+<td></td>
+</tr>
+<tr>
+<td>/recovery-care-management/</td>
+<td>Recovery Care Management</td>
+<td>Also exists as a detail_page service card.</td>
+</tr>
+<tr>
+<td>/recovery-coach-companion/</td>
+<td>Recovery Coach Companion</td>
+<td>Also exists as a detail_page service card.</td>
+</tr>
+<tr>
+<td>/resources-3/</td>
+<td>Resources for Families and Individuals</td>
+<td>Elementor duplicate of /resources (“resources-3” slug). Redirect to
+/resources.</td>
+</tr>
+<tr>
+<td>/resources-3/on-set-care-unit/</td>
+<td>On Set Care Unit</td>
+<td></td>
+</tr>
+<tr>
+<td>/resources-3/podcast/</td>
+<td>Podcast</td>
+<td></td>
+</tr>
+<tr>
+<td>/resources/</td>
+<td>Resources</td>
+<td></td>
+</tr>
+<tr>
+<td>/senior-support-services/</td>
+<td>Senior Support Services</td>
+<td>Also exists as a detail_page service card.</td>
+</tr>
+<tr>
+<td>/services/</td>
+<td>Services</td>
+<td></td>
+</tr>
+<tr>
+<td>/trainings/</td>
+<td>Trainings</td>
+<td></td>
+</tr>
+<tr>
+<td>/trainings/breakfree-addiction-intervention-skills-training/</td>
+<td>BreakFree Intervention Skills Training</td>
+<td></td>
+</tr>
+<tr>
+<td>/trainings/breakfree-intervention-skills-training/</td>
+<td>Breakfree Intervention Skills Training</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3
+id="interventionists-by-state-tree-25-pages-template-4">Interventionists
+by state tree (25 pages, template 4)</h3>
+<p>State pages and city pages. High SEO value, identical structure, all
+render via the catch-all with ContentPage.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Route</th>
+<th>Title</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/interventionists-by-state/</td>
+<td>Interventionists by State</td>
+<td></td>
+</tr>
+<tr>
+<td>/interventionists-by-state/california/</td>
+<td>Drug Intervention Services in California</td>
+<td></td>
+</tr>
+<tr>
+<td>/interventionists-by-state/california/los-angeles/</td>
+<td>Professional Intervention Services in Los Angeles, CA</td>
+<td></td>
+</tr>
+<tr>
+<td>/interventionists-by-state/colorado/</td>
+<td>Addiction Intervention in Colorado</td>
+<td></td>
+</tr>
+<tr>
+<td>/interventionists-by-state/connecticut/</td>
+<td>Finding a Professional Interventionist in Connecticut: A Guide for
+Families</td>
+<td></td>
+</tr>
+<tr>
+<td>/interventionists-by-state/florida/</td>
+<td>Addiction Intervention in Florida</td>
+<td></td>
+</tr>
+<tr>
+<td>/interventionists-by-state/illinois/</td>
+<td>Addiction Intervention in Illinois</td>
+<td></td>
+</tr>
+<tr>
+<td>/interventionists-by-state/illinois/chicago/</td>
+<td>Navigating Recovery in the Windy City: Professional Intervention
+Services in Chicago</td>
+<td></td>
+</tr>
+<tr>
+<td>/interventionists-by-state/iowa/</td>
+<td>A New Perspective on Recovery: Professional Intervention in
+Iowa</td>
+<td></td>
+</tr>
+<tr>
+<td>/interventionists-by-state/kansas/</td>
+<td>Navigating the Path to Recovery: Professional Intervention Services
+in Kansas</td>
+<td></td>
+</tr>
+<tr>
+<td>/interventionists-by-state/maine/</td>
+<td>Restoring Hope in the Pine Tree State: Professional Intervention
+Services in Maine</td>
+<td></td>
+</tr>
+<tr>
+<td>/interventionists-by-state/massachusetts/</td>
+<td>Addiction Intervention in Massachusetts</td>
+<td></td>
+</tr>
+<tr>
+<td>/interventionists-by-state/michigan/</td>
+<td>Addiction Intervention in Michigan</td>
+<td></td>
+</tr>
+<tr>
+<td>/interventionists-by-state/minnesota/</td>
+<td>Finding a Path Forward: Professional Intervention Services in
+Minnesota</td>
+<td></td>
+</tr>
+<tr>
+<td>/interventionists-by-state/missouri/</td>
+<td>Addiction Intervention in Missouri</td>
+<td></td>
+</tr>
+<tr>
+<td>/interventionists-by-state/new-jersey/</td>
+<td>Restoring Balance in the Garden State: Professional Intervention
+Services in New Jersey</td>
+<td></td>
+</tr>
+<tr>
+<td>/interventionists-by-state/new-jersey/newark/</td>
+<td>Professional Intervention Services in Newark, New Jersey</td>
+<td></td>
+</tr>
+<tr>
+<td>/interventionists-by-state/new-york/</td>
+<td>Addiction Intervention in New York</td>
+<td></td>
+</tr>
+<tr>
+<td>/interventionists-by-state/new-york/new-york-city/</td>
+<td>Professional Intervention Services in New York City</td>
+<td></td>
+</tr>
+<tr>
+<td>/interventionists-by-state/pennsylvania/</td>
+<td>Addiction Intervention in Pennsylvania</td>
+<td></td>
+</tr>
+<tr>
+<td>/interventionists-by-state/tennessee/</td>
+<td>Addiction Intervention in Tennessee</td>
+<td></td>
+</tr>
+<tr>
+<td>/interventionists-by-state/washington-dc/</td>
+<td>A New Perspective on Recovery: Professional Intervention in
+Washington DC</td>
+<td></td>
+</tr>
+<tr>
+<td>/interventionists-by-state/washington/</td>
+<td>Addiction Intervention in Washington</td>
+<td></td>
+</tr>
+<tr>
+<td>/interventionists-by-state/wisconsin/</td>
+<td>Restoring Wellness in the Badger State: Professional Intervention
+Services in Wisconsin</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3
+id="intervention-children-7-pages-template-4-with-detailpage-fallback">/intervention
+children (7 pages, template 4 with DetailPage fallback)</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Route</th>
+<th>Title</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/intervention/alcohol-intervention/</td>
+<td>Alcohol Interventions: Professional Help from a Licensed
+Interventionist</td>
+<td></td>
+</tr>
+<tr>
+<td>/intervention/complex-trauma/</td>
+<td>Trauma Intervention Programs for Complex Trauma</td>
+<td></td>
+</tr>
+<tr>
+<td>/intervention/drug-alcohol-intervention/</td>
+<td>Drug or Alcohol Intervention Services</td>
+<td></td>
+</tr>
+<tr>
+<td>/intervention/drug-intervention/</td>
+<td>Comprehensive Guide to Drug Interventions</td>
+<td></td>
+</tr>
+<tr>
+<td>/intervention/early-autism/</td>
+<td>Early Autism Intervention</td>
+<td></td>
+</tr>
+<tr>
+<td>/intervention/eating-disorder/</td>
+<td>Eating Disorder Intervention Services</td>
+<td></td>
+</tr>
+<tr>
+<td>/intervention/mental-health-crisis/</td>
+<td>Mental Health Interventionist: Licensed Intervention
+Specialists</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="service-cards-detail_page-cpt-13-entries-template-3">Service
+cards, detail_page CPT (13 entries, template 3)</h3>
+<table>
+<thead>
+<tr>
+<th>Title</th>
+<th>menu_order</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Interventionists By State</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Senior Support Services</td>
+<td>1</td>
+</tr>
+<tr>
+<td>On-Set CARE Unit</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Alcohol Intervention</td>
+<td>2</td>
+</tr>
+<tr>
+<td>CARE Unit Assessment</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Drug Intervention</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Recovery Care Management</td>
+<td>4</td>
+</tr>
+<tr>
+<td>Eating Disorder Intervention</td>
+<td>4</td>
+</tr>
+<tr>
+<td>Recovery Coach Companion</td>
+<td>5</td>
+</tr>
+<tr>
+<td>Mental Health Crisis Intervention</td>
+<td>5</td>
+</tr>
+<tr>
+<td>Early Autism Intervention</td>
+<td>6</td>
+</tr>
+<tr>
+<td>BreakFree Journey</td>
+<td>7</td>
+</tr>
+<tr>
+<td>Complex Trauma Intervention</td>
+<td>7</td>
+</tr>
+</tbody>
+</table>
+<h3 id="legal-template-4">Legal (template 4)</h3>
+<table>
+<thead>
+<tr>
+<th>Route</th>
+<th>Title</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/privacy-policy/</td>
+<td>Privacy Policy: Your Information Matters</td>
+<td></td>
+</tr>
+<tr>
+<td>/terms-and-conditions/</td>
+<td>Terms And Conditions</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="blog-posts-47-template-5">Blog posts (47, template 5)</h3>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>Route</th>
+<th>Title</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/intervention-blog/10-relatable-recovery-memes/</td>
+<td>The Top 10 Most Hilarious and Relatable Recovery Memes for Anyone
+with Addiction or Mental Illness</td>
+</tr>
+<tr>
+<td>/intervention-blog/5-alarming-xanax-facts/</td>
+<td>5 Alarming Xanax Facts</td>
+</tr>
+<tr>
+<td>/intervention-blog/alcohol-interventions-step-by-step-guidance/</td>
+<td>Alcohol Interventions: Step-by-Step Guidance for Helping a Loved
+One</td>
+</tr>
+<tr>
+<td>/intervention-blog/alcohol-interventions-support-loved-ones-breaking-free-from-addiction/</td>
+<td>Alcohol Interventions: How to Support Loved Ones in Breaking Free
+from Addiction</td>
+</tr>
+<tr>
+<td>/intervention-blog/best-interventionist-in-the-united-states-finding-compassionate-and-effective-help/</td>
+<td>Best Interventionist in the United States: Finding Compassionate and
+Effective Help</td>
+</tr>
+<tr>
+<td>/intervention-blog/better-intervention-help-someone-you-love/</td>
+<td>A Better Intervention: Helping Someone You Love</td>
+</tr>
+<tr>
+<td>/intervention-blog/comprehensive-guide-to-drug-intervention-california-services/</td>
+<td>Comprehensive Guide to Drug Intervention California Services</td>
+</tr>
+<tr>
+<td>/intervention-blog/defusing-the-tasty-timebomb/</td>
+<td>Defusing the Tasty Timebomb &amp; Loving the Lungs You’re With</td>
+</tr>
+<tr>
+<td>/intervention-blog/differences-bulimia-anorexia/</td>
+<td>Differences between Bulimia and Anorexia</td>
+</tr>
+<tr>
+<td>/intervention-blog/different-types-of-addiction-intervention/</td>
+<td>What Are the Different Types of Addiction Intervention</td>
+</tr>
+<tr>
+<td>/intervention-blog/drug-intervention-california-finding-effective-solutions-for-your-loved-one/</td>
+<td>Drug Intervention California: Finding Effective Solutions for Your
+Loved One</td>
+</tr>
+<tr>
+<td>/intervention-blog/drug-interventions-lgbtqia-tailored-support-inclusive-addiction-recovery/</td>
+<td>Drug Interventions for LGBTQIA+: Tailored Support for Inclusive
+Addiction Recovery</td>
+</tr>
+<tr>
+<td>/intervention-blog/eating-disorder-intervention-essential-steps-to-help-save-lives/</td>
+<td>Eating Disorder Intervention: Essential Steps to Help Save
+Lives</td>
+</tr>
+<tr>
+<td>/intervention-blog/familys-guide-alcohol-interventions/</td>
+<td>A Family’s Guide to Alcohol Interventions: Preparing for
+Success</td>
+</tr>
+<tr>
+<td>/intervention-blog/how-alcohol-robs-most-valuable-commodity/</td>
+<td>How Alcohol Robs Us of Our Most Valuable Commodity: Time</td>
+</tr>
+<tr>
+<td>/intervention-blog/how-to-choose-the-right-drug-interventionist/</td>
+<td>How to Choose the Right Drug Interventionist for Your Family’s
+Needs</td>
+</tr>
+<tr>
+<td>/intervention-blog/how-to-fix-eating-habits/</td>
+<td>How to Fix Eating Habits</td>
+</tr>
+<tr>
+<td>/intervention-blog/how-to-hire-an-interventionist/</td>
+<td>How to Hire an Interventionist?</td>
+</tr>
+<tr>
+<td>/intervention-blog/how-to-stop-an-eating-addiction/</td>
+<td>How to Stop an Eating Addiction</td>
+</tr>
+<tr>
+<td>/intervention-blog/invitational-interventions/</td>
+<td>Beyond the Ambush: Why Invitational Interventions are the Future of
+Recovery</td>
+</tr>
+<tr>
+<td>/intervention-blog/key-qualities-of-effective-drug-interventionist/</td>
+<td>Key Qualities of an Effective Drug Interventionist: What to Look
+For</td>
+</tr>
+<tr>
+<td>/intervention-blog/lgbtqia-drug-interventions/</td>
+<td>LGBTQIA+ Drug Interventions</td>
+</tr>
+<tr>
+<td>/intervention-blog/mental-health-interventionist-vs-addiction-interventionist/</td>
+<td>Mental Health Interventionist vs. Addiction Interventionist: What’s
+the Difference?</td>
+</tr>
+<tr>
+<td>/intervention-blog/natural-ways-nicotine-withdrawal-symptoms/</td>
+<td>Natural Ways to Cope with Nicotine Withdrawal Symptoms</td>
+</tr>
+<tr>
+<td>/intervention-blog/planning-a-successful-drug-intervention-with-a-qualified-drug-interventionist/</td>
+<td>Planning a Successful Drug Intervention with a Qualified Drug
+Interventionist</td>
+</tr>
+<tr>
+<td>/intervention-blog/powerful-self-soothing-techniques-anxiety-mental-illness/</td>
+<td>4 Powerful Self-Soothing Techniques for Anxiety &amp; Mental
+Illness</td>
+</tr>
+<tr>
+<td>/intervention-blog/queer-autistic-eight-topics-to-explore-and-questions-to-ask-when-seeking-real-help/</td>
+<td>QUEER &amp; AUTISTIC: EIGHT TOPICS TO EXPLORE (AND QUESTIONS TO ASK)
+WHEN SEEKING REAL HELP</td>
+</tr>
+<tr>
+<td>/intervention-blog/role-of-addiction-interventionist-in-reducing-relapse-risk/</td>
+<td>The Role of an Addiction Interventionist in Reducing Relapse
+Risk</td>
+</tr>
+<tr>
+<td>/intervention-blog/role-of-family-support-in-drug-interventions-lgbtqia-community/</td>
+<td>The Role of Family Support in Drug Interventions for the LGBTQIA+
+Community</td>
+</tr>
+<tr>
+<td>/intervention-blog/safe-spaces-drug-interventions-lgbtqia-individual/</td>
+<td>Creating Safe Spaces: Drug Interventions for LGBTQIA+
+Individuals</td>
+</tr>
+<tr>
+<td>/intervention-blog/struggling-with-a-drug-addiction/</td>
+<td>How To Support Someone Struggling With a Drug Addiction</td>
+</tr>
+<tr>
+<td>/intervention-blog/the-high-cost-of-keeping-secrets/</td>
+<td>The High Cost of Keeping Secrets: How Family Get it Terribly
+Wrong</td>
+</tr>
+<tr>
+<td>/intervention-blog/the-importance-of-a-trauma-intervention-program-in-addiction-recovery/</td>
+<td>The Importance of a Trauma Intervention Program in Addiction
+Recovery</td>
+</tr>
+<tr>
+<td>/intervention-blog/top-10-addictive-things/</td>
+<td>The Top 10 Most Addictive things on the Planet! [List]</td>
+</tr>
+<tr>
+<td>/intervention-blog/trauma-intervention-programs/</td>
+<td>How Trauma Intervention Programs Address the Root Causes of
+Addiction</td>
+</tr>
+<tr>
+<td>/intervention-blog/uncharted-space-elon-musks-intervention/</td>
+<td>Uncharted Space: Elon Musk’s Intervention</td>
+</tr>
+<tr>
+<td>/intervention-blog/what-are-brief-interventions-for-alcohol/</td>
+<td>What Are Brief Interventions for Alcohol?</td>
+</tr>
+<tr>
+<td>/intervention-blog/what-are-the-5-ds-of-intervention/</td>
+<td>What Are the 5 Ds of Intervention?</td>
+</tr>
+<tr>
+<td>/intervention-blog/what-are-the-three-types-of-drug-prevention-interventions/</td>
+<td>What Are the Three Types of Drug Prevention Interventions?</td>
+</tr>
+<tr>
+<td>/intervention-blog/what-is-an-intervention-for-autism/</td>
+<td>What Is an Intervention for Autism?</td>
+</tr>
+<tr>
+<td>/intervention-blog/what-is-the-act-intervention-for-mental-health/</td>
+<td>What is the ACT Intervention for Mental Health?</td>
+</tr>
+<tr>
+<td>/intervention-blog/what-is-the-early-intervention-method/</td>
+<td>What is Early Intervention?</td>
+</tr>
+<tr>
+<td>/intervention-blog/what-to-do-after-a-heavy-meal/</td>
+<td>What to Do After a Heavy Meal?</td>
+</tr>
+<tr>
+<td>/intervention-blog/what-to-expect-from-a-substance-abuse-interventionist-a-guide-for-families/</td>
+<td>What to Expect from a Substance Abuse Interventionist: A Guide for
+Families</td>
+</tr>
+<tr>
+<td>/intervention-blog/who-qualifies-for-an-intervention-anyway/</td>
+<td>Who Qualifies for an Intervention Anyway?</td>
+</tr>
+<tr>
+<td>/intervention-blog/worst-alcohol-withdrawal-symptoms/</td>
+<td>The 8 Worst Alcohol Withdrawal Symptoms</td>
+</tr>
+<tr>
+<td>/intervention-blog/your-suffering-teen-the-7-most-important-truths/</td>
+<td>Your Suffering Teen: The 7 Most Important Truths</td>
+</tr>
+</tbody>
+</table>
+<h3 id="utility-low-value-pages-8-likely-not-worth-improving">Utility /
+low-value pages (8, likely not worth improving)</h3>
+<p>Form thank-you screens, registration steps, and the HTML sitemap.
+They only need to exist, not to be polished.</p>
+<table>
+<thead>
+<tr>
+<th>Route</th>
+<th>Title</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/bist-registration-step-1/</td>
+<td>BIST Registration Step 1</td>
+<td></td>
+</tr>
+<tr>
+<td>/sitemap/</td>
+<td>Sitemap</td>
+<td></td>
+</tr>
+<tr>
+<td>/thank-you-bist-registration/</td>
+<td>Thank You (BIST Registration)</td>
+<td></td>
+</tr>
+<tr>
+<td>/thank-you-contact-us/</td>
+<td>Thank You (Contact Us)</td>
+<td></td>
+</tr>
+<tr>
+<td>/thank-you-ebook/</td>
+<td>Thank You (E-Book)</td>
+<td></td>
+</tr>
+<tr>
+<td>/thank-you-eyewitness/</td>
+<td>Thank You (Eyewitness)</td>
+<td></td>
+</tr>
+<tr>
+<td>/thank-you-insurance/</td>
+<td>Thank You (Insurance)</td>
+<td></td>
+</tr>
+<tr>
+<td>/thank-you-iteam/</td>
+<td>Thank You (iTeam)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="consolidation-recommendations">Consolidation
+recommendations</h2>
+<ul>
+<li>Keep exactly the 5 templates above. No page needs a bespoke
+design.</li>
+<li>Redirect duplicates in WordPress (or drop them): /about-us -&gt;
+/about, /resources-3 -&gt; /resources, /georgia -&gt;
+/interventionists-by-state/georgia, /intervention-help -&gt;
+/intervention, /free-resources -&gt; /resources.</li>
+<li>The 5 root-level service pages (breakfree-journey,
+recovery-coach-companion, recovery-care-management,
+care-unit-assessment, senior-support-services) duplicate detail_page CPT
+entries. Pick one canonical URL per service and redirect the other.</li>
+<li>Thank-you pages (6) + sitemap + bist-registration: leave as-is via
+the catch-all; zero design investment.</li>
+<li>The ~24 state/city pages and 47 blog posts are the long tail worth
+keeping for SEO; they already share one template each.</li>
+</ul>
+</body>
+</html>

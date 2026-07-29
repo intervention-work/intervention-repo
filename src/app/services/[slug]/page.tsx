@@ -30,6 +30,8 @@ export async function generateMetadata(
   return {
     title: `${found.detail.title} — Intervention.com`,
     description: found.detail.summary,
+    alternates: { canonical: `/services/${slug}` },
+    openGraph: found.detail.image ? { images: [{ url: found.detail.image }] } : undefined,
   };
 }
 

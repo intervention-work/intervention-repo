@@ -33,9 +33,12 @@ export async function generateMetadata(
   const { slug } = await props.params;
   const found = await fetchDetail(SECTION_SLUG, slug);
   if (!found) return {};
+  const canonical = found.detail.navHrefOverride ?? `/intervention/${slug}`;
   return {
     title: `${found.detail.title} — Intervention.com`,
     description: found.detail.summary,
+    alternates: { canonical },
+    openGraph: found.detail.image ? { images: [{ url: found.detail.image }] } : undefined,
   };
 }
 
