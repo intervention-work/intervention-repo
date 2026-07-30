@@ -20,7 +20,7 @@ export default async function FamilyClassPage() {
   const section = await fetchSection(SLUG);
   if (!section) return null;
   const raw = await fetchPageBody(section.sourcePageSlug ?? SLUG);
-  const { blocks } = mapWp(raw, {
+  const { blocks, sidebar } = mapWp(raw, {
     title: section.title,
     summary: section.intro || section.summary,
   });
@@ -34,6 +34,7 @@ export default async function FamilyClassPage() {
       intro={section.intro}
       blocks={section.blocks}
       bodyBlocks={blocks}
+      sidebar={sidebar}
     />
   );
 }

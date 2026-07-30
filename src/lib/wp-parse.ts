@@ -296,12 +296,99 @@ function emitLeaf(el: HTMLElement, tag: string, out: Block[]): void {
   }
 }
 
-export function parseWp(html: string): Block[] {
-  if (!html) return [];
+// --- Sidebar ----------------------------------------------------------------
+
+/**
+ * The Elementor "All Services" sidebar that WP keeps inside the page body. Its
+ * nav menu is site chrome, so the walk skips it (see SKIP_WIDGETS) and the
+ * heading above it is left labelling nothing — an empty section near the top of
+ * ~40 pages. Lift the pair out so a page can render it as an actual sidebar.
+ */
+export type WpSidebar = {
+  title: string;
+  links: Array<{ href: string; label: string }>;
+};
+
+function siteRelative(href: string): string {
+  return WP_HOST && href.startsWith(WP_HOST) ? href.slice(WP_HOST.length) || '/' : href;
+}
+
+// Every widget element in document order. Keeps descending after a match because
+// some templates nest the menu (and its heading) inside another widget. Skips
+// `.elementor-widget-container`, the wrapper Elementor puts inside every widget —
+// it matches the widget class pattern but is not a widget itself.
+function widgetsIn(container: HTMLElement): HTMLElement[] {
+  const out: HTMLElement[] = [];
+  const visit = (node: HTMLElement): void => {
+    for (const child of node.childNodes) {
+      const el = child as HTMLElement;
+      if (!el.tagName) continue;
+      const type = widgetType(el);
+      if (type && type !== 'container') out.push(el);
+      visit(el);
+    }
+  };
+  visit(container);
+  return out;
+}
+
+function contains(ancestor: HTMLElement, node: HTMLElement): boolean {
+  for (let p = node.parentNode as HTMLElement | null; p; p = p.parentNode as HTMLElement | null) {
+    if (p === ancestor) return true;
+  }
+  return false;
+}
+
+/**
+ * Removes each menu and the heading directly above it — the pair that renders as
+ * an orphan. Everything else stays put: one page keeps unrelated widgets in the
+ * same container, so removing the whole container would drop real copy.
+ *
+ * Elementor prints the menu twice (main + mobile dropdown), hence the de-dupe.
+ */
+function extractSidebar(root: HTMLElement): WpSidebar | undefined {
+  const widgets = widgetsIn(root);
+  let sidebar: WpSidebar | undefined;
+
+  widgets.forEach((widget, i) => {
+    if (widgetType(widget) !== 'nav-menu') return;
+
+    const seen = new Set<string>();
+    const links: WpSidebar['links'] = [];
+    for (const a of widget.querySelectorAll('a')) {
+      const href = siteRelative(a.getAttribute('href') ?? '');
+      const label = stripTags(a.text).trim();
+      if (!href || !label || seen.has(href)) continue;
+      seen.add(href);
+      links.push({ href, label });
+    }
+
+    const prev = widgets[i - 1];
+    const headingEl =
+      prev && widgetType(prev) === 'heading' && !contains(prev, widget) ? prev : undefined;
+    const titleEl = headingEl?.querySelector('.elementor-heading-title') ?? headingEl;
+    const title = titleEl ? stripTags(cleanInline(titleEl)) : '';
+
+    widget.remove();
+    headingEl?.remove();
+
+    if (links.length && !sidebar) sidebar = { title: title || 'All Services', links };
+  });
+
+  return sidebar;
+}
+
+export function parseWpDoc(html: string): { blocks: Block[]; sidebar?: WpSidebar } {
+  if (!html) return { blocks: [] };
   const root = parse(html, { blockTextElements: { script: false, style: false } });
+  const sidebar = extractSidebar(root);
   const out: Block[] = [];
   walkNode(root, out);
-  return postProcess(out);
+  return { blocks: postProcess(out), sidebar };
+}
+
+export function parseWp(html: string): Block[] {
+  return parseWpDoc(html).blocks;
 }
 
 // --- Post-process: group consecutive items into grids/cards -----------------
@@ -396,29 +483,79 @@ function detectCards(blocks: Block[]): Block[] {
   return out;
 }
 
+/**
+ * Some WP pages open with loose CTAs and a banner image before their first
+ * heading, which renders as orphans stranded above the content with nothing to
+ * anchor them. Pull that run off the front so a page can place it deliberately
+ * — actions in the hero, art beside the section it illustrates.
+ *
+ * Opt-in: callers that ignore this keep the blocks inline, so no page loses
+ * content by default. Returns the list untouched unless the run is genuinely
+ * orphaned (contains at least one CTA and leaves real content behind).
+ */
+export type LeadSplit = {
+  actions: Array<{ href: string; label: string; external: boolean }>;
+  media?: { src: string; alt: string };
+  rest: Block[];
+};
+
+export function splitLead(blocks: Block[]): LeadSplit {
+  const actions: LeadSplit['actions'] = [];
+  let media: LeadSplit['media'];
+  let i = 0;
+
+  while (i < blocks.length) {
+    const b = blocks[i];
+    if (b.kind === 'button') {
+      actions.push({ href: b.href, label: b.label, external: b.external });
+      i++;
+      continue;
+    }
+    if (b.kind === 'image' && !media) {
+      media = { src: b.src, alt: b.alt };
+      i++;
+      continue;
+    }
+    break;
+  }
+
+  if (!actions.length || i >= blocks.length) return { actions: [], rest: blocks };
+  return { actions, media, rest: blocks.slice(i) };
+}
+
 // Split off the hero region (leading eyebrow/heading/intro that duplicates the
 // hero) and return remaining blocks + derived hero fields.
-export type MappedWp = { eyebrow: string; title: string; summary: string; blocks: Block[] };
+export type MappedWp = {
+  eyebrow: string;
+  title: string;
+  summary: string;
+  blocks: Block[];
+  sidebar?: WpSidebar;
+};
 export function mapWp(html: string, hero: { title?: string; summary?: string } = {}): MappedWp {
-  const blocks = parseWp(html);
+  const { blocks, sidebar } = parseWpDoc(html);
   const norm = (s: string) => s.replace(/[^a-z0-9 ]/gi, ' ').replace(/\s+/g, ' ').trim().toLowerCase();
+
+  // A leading short all-caps line is an eyebrow/kicker, whether the editor
+  // marked it up as a paragraph or as a heading.
+  const eyebrowText = (b: Block | undefined): string => {
+    if (!b || (b.kind !== 'paragraph' && b.kind !== 'heading')) return '';
+    const t = stripTags(b.html);
+    return t && wordCount(t) <= 8 && t === t.toUpperCase() ? t : '';
+  };
+
   let i = 0;
   let eyebrow = '';
   let dTitle = '';
-  let dSummary = '';
+  const dSummary = '';
   // derive
-  if (blocks[i]?.kind === 'paragraph') {
-    const t = stripTags((blocks[i] as Extract<Block, { kind: 'paragraph' }>).html);
-    if (wordCount(t) <= 8 && t && t === t.toUpperCase()) { eyebrow = t; i++; }
-  }
+  const derivedEyebrow = eyebrowText(blocks[i]);
+  if (derivedEyebrow) { eyebrow = derivedEyebrow; i++; }
   if (blocks[i]?.kind === 'section-heading') dTitle = (blocks[i] as Extract<Block, { kind: 'section-heading' }>).text;
   else if (blocks[i]?.kind === 'heading') dTitle = stripTags((blocks[i] as Extract<Block, { kind: 'heading' }>).html);
   // strip
   let j = 0;
-  if (blocks[j]?.kind === 'paragraph') {
-    const t = stripTags((blocks[j] as Extract<Block, { kind: 'paragraph' }>).html);
-    if (wordCount(t) <= 8 && t && t === t.toUpperCase()) j++;
-  }
+  if (eyebrowText(blocks[j])) j++;
   const heroTitleN = norm(hero.title || dTitle);
   if (blocks[j] && (blocks[j].kind === 'section-heading' || blocks[j].kind === 'heading')) {
     const ht = blocks[j].kind === 'section-heading'
@@ -433,5 +570,11 @@ export function mapWp(html: string, hero: { title?: string; summary?: string } =
     if (pn && heroSummaryN && heroSummaryN.includes(pn)) j++;
     else break;
   }
-  return { eyebrow, title: hero.title || dTitle, summary: hero.summary || dSummary, blocks: blocks.slice(j) };
+  return {
+    eyebrow,
+    title: hero.title || dTitle,
+    summary: hero.summary || dSummary,
+    blocks: blocks.slice(j),
+    sidebar,
+  };
 }

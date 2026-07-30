@@ -94,6 +94,9 @@ export function Nav({
     <header className="pointer-events-none fixed inset-x-0 top-0 z-50">
       <div className="flex h-[72px] items-center justify-between gap-3 px-5 md:px-7 lg:px-9">
         {/* LEFT — logo lockup */}
+        {/* ?v= on the brand assets: files under public/ aren't content-hashed, so
+            the URL has to change when the artwork does or browsers and CDNs keep
+            serving the previous logo. Bump it whenever the art is redrawn. */}
         <Link href="/" aria-label="intervention.com — home" className="pointer-events-auto">
           {/* Icon-only mark on mobile, in its own backdrop pill so it never
               blends into whatever page content sits under the fixed header. */}
@@ -106,7 +109,11 @@ export function Nav({
             }
           >
             <Image
-              src={light ? '/brand/intervention-mark-rev.png' : '/brand/intervention-mark.png'}
+              src={
+                light
+                  ? '/brand/intervention-mark-rev.svg?v=2'
+                  : '/brand/intervention-mark.svg?v=2'
+              }
               alt="intervention.com"
               width={38}
               height={38}
@@ -116,13 +123,17 @@ export function Nav({
             />
           </div>
           <Image
-            src={light ? '/brand/intervention-nav-rev.svg' : '/brand/intervention-nav.svg'}
+            src={
+              light
+                ? '/brand/intervention-nav-rev.svg?v=2'
+                : '/brand/intervention-nav.svg?v=2'
+            }
             alt="intervention.com"
-            width={165}
-            height={38}
+            width={153}
+            height={32}
             priority
             unoptimized
-            className="hidden h-9 w-auto sm:block"
+            className="hidden h-8 w-auto sm:block"
           />
         </Link>
 
@@ -247,7 +258,7 @@ export function Nav({
               aria-label="intervention.com — home"
             >
               <Image
-                src="/brand/intervention-mark.png"
+                src="/brand/intervention-mark.svg?v=2"
                 alt="intervention.com"
                 width={38}
                 height={38}

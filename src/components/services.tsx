@@ -62,7 +62,7 @@ export function Specialties() {
   const [active, setActive] = useState(SPECIALTIES[0].id);
 
   return (
-    <section id="specialties" className="bg-white py-24 lg:py-32">
+    <section id="specialties" className="bg-white py-10 lg:py-[50px]">
       <div className="mx-auto max-w-[1200px] px-6">
         <motion.div
           initial={{ opacity: 0, y: 12 }}

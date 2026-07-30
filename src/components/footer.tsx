@@ -46,13 +46,15 @@ export function Footer() {
         <div className="grid grid-cols-1 gap-10 border-b border-border pb-12 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
           {/* Brand */}
           <div>
+            {/* ?v= — public/ assets aren't content-hashed; bump it when the logo
+                art changes so caches can't keep serving the previous one. */}
             <Image
-              src="/brand/intervention.svg"
+              src="/brand/intervention.svg?v=2"
               alt="intervention.com — a Change Institute service"
-              width={191}
-              height={44}
+              width={172}
+              height={36}
               unoptimized
-              className="h-11 w-auto"
+              className="h-9 w-auto"
             />
             <p className="mt-5 max-w-xs font-sans text-sm leading-relaxed text-ink-muted">
               Where families find the leading intervention and support to help

@@ -51,11 +51,18 @@ export default async function InterventionDetailPage(
   // Curated CPT detail page (rich DetailPage layout).
   if (found) {
     const raw = await fetchPageBody(found.detail.sourcePageSlug ?? found.detail.slug);
-    const { blocks } = mapWp(raw, {
+    const { blocks, sidebar } = mapWp(raw, {
       title: found.detail.title,
       summary: found.detail.intro || found.detail.summary,
     });
-    return <DetailPage section={found.section} detail={found.detail} bodyBlocks={blocks} />;
+    return (
+      <DetailPage
+        section={found.section}
+        detail={found.detail}
+        bodyBlocks={blocks}
+        sidebar={sidebar}
+      />
+    );
   }
 
   // Fallback: a plain WP page/post at this path (e.g. /intervention/eating-disorder
@@ -74,6 +81,7 @@ export default async function InterventionDetailPage(
       title={mapped.title || entry.title}
       summary={mapped.summary || undefined}
       bodyBlocks={mapped.blocks}
+      sidebar={mapped.sidebar}
     />
   );
 }

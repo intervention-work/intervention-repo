@@ -9,8 +9,10 @@ import { CtaBanner } from '@/components/cta-banner';
 import { ContentBlocks } from '@/components/content-blocks';
 import { WpContent } from '@/components/wp-content';
 import { FaqList } from '@/components/faq-list';
+import { ServiceLinks } from '@/components/service-links';
 import type { Section, DetailContent } from '@/content/types';
 import type { Block } from '@/lib/wp-content-parse';
+import type { WpSidebar } from '@/lib/wp-parse';
 import { useSettings } from '@/lib/settings';
 
 const CARD_BULLETS = [
@@ -23,11 +25,14 @@ export function DetailPage({
   section,
   detail,
   bodyBlocks,
+  sidebar,
 }: {
   section: Section;
   detail: DetailContent;
   /** Server-parsed WP body blocks (real editorial content). */
   bodyBlocks?: Block[];
+  /** WP's "All Services" menu, lifted out of the body to join the sticky rail. */
+  sidebar?: WpSidebar;
 }) {
   const body = bodyBlocks && bodyBlocks.length > 0;
   const { phoneDisplay, phoneHref } = useSettings();
@@ -131,6 +136,11 @@ export function DetailPage({
                 </a>
               </div>
             </div>
+            {sidebar && (
+              <div className="mt-5">
+                <ServiceLinks sidebar={sidebar} />
+              </div>
+            )}
           </aside>
         </div>
       </section>

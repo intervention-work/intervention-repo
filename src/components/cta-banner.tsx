@@ -5,11 +5,16 @@ import { motion } from 'motion/react';
 import { ArrowRight, Phone } from 'lucide-react';
 import { viewport } from '@/lib/motion';
 
-export function CtaBanner() {
+/**
+ * `tight` follows the homepage's compressed section rhythm. Every other route
+ * keeps the roomier default, since their content sections are still 128px and a
+ * 56px closing CTA would read as a mistake against them.
+ */
+export function CtaBanner({ tight = false }: { tight?: boolean }) {
   return (
     <section
       aria-label="Talk to a specialist"
-      className="bg-white py-28 lg:py-36"
+      className={`bg-white ${tight ? 'py-12 lg:py-14' : 'py-28 lg:py-36'}`}
     >
       <div className="mx-auto max-w-3xl px-6 text-center">
         <motion.div
@@ -35,14 +40,14 @@ export function CtaBanner() {
           <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
               href="/contact"
-              className="inline-flex items-center gap-2 rounded-full bg-sage-700 px-8 py-4 font-sans text-base font-medium text-white shadow-[0_12px_32px_-12px_rgba(45,90,61,0.65)] transition-colors duration-300 hover:bg-sage-900"
+              className="inline-flex items-center gap-2 rounded-full bg-sage-700 px-8 py-4 font-sans text-base font-medium text-white shadow-[0_12px_32px_-12px_rgba(45,90,61,0.65)] transition-[background-color,transform] duration-200 ease-expo-out hover:bg-sage-900 active:scale-[0.97]"
             >
               Talk to a specialist
               <ArrowRight size={16} strokeWidth={1.75} />
             </Link>
             <a
               href="tel:+18007891605"
-              className="inline-flex items-center gap-2 rounded-full border border-border px-7 py-4 font-sans text-base text-ink transition-colors duration-200 hover:bg-surface"
+              className="inline-flex items-center gap-2 rounded-full border border-border px-7 py-4 font-sans text-base text-ink transition-[background-color,transform] duration-200 ease-expo-out hover:bg-surface active:scale-[0.97]"
             >
               <Phone size={15} strokeWidth={1.75} className="text-sage-500" />
               (800) 789-1605

@@ -7,7 +7,7 @@ export function Testimonials() {
   return (
     <section
       aria-label="A family's words"
-      className="bg-surface py-24 lg:py-32"
+      className="bg-surface py-10 lg:py-[50px]"
     >
       <div className="mx-auto max-w-3xl px-6 text-center">
         <motion.figure

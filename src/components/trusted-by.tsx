@@ -31,7 +31,7 @@ export function TrustedBy() {
   return (
     <section
       aria-label="Trusted by professional organizations"
-      className="bg-white py-20 lg:py-24"
+      className="bg-white py-8 lg:py-9"
     >
       <div className="mx-auto max-w-[1200px] px-6">
         <motion.div

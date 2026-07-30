@@ -72,7 +72,7 @@ export function Faq() {
     CATEGORIES.find((c) => c.id === activeCat) ?? CATEGORIES[0];
 
   return (
-    <section id="faq" className="bg-white py-24 lg:py-32">
+    <section id="faq" className="bg-white py-10 lg:py-[50px]">
       <div className="mx-auto max-w-3xl px-6">
         <motion.div
           initial={{ opacity: 0, y: 10 }}

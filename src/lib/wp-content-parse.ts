@@ -41,8 +41,31 @@ export type Block =
 
 export type Section = { heading?: string; blocks: Block[] };
 
+const NAMED_ENTITIES: Record<string, string> = {
+  amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: '\u00a0',
+  ndash: '–', mdash: '—', hellip: '…', rsquo: '’', lsquo: '‘',
+  rdquo: '”', ldquo: '“', middot: '·', bull: '•',
+  trade: '™', reg: '®', copy: '©', deg: '°',
+};
+
+/**
+ * WP stores entity-encoded text. Anything rendered as React children (rather
+ * than via innerHTML) must be decoded first or `&amp;` shows up verbatim.
+ */
+export const decodeEntities = (s: string) =>
+  s.replace(/&(#x?[0-9a-fA-F]+|[a-zA-Z][a-zA-Z0-9]*);/g, (m, g: string) => {
+    if (g[0] === '#') {
+      const cp =
+        g[1] === 'x' || g[1] === 'X'
+          ? parseInt(g.slice(2), 16)
+          : parseInt(g.slice(1), 10);
+      return Number.isFinite(cp) && cp > 0 ? String.fromCodePoint(cp) : m;
+    }
+    return NAMED_ENTITIES[g.toLowerCase()] ?? m;
+  });
+
 export const stripTags = (h: string) =>
-  h.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  decodeEntities(h.replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim();
 export const wordCount = (s: string) => s.split(' ').filter(Boolean).length;
 
 // Group a flat block list into sections split on section-heading (H2).

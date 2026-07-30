@@ -7,8 +7,10 @@ import { PageHero, type Crumb } from '@/components/page-hero';
 import { CtaBanner } from '@/components/cta-banner';
 import { ContentBlocks } from '@/components/content-blocks';
 import { WpContent } from '@/components/wp-content';
+import { ServiceLinks } from '@/components/service-links';
 import type { ContentBlock } from '@/content/types';
 import type { Block } from '@/lib/wp-content-parse';
+import type { WpSidebar } from '@/lib/wp-parse';
 
 type ContentPageProps = {
   crumbs: Crumb[];
@@ -20,6 +22,8 @@ type ContentPageProps = {
   blocks?: ContentBlock[];
   /** Server-parsed WP body blocks (real editorial content). */
   bodyBlocks?: Block[];
+  /** WP's "All Services" menu, lifted out of the body into a sticky rail. */
+  sidebar?: WpSidebar;
   children?: ReactNode;
 };
 
@@ -32,6 +36,7 @@ export function ContentPage({
   intro,
   blocks = [],
   bodyBlocks,
+  sidebar,
   children,
 }: ContentPageProps) {
   return (
@@ -45,7 +50,9 @@ export function ContentPage({
       />
 
       <section className="bg-white py-24 lg:py-32">
-        <div className="mx-auto max-w-5xl px-6">
+        {/* The rail costs ~356px, so widen the shell when there is one — at
+            max-w-5xl the copy would be squeezed to roughly 620px. */}
+        <div className={`mx-auto px-6 ${sidebar ? 'max-w-[1200px]' : 'max-w-5xl'}`}>
           {intro && (
             <motion.p
               initial={{ opacity: 0, y: 14 }}
@@ -60,7 +67,11 @@ export function ContentPage({
 
           {bodyBlocks && bodyBlocks.length > 0 ? (
             <div className="mt-12">
-              <WpContent blocks={bodyBlocks} />
+              <WpContent
+                blocks={bodyBlocks}
+                rail={sidebar ? <ServiceLinks sidebar={sidebar} /> : undefined}
+                railMobile={Boolean(sidebar)}
+              />
             </div>
           ) : (
             blocks.length > 0 && (

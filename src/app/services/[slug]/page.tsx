@@ -43,11 +43,18 @@ export default async function ServicesDetailPage(
 
   if (found) {
     const raw = await fetchPageBody(found.detail.sourcePageSlug ?? found.detail.slug);
-    const { blocks } = mapWp(raw, {
+    const { blocks, sidebar } = mapWp(raw, {
       title: found.detail.title,
       summary: found.detail.intro || found.detail.summary,
     });
-    return <DetailPage section={found.section} detail={found.detail} bodyBlocks={blocks} />;
+    return (
+      <DetailPage
+        section={found.section}
+        detail={found.detail}
+        bodyBlocks={blocks}
+        sidebar={sidebar}
+      />
+    );
   }
 
   const entry = (await fetchWpPage(slug)) ?? (await fetchWpPost(slug));
@@ -64,6 +71,7 @@ export default async function ServicesDetailPage(
       title={mapped.title || entry.title}
       summary={mapped.summary || undefined}
       bodyBlocks={mapped.blocks}
+      sidebar={mapped.sidebar}
     />
   );
 }

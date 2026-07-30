@@ -1,12 +1,17 @@
 /* Canonical heading templates (rendered via <Heading>). Distinct, consistent
    hierarchy across every page. scroll-margin keeps anchor jumps clear of the
    fixed nav. */
+/* Measures are in `ch` so each level keeps the same characters-per-line as the
+ * type scales. They are wide enough that a typical 4-8 word section heading sits
+ * on one line — a cap that splits a short heading in two just leaves a narrow
+ * ragged block with the column empty beside it. */
 .h2Section {
   font-family: var(--font-display), Georgia, serif;
   color: var(--color-ink, #111827);
   font-size: clamp(1.9rem, 3.2vw, 2.6rem);
   line-height: 1.12;
   letter-spacing: -0.015em;
+  max-width: 44ch;
   scroll-margin-top: 6rem;
 }
 
@@ -16,6 +21,7 @@
   font-size: clamp(1.4rem, 2.1vw, 1.85rem);
   line-height: 1.2;
   letter-spacing: -0.01em;
+  max-width: 46ch;
   margin-top: 0.5rem;
   scroll-margin-top: 6rem;
 }
@@ -45,10 +51,20 @@
   color: var(--color-ink-body, #374151);
   font-size: 1.125rem;
   line-height: 1.75;
+  /* WP copy regularly contains bare URLs and email addresses. Unbroken they are
+     wider than a phone, and since they sit in normal flow they widen the whole
+     document rather than just their own paragraph. */
+  overflow-wrap: break-word;
 }
 
 .prose > *:first-child {
   margin-top: 0;
+}
+
+/* Spacing between blocks is owned by the layout, so don't leave a trailing
+   margin that double-spaces the next element (or a button right below). */
+.prose > *:last-child {
+  margin-bottom: 0;
 }
 
 .prose h2 {

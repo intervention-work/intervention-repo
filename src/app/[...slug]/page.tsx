@@ -71,6 +71,7 @@ export default async function CatchAllWpPage(props: PageProps<'/[...slug]'>) {
       title={heroTitle}
       summary={mapped.summary || undefined}
       bodyBlocks={mapped.blocks}
+      sidebar={mapped.sidebar}
     />
   );
 }

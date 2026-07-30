@@ -17,7 +17,7 @@ export default function Home() {
       <TrustedBy />
       <Testimonials />
       <Faq />
-      <CtaBanner />
+      <CtaBanner tight />
     </main>
   );
 }

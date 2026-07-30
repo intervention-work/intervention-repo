@@ -56,7 +56,7 @@ export function HowItWorks() {
   const [active, setActive] = useState(STEPS[0].id);
 
   return (
-    <section id="how-it-works" className="bg-surface py-24 lg:py-32">
+    <section id="how-it-works" className="bg-surface py-10 lg:py-[50px]">
       <div className="mx-auto max-w-[1200px] px-6">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
