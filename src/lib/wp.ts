@@ -638,6 +638,53 @@ export async function fetchDetail(
   return { section, detail };
 }
 
+// Uniform hero background per detail-page section (a template design choice, not
+// per-page content): every detail page in a section shares ONE hero background.
+// The image itself is pulled from a reference service in WordPress, so editors
+// still control the actual photo there (change it on that service, all detail
+// heroes in the section follow). Falls back to the section image if unset.
+const SECTION_HERO_REFERENCE: Record<string, string> = {
+  intervention: 'alcohol-intervention',
+  services: 'drug-intervention',
+};
+
+export async function fetchSectionHeroImage(
+  sectionSlug: string
+): Promise<string | undefined> {
+  const refSlug = SECTION_HERO_REFERENCE[sectionSlug];
+  if (!refSlug) return undefined;
+  try {
+    const posts = await wpFetch<Array<{ slug: string; acf: { image?: string } }>>(
+      `/wp/v2/detail_page?slug=${encodeURIComponent(refSlug)}&_fields=slug,acf&acf_format=standard`
+    );
+    return posts[0]?.acf?.image || undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+// The WordPress menu links several detail pages to their ROOT-level permalink
+// (e.g. /recovery-coach-companion) rather than /services/[slug], so they render
+// through the catch-all route. Given a catch-all leaf slug, return the uniform
+// section hero background if that page is really a services/intervention detail
+// page, so the background matches its /section/[slug] twin. Returns undefined
+// for ordinary pages (state pages, legal, blog, etc.).
+export async function fetchHeroForLeaf(
+  leaf: string
+): Promise<string | undefined> {
+  const [intervention, services] = await Promise.all([
+    fetchSection('intervention'),
+    fetchSection('services'),
+  ]);
+  const belongsTo = (section: Section | null) =>
+    (section?.children ?? []).some(
+      (c) => c.slug === leaf || c.sourcePageSlug === leaf
+    );
+  if (belongsTo(services)) return fetchSectionHeroImage('services');
+  if (belongsTo(intervention)) return fetchSectionHeroImage('intervention');
+  return undefined;
+}
+
 // WP menu node (from /intervention/v1/nav). Mirrors Appearance > Menus exactly.
 export type NavNode = {
   id: number;

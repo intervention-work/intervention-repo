@@ -8,6 +8,7 @@ import {
   fetchPageBody,
   fetchWpPage,
   fetchWpPost,
+  fetchSectionHeroImage,
 } from '@/lib/wp';
 import { mapWp } from '@/lib/wp-parse';
 
@@ -46,7 +47,11 @@ export default async function InterventionDetailPage(
   props: PageProps<'/intervention/[slug]'>
 ) {
   const { slug } = await props.params;
-  const found = await fetchDetail(SECTION_SLUG, slug);
+  // Uniform per-section hero background, shared by every intervention detail page.
+  const [found, heroImage] = await Promise.all([
+    fetchDetail(SECTION_SLUG, slug),
+    fetchSectionHeroImage(SECTION_SLUG),
+  ]);
 
   // Curated CPT detail page (rich DetailPage layout).
   if (found) {
@@ -61,6 +66,7 @@ export default async function InterventionDetailPage(
         detail={found.detail}
         bodyBlocks={blocks}
         sidebar={sidebar}
+        heroImage={heroImage}
       />
     );
   }
@@ -80,6 +86,7 @@ export default async function InterventionDetailPage(
       eyebrow={mapped.eyebrow || 'Intervention'}
       title={mapped.title || entry.title}
       summary={mapped.summary || undefined}
+      image={heroImage}
       bodyBlocks={mapped.blocks}
       sidebar={mapped.sidebar}
     />

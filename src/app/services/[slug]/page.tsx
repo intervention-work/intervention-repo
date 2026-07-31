@@ -8,6 +8,7 @@ import {
   fetchPageBody,
   fetchWpPage,
   fetchWpPost,
+  fetchSectionHeroImage,
 } from '@/lib/wp';
 import { mapWp } from '@/lib/wp-parse';
 
@@ -39,7 +40,11 @@ export default async function ServicesDetailPage(
   props: PageProps<'/services/[slug]'>
 ) {
   const { slug } = await props.params;
-  const found = await fetchDetail(SECTION_SLUG, slug);
+  // Uniform per-section hero background, shared by every services detail page.
+  const [found, heroImage] = await Promise.all([
+    fetchDetail(SECTION_SLUG, slug),
+    fetchSectionHeroImage(SECTION_SLUG),
+  ]);
 
   if (found) {
     const raw = await fetchPageBody(found.detail.sourcePageSlug ?? found.detail.slug);
@@ -53,6 +58,7 @@ export default async function ServicesDetailPage(
         detail={found.detail}
         bodyBlocks={blocks}
         sidebar={sidebar}
+        heroImage={heroImage}
       />
     );
   }
@@ -70,6 +76,7 @@ export default async function ServicesDetailPage(
       eyebrow={mapped.eyebrow || 'Services'}
       title={mapped.title || entry.title}
       summary={mapped.summary || undefined}
+      image={heroImage}
       bodyBlocks={mapped.blocks}
       sidebar={mapped.sidebar}
     />

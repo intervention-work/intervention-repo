@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowRight, Phone } from 'lucide-react';
-import { fetchDetail, fetchPageBody } from '@/lib/wp';
+import { fetchDetail, fetchPageBody, fetchSectionHeroImage } from '@/lib/wp';
 import { mapWp, splitLead } from '@/lib/wp-parse';
 import { PageHero } from '@/components/page-hero';
 import { WpContent } from '@/components/wp-content';
@@ -19,7 +19,12 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function InterventionistsByStatePage() {
-  const data = await fetchDetail('intervention', 'interventionists-by-state');
+  // This page is an intervention detail page (routed at its own URL via a nav
+  // override), so it shares the uniform intervention hero background.
+  const [data, heroImage] = await Promise.all([
+    fetchDetail('intervention', 'interventionists-by-state'),
+    fetchSectionHeroImage('intervention'),
+  ]);
   const detail = data?.detail;
   const raw = await fetchPageBody(
     detail?.sourcePageSlug ?? 'interventionists-by-state'
@@ -39,6 +44,7 @@ export default async function InterventionistsByStatePage() {
         eyebrow={mapped.eyebrow || 'Find an Interventionist Near You'}
         title={detail?.title ?? mapped.title ?? 'Intervention Locator'}
         summary={detail?.intro ?? detail?.summary ?? mapped.summary}
+        image={heroImage}
         actions={lead.actions}
       />
 

@@ -26,6 +26,7 @@ export function DetailPage({
   detail,
   bodyBlocks,
   sidebar,
+  heroImage,
 }: {
   section: Section;
   detail: DetailContent;
@@ -33,6 +34,8 @@ export function DetailPage({
   bodyBlocks?: Block[];
   /** WP's "All Services" menu, lifted out of the body to join the sticky rail. */
   sidebar?: WpSidebar;
+  /** Uniform per-section hero background (see fetchSectionHeroImage). */
+  heroImage?: string;
 }) {
   const body = bodyBlocks && bodyBlocks.length > 0;
   const { phoneDisplay, phoneHref } = useSettings();
@@ -49,7 +52,7 @@ export function DetailPage({
         eyebrow={section.label}
         title={detail.title}
         summary={detail.summary}
-        image={detail.image ?? section.image}
+        image={heroImage ?? detail.image ?? section.image}
       />
 
       <section className="bg-white py-24 lg:py-32">

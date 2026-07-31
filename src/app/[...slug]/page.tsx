@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { ContentPage } from '@/components/content-page';
-import { fetchWpPage, fetchWpPost } from '@/lib/wp';
+import { fetchWpPage, fetchWpPost, fetchHeroForLeaf } from '@/lib/wp';
 import { mapWp } from '@/lib/wp-parse';
 
 export const revalidate = 3600;
@@ -48,7 +48,12 @@ export async function generateMetadata(
 export default async function CatchAllWpPage(props: PageProps<'/[...slug]'>) {
   const { slug } = await props.params;
   const leaf = slug[slug.length - 1];
-  const page = await loadEntry(leaf);
+  // Some detail pages are linked at their root permalink by the WP menu and land
+  // here; give them the same uniform section hero as their /section/[slug] twin.
+  const [page, heroImage] = await Promise.all([
+    loadEntry(leaf),
+    fetchHeroForLeaf(leaf),
+  ]);
   if (!page) notFound();
 
   // Map the raw WP content into hero + body (removes the duplicated opening).
@@ -70,6 +75,7 @@ export default async function CatchAllWpPage(props: PageProps<'/[...slug]'>) {
       eyebrow={mapped.eyebrow || undefined}
       title={heroTitle}
       summary={mapped.summary || undefined}
+      image={heroImage}
       bodyBlocks={mapped.blocks}
       sidebar={mapped.sidebar}
     />
