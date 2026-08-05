@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { ContentPage } from '@/components/content-page';
-import { fetchSection, fetchPageBody } from '@/lib/wp';
+import { fetchSection, fetchPageBody, fetchSeo } from '@/lib/wp';
+import { buildMetadata } from '@/lib/seo';
 import { mapWp } from '@/lib/wp-parse';
 
 const SLUG = 'family-class';
@@ -10,10 +11,14 @@ export const revalidate = 3600;
 export async function generateMetadata(): Promise<Metadata> {
   const section = await fetchSection(SLUG);
   if (!section) return {};
-  return {
+  const seo = await fetchSeo('page', section.sourcePageSlug ?? SLUG);
+  return buildMetadata({
     title: `${section.label} — Intervention.com`,
     description: section.summary,
-  };
+    canonicalPath: `/${SLUG}`,
+    image: section.image,
+    seo,
+  });
 }
 
 export default async function FamilyClassPage() {

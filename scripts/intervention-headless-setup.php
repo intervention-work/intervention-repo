@@ -2,8 +2,8 @@
 /**
  * Plugin Name:  Intervention Headless Setup
  * Plugin URI:   https://intervention.com
- * Description:  Registers the detail_page CPT and all ACF field groups required for the headless Next.js migration. Requires ACF PRO.
- * Version:      2.1.0
+ * Description:  Registers the detail_page CPT and all ACF field groups required for the headless Next.js migration. Requires ACF PRO. Adds SEO (Rank Math) + redirects bridge endpoints.
+ * Version:      2.2.0
  * Author:       Intervention.com
  */
 
@@ -148,6 +148,96 @@ add_action( 'rest_api_init', function () {
             unset( $node );
 
             $response = new WP_REST_Response( array_values( $tree ) );
+            $response->header( 'Cache-Control', 'no-cache, no-store, must-revalidate' );
+            return $response;
+        },
+    ] );
+
+    // -----------------------------------------------------------------------
+    // SEO bridge: expose the editor-set Rank Math SEO fields for one page/post
+    // so the headless site can honour the exact title/description/canonical/OG
+    // marketing sets in WordPress (Rank Math does not put these in /wp/v2 by
+    // default). Template variables like %title% %sep% %sitename% are resolved.
+    //   GET /wp-json/intervention/v1/seo?type=post|page&slug=my-article
+    // Returns {} when nothing is set, so the frontend falls back to defaults.
+    // -----------------------------------------------------------------------
+    register_rest_route( 'intervention/v1', '/seo', [
+        'methods'             => 'GET',
+        'permission_callback' => '__return_true',
+        'callback'            => function ( $request ) {
+            nocache_headers();
+            $response = new WP_REST_Response();
+            $response->header( 'Cache-Control', 'no-cache, no-store, must-revalidate' );
+
+            $type = $request->get_param( 'type' ) === 'post' ? 'post' : 'page';
+            $slug = sanitize_title( (string) $request->get_param( 'slug' ) );
+            if ( ! $slug ) { $response->set_data( new stdClass() ); return $response; }
+
+            $found = get_posts( [
+                'name'        => $slug,
+                'post_type'   => $type,
+                'post_status' => 'publish',
+                'numberposts' => 1,
+            ] );
+            if ( empty( $found ) ) { $response->set_data( new stdClass() ); return $response; }
+
+            $post = $found[0];
+            $id   = $post->ID;
+            $meta = function ( $key ) use ( $id ) { return (string) get_post_meta( $id, $key, true ); };
+            $resolve = function ( $text ) use ( $post ) {
+                if ( $text && class_exists( '\\RankMath\\Helper' ) && method_exists( '\\RankMath\\Helper', 'replace_vars' ) ) {
+                    return \RankMath\Helper::replace_vars( $text, $post );
+                }
+                return $text;
+            };
+
+            $data = array_filter( [
+                'title'          => $resolve( $meta( 'rank_math_title' ) ),
+                'description'    => $resolve( $meta( 'rank_math_description' ) ),
+                'canonical'      => $meta( 'rank_math_canonical_url' ),
+                'og_title'       => $resolve( $meta( 'rank_math_facebook_title' ) ),
+                'og_description' => $resolve( $meta( 'rank_math_facebook_description' ) ),
+                'og_image'       => $meta( 'rank_math_facebook_image' ),
+                'twitter_image'  => $meta( 'rank_math_twitter_image' ),
+            ], function ( $v ) { return $v !== '' && $v !== null; } );
+
+            $response->set_data( empty( $data ) ? new stdClass() : $data );
+            return $response;
+        },
+    ] );
+
+    // -----------------------------------------------------------------------
+    // Redirects export: expose the Rank Math Redirections so the headless site
+    // can apply the same redirects marketing manages in WordPress.
+    //   GET /wp-json/intervention/v1/redirects
+    // Returns [{ from, to, code }]. Empty when Rank Math redirects are unused.
+    // -----------------------------------------------------------------------
+    register_rest_route( 'intervention/v1', '/redirects', [
+        'methods'             => 'GET',
+        'permission_callback' => '__return_true',
+        'callback'            => function () {
+            global $wpdb;
+            nocache_headers();
+            $out   = [];
+            $table = $wpdb->prefix . 'rank_math_redirections';
+            $exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );
+            if ( $exists === $table ) {
+                $rows = $wpdb->get_results( "SELECT sources, url_to, header_code FROM {$table} WHERE status = 'active'" );
+                foreach ( (array) $rows as $r ) {
+                    $sources = maybe_unserialize( $r->sources );
+                    if ( ! is_array( $sources ) ) continue;
+                    foreach ( $sources as $src ) {
+                        $pattern = is_array( $src ) ? ( isset( $src['pattern'] ) ? $src['pattern'] : '' ) : '';
+                        if ( ! $pattern ) continue;
+                        $out[] = [
+                            'from' => '/' . ltrim( $pattern, '/' ),
+                            'to'   => $r->url_to,
+                            'code' => (int) $r->header_code ?: 301,
+                        ];
+                    }
+                }
+            }
+            $response = new WP_REST_Response( $out );
             $response->header( 'Cache-Control', 'no-cache, no-store, must-revalidate' );
             return $response;
         },

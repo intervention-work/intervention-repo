@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { ContentPage } from '@/components/content-page';
+import { JsonLd } from '@/components/json-ld';
 import { fetchWpPage, fetchWpPost, fetchHeroForLeaf } from '@/lib/wp';
+import { buildMetadata, articleSchema, breadcrumbSchema, SITE } from '@/lib/seo';
 import { mapWp } from '@/lib/wp-parse';
 
 export const revalidate = 3600;
@@ -38,11 +40,17 @@ export async function generateMetadata(
   const { slug } = await props.params;
   const page = await loadEntry(slug[slug.length - 1]);
   if (!page) return {};
-  return {
+  const isPost = page.type === 'post';
+  return buildMetadata({
     title: `${page.title} — Intervention.com`,
     description: page.excerpt || undefined,
-    alternates: { canonical: `/${slug.join('/')}` },
-  };
+    canonicalPath: `/${slug.join('/')}`,
+    image: page.image,
+    type: isPost ? 'article' : 'website',
+    publishedTime: page.date,
+    modifiedTime: page.modified,
+    seo: page.seo,
+  });
 }
 
 export default async function CatchAllWpPage(props: PageProps<'/[...slug]'>) {
@@ -69,15 +77,39 @@ export default async function CatchAllWpPage(props: PageProps<'/[...slug]'>) {
     { label: heroTitle },
   ];
 
+  const isPost = page.type === 'post';
+  const url = `${SITE}/${slug.join('/')}`;
+  const schema: object[] = [
+    breadcrumbSchema(crumbs.map((c) => ({ name: c.label, path: c.href }))),
+  ];
+  if (isPost) {
+    schema.push(
+      articleSchema({
+        title: page.title,
+        description: page.excerpt,
+        url,
+        image: page.image,
+        publishedTime: page.date,
+        modifiedTime: page.modified,
+        author: page.author,
+      })
+    );
+  }
+
   return (
-    <ContentPage
-      crumbs={crumbs}
-      eyebrow={mapped.eyebrow || undefined}
-      title={heroTitle}
-      summary={mapped.summary || undefined}
-      image={heroImage}
-      bodyBlocks={mapped.blocks}
-      sidebar={mapped.sidebar}
-    />
+    <>
+      <JsonLd data={schema} />
+      <ContentPage
+        crumbs={crumbs}
+        eyebrow={mapped.eyebrow || undefined}
+        title={heroTitle}
+        summary={mapped.summary || undefined}
+        // Blog posts show their WordPress featured image as the hero; service
+        // pages linked at root get the uniform section hero.
+        image={heroImage ?? (isPost ? page.image : undefined)}
+        bodyBlocks={mapped.blocks}
+        sidebar={mapped.sidebar}
+      />
+    </>
   );
 }

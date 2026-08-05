@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowRight, Phone } from 'lucide-react';
 import { fetchDetail, fetchPageBody, fetchSectionHeroImage } from '@/lib/wp';
+import { buildMetadata } from '@/lib/seo';
 import { mapWp, splitLead } from '@/lib/wp-parse';
 import { PageHero } from '@/components/page-hero';
 import { WpContent } from '@/components/wp-content';
@@ -12,10 +13,12 @@ export const revalidate = 3600;
 export async function generateMetadata(): Promise<Metadata> {
   const data = await fetchDetail('intervention', 'interventionists-by-state');
   if (!data) return { title: 'Interventionists By State — Intervention.com' };
-  return {
+  return buildMetadata({
     title: `${data.detail.label} — Intervention.com`,
     description: data.detail.summary,
-  };
+    canonicalPath: '/interventionists-by-state',
+    image: data.detail.image,
+  });
 }
 
 export default async function InterventionistsByStatePage() {

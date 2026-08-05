@@ -5,8 +5,10 @@ import './globals.css';
 import { DevServiceWorkerCleanup } from '@/components/dev-sw-cleanup';
 import { Nav } from '@/components/nav';
 import { Footer } from '@/components/footer';
+import { JsonLd } from '@/components/json-ld';
 import { SettingsProvider } from '@/lib/settings';
 import { fetchGlobalSettings, fetchNavSections, fetchNav } from '@/lib/wp';
+import { organizationSchema, websiteSchema } from '@/lib/seo';
 
 const sourceSerif = Source_Serif_4({
   subsets: ['latin'],
@@ -32,6 +34,14 @@ export const metadata: Metadata = {
     title: "Intervention — Help families find their way forward",
     description: "Compassionate, structured interventions for substance use, mental health, and behavioral challenges. Free consultation. Nationwide.",
     type: 'website',
+    siteName: 'Intervention.com',
+    images: [{ url: `${SITE}/images/hero-v2-poster.jpg` }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "Intervention — Help families find their way forward",
+    description: "Compassionate, structured interventions for substance use, mental health, and behavioral challenges. Free consultation. Nationwide.",
+    images: [`${SITE}/images/hero-v2-poster.jpg`],
   },
 };
 
@@ -51,6 +61,7 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body className="bg-white font-sans text-ink">
+        <JsonLd data={[organizationSchema(), websiteSchema()]} />
         <DevServiceWorkerCleanup />
         <SettingsProvider value={settings}>
           <Nav sections={navSections} menu={navMenu} />

@@ -413,7 +413,67 @@ export type WpPage = {
   title: string;
   excerpt: string;
   body: string;
+  type: 'page' | 'post';
+  /** Featured image URL (used for og:image and, for posts, the hero). */
+  image?: string;
+  /** ISO published date (posts). */
+  date?: string;
+  /** ISO last-modified date (posts). */
+  modified?: string;
+  /** Author display name (posts). */
+  author?: string;
+  /** Editor-set SEO overrides from WordPress (Rank Math), when available. */
+  seo?: WpSeo;
 };
+
+// Editor-controlled SEO from WordPress (Rank Math). Populated by the SEO bridge
+// endpoint in the headless plugin (intervention/v1/seo). Undefined until that
+// endpoint is live, in which case the site falls back to page title/excerpt.
+export type WpSeo = {
+  title?: string;
+  description?: string;
+  canonical?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImage?: string;
+  twitterImage?: string;
+  robots?: string;
+};
+
+// Fetch editor-set SEO for one page/post. Returns undefined if the WordPress
+// SEO bridge endpoint is not installed yet (so metadata falls back gracefully).
+export async function fetchSeo(
+  type: 'page' | 'post',
+  slug: string
+): Promise<WpSeo | undefined> {
+  try {
+    const d = await wpFetch<{
+      title?: string;
+      description?: string;
+      canonical?: string;
+      og_title?: string;
+      og_description?: string;
+      og_image?: string;
+      twitter_image?: string;
+      robots?: string;
+    }>(`/intervention/v1/seo?type=${type}&slug=${encodeURIComponent(slug)}`);
+    if (!d || (!d.title && !d.description && !d.canonical && !d.og_image)) {
+      return undefined;
+    }
+    return {
+      title: d.title || undefined,
+      description: d.description || undefined,
+      canonical: d.canonical || undefined,
+      ogTitle: d.og_title || undefined,
+      ogDescription: d.og_description || undefined,
+      ogImage: d.og_image || undefined,
+      twitterImage: d.twitter_image || undefined,
+      robots: d.robots || undefined,
+    };
+  } catch {
+    return undefined;
+  }
+}
 
 // All published WP page paths (for generateStaticParams on the catch-all).
 export async function fetchAllPagePaths(): Promise<string[]> {
@@ -431,16 +491,29 @@ export async function fetchAllPagePaths(): Promise<string[]> {
 export async function fetchWpPage(slug: string): Promise<WpPage | null> {
   try {
     const pages = await wpFetch<
-      Array<{ slug: string; link: string; title: { rendered: string }; excerpt: { rendered: string }; content: { rendered: string } }>
-    >(`/wp/v2/pages?slug=${encodeURIComponent(slug)}&_fields=slug,link,title,excerpt,content`);
+      Array<{
+        slug: string;
+        link: string;
+        title: { rendered: string };
+        excerpt: { rendered: string };
+        content: { rendered: string };
+        modified_gmt?: string;
+        _embedded?: { 'wp:featuredmedia'?: Array<{ source_url?: string }> };
+      }>
+    >(`/wp/v2/pages?slug=${encodeURIComponent(slug)}&_embed=wp:featuredmedia&_fields=slug,link,title,excerpt,content,modified_gmt,_links,_embedded`);
     if (!pages.length) return null;
     const p = pages[0];
+    const seo = await fetchSeo('page', p.slug);
     return {
       slug: p.slug,
       path: linkToPath(p.link),
       title: decodeEntities(p.title?.rendered ?? ''),
       excerpt: stripTags(decodeEntities(p.excerpt?.rendered ?? '')).slice(0, 200),
       body: p.content?.rendered ?? '',
+      type: 'page',
+      image: p._embedded?.['wp:featuredmedia']?.[0]?.source_url,
+      modified: p.modified_gmt ? `${p.modified_gmt}Z` : undefined,
+      seo,
     };
   } catch {
     return null;
@@ -573,16 +646,35 @@ export type PostCard = {
 export async function fetchWpPost(slug: string): Promise<WpPage | null> {
   try {
     const posts = await wpFetch<
-      Array<{ slug: string; link: string; title: { rendered: string }; excerpt: { rendered: string }; content: { rendered: string } }>
-    >(`/wp/v2/posts?slug=${encodeURIComponent(slug)}&_fields=slug,link,title,excerpt,content`);
+      Array<{
+        slug: string;
+        link: string;
+        title: { rendered: string };
+        excerpt: { rendered: string };
+        content: { rendered: string };
+        date_gmt?: string;
+        modified_gmt?: string;
+        _embedded?: {
+          'wp:featuredmedia'?: Array<{ source_url?: string }>;
+          author?: Array<{ name?: string }>;
+        };
+      }>
+    >(`/wp/v2/posts?slug=${encodeURIComponent(slug)}&_embed=wp:featuredmedia,author&_fields=slug,link,title,excerpt,content,date_gmt,modified_gmt,_links,_embedded`);
     if (!posts.length) return null;
     const p = posts[0];
+    const seo = await fetchSeo('post', p.slug);
     return {
       slug: p.slug,
       path: linkToPath(p.link),
       title: decodeEntities(p.title?.rendered ?? ''),
       excerpt: stripTags(decodeEntities(p.excerpt?.rendered ?? '')).slice(0, 200),
       body: p.content?.rendered ?? '',
+      type: 'post',
+      image: p._embedded?.['wp:featuredmedia']?.[0]?.source_url,
+      date: p.date_gmt ? `${p.date_gmt}Z` : undefined,
+      modified: p.modified_gmt ? `${p.modified_gmt}Z` : undefined,
+      author: p._embedded?.author?.[0]?.name,
+      seo,
     };
   } catch {
     return null;

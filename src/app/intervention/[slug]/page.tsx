@@ -10,6 +10,7 @@ import {
   fetchWpPost,
   fetchSectionHeroImage,
 } from '@/lib/wp';
+import { buildMetadata } from '@/lib/seo';
 import { mapWp } from '@/lib/wp-parse';
 
 const SECTION_SLUG = 'intervention';
@@ -35,12 +36,12 @@ export async function generateMetadata(
   const found = await fetchDetail(SECTION_SLUG, slug);
   if (!found) return {};
   const canonical = found.detail.navHrefOverride ?? `/intervention/${slug}`;
-  return {
+  return buildMetadata({
     title: `${found.detail.title} — Intervention.com`,
     description: found.detail.summary,
-    alternates: { canonical },
-    openGraph: found.detail.image ? { images: [{ url: found.detail.image }] } : undefined,
-  };
+    canonicalPath: canonical,
+    image: found.detail.image,
+  });
 }
 
 export default async function InterventionDetailPage(
