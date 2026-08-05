@@ -11,19 +11,52 @@ async function wordpressRedirects(): Promise<Redirect[]> {
   const base =
     process.env.NEXT_PUBLIC_WP_API_URL ??
     'https://interventiodev.wpenginepowered.com/wp-json';
+  const wpOrigin = (() => {
+    try {
+      return new URL(base).origin;
+    } catch {
+      return '';
+    }
+  })();
+
+  // Next.js redirect `source` must be a literal path that path-to-regexp can
+  // parse. Rank Math can store query-string sources (/?page_id=35068), regex,
+  // and absolute URLs, which break the build, so we keep only clean literal
+  // paths. Destinations that point back at the WordPress host are rewritten to
+  // site-relative paths so visitors stay on the new site, not the WP backend.
+  const SAFE_SOURCE = /^\/[A-Za-z0-9\-._~%\/]*$/;
+  const stripTrailing = (p: string) => (p.length > 1 ? p.replace(/\/+$/, '') : p);
+  const toRelative = (url: string) => {
+    let u = (url || '').trim();
+    if (wpOrigin && u.startsWith(wpOrigin)) u = u.slice(wpOrigin.length) || '/';
+    return u.startsWith('/') ? stripTrailing(u) : u;
+  };
+
   try {
     const res = await fetch(`${base}/intervention/v1/redirects`, {
       headers: { 'User-Agent': 'intervention-nextjs-build' },
     });
     if (!res.ok) return [];
     const rows = (await res.json()) as Array<{ from: string; to: string; code: number }>;
-    return rows
-      .filter((r) => r.from && r.to && r.from !== r.to)
-      .map((r) => ({
-        source: r.from,
-        destination: r.to,
-        permanent: r.code !== 302,
-      }));
+    const seen = new Set<string>();
+    const out: Redirect[] = [];
+    for (const r of rows) {
+      const source = stripTrailing((r.from || '').trim());
+      const destination = toRelative(r.to);
+      if (
+        !source ||
+        !destination ||
+        source === '/' || // never redirect the homepage
+        !SAFE_SOURCE.test(source) || // skip query-string / regex / non-path sources
+        source === destination || // skip no-ops and loops
+        seen.has(source)
+      ) {
+        continue;
+      }
+      seen.add(source);
+      out.push({ source, destination, permanent: r.code !== 302 });
+    }
+    return out;
   } catch {
     return [];
   }
