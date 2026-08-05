@@ -3,7 +3,7 @@
  * Plugin Name:  Intervention Headless Setup
  * Plugin URI:   https://intervention.com
  * Description:  Registers the detail_page CPT and all ACF field groups required for the headless Next.js migration. Requires ACF PRO. Adds SEO (Rank Math) + redirects bridge endpoints.
- * Version:      2.2.0
+ * Version:      2.3.0
  * Author:       Intervention.com
  */
 
@@ -186,13 +186,48 @@ add_action( 'rest_api_init', function () {
             $meta = function ( $key ) use ( $id ) { return (string) get_post_meta( $id, $key, true ); };
             $resolve = function ( $text ) use ( $post ) {
                 if ( $text && class_exists( '\\RankMath\\Helper' ) && method_exists( '\\RankMath\\Helper', 'replace_vars' ) ) {
-                    return \RankMath\Helper::replace_vars( $text, $post );
+                    $text = \RankMath\Helper::replace_vars( $text, $post );
                 }
-                return $text;
+                return html_entity_decode( wp_strip_all_tags( (string) $text ), ENT_QUOTES );
             };
 
+            // Final <title>: use WordPress's own document-title pipeline with this
+            // post set as the current query, so Rank Math computes the EXACT title
+            // it renders on the live page (handles %title%, the separator, the
+            // site name, and the no-custom-title global-template fallback). Wrapped
+            // defensively; on any issue we fall back to the raw Rank Math title.
+            $title = '';
+            try {
+                if ( function_exists( 'wp_get_document_title' ) ) {
+                    global $wp_query, $post;
+                    $saved_query = $wp_query;
+                    $saved_post  = $post;
+                    $q = new WP_Query( [ 'p' => $id, 'post_type' => $type, 'posts_per_page' => 1, 'no_found_rows' => true ] );
+                    if ( $q->have_posts() ) {
+                        $q->the_post();
+                        $wp_query = $q;
+                        $wp_query->is_singular = true;
+                        $wp_query->is_single   = ( $type === 'post' );
+                        $wp_query->is_page     = ( $type === 'page' );
+                        $wp_query->is_home     = false;
+                        $wp_query->is_front_page = false;
+                        $title = (string) wp_get_document_title();
+                    }
+                    $wp_query = $saved_query;
+                    $post     = $saved_post;
+                    wp_reset_postdata();
+                }
+            } catch ( \Throwable $e ) {
+                $title = '';
+            }
+            if ( $title === '' ) {
+                $title = $resolve( $meta( 'rank_math_title' ) );
+            } else {
+                $title = html_entity_decode( wp_strip_all_tags( $title ), ENT_QUOTES );
+            }
+
             $data = array_filter( [
-                'title'          => $resolve( $meta( 'rank_math_title' ) ),
+                'title'          => $title,
                 'description'    => $resolve( $meta( 'rank_math_description' ) ),
                 'canonical'      => $meta( 'rank_math_canonical_url' ),
                 'og_title'       => $resolve( $meta( 'rank_math_facebook_title' ) ),

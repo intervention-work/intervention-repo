@@ -460,12 +460,16 @@ export async function fetchSeo(
     if (!d || (!d.title && !d.description && !d.canonical && !d.og_image)) {
       return undefined;
     }
+    // WordPress/Rank Math returns HTML-encoded entities (e.g. &amp;). Decode to
+    // plain text so Next's Metadata encodes exactly once (avoids &amp;amp;).
+    const clean = (s?: string) =>
+      s ? decodeEntities(s).replace(/\s+/g, ' ').trim() || undefined : undefined;
     return {
-      title: d.title || undefined,
-      description: d.description || undefined,
+      title: clean(d.title),
+      description: clean(d.description),
       canonical: d.canonical || undefined,
-      ogTitle: d.og_title || undefined,
-      ogDescription: d.og_description || undefined,
+      ogTitle: clean(d.og_title),
+      ogDescription: clean(d.og_description),
       ogImage: d.og_image || undefined,
       twitterImage: d.twitter_image || undefined,
       robots: d.robots || undefined,
@@ -473,6 +477,18 @@ export async function fetchSeo(
   } catch {
     return undefined;
   }
+}
+
+// SEO for a detail page whose body comes from a WP page. Mirrors fetchPageBody's
+// slug fallback (some detail slugs carry a trailing "-intervention" that the WP
+// page slug drops), so editor-set Rank Math SEO resolves for detail routes too.
+export async function fetchDetailSeo(slug: string): Promise<WpSeo | undefined> {
+  const direct = await fetchSeo('page', slug);
+  if (direct) return direct;
+  if (slug.endsWith('-intervention')) {
+    return fetchSeo('page', slug.replace(/-intervention$/, ''));
+  }
+  return undefined;
 }
 
 // All published WP page paths (for generateStaticParams on the catch-all).

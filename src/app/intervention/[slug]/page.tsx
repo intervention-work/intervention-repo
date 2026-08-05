@@ -9,6 +9,7 @@ import {
   fetchWpPage,
   fetchWpPost,
   fetchSectionHeroImage,
+  fetchDetailSeo,
 } from '@/lib/wp';
 import { buildMetadata } from '@/lib/seo';
 import { mapWp } from '@/lib/wp-parse';
@@ -36,11 +37,14 @@ export async function generateMetadata(
   const found = await fetchDetail(SECTION_SLUG, slug);
   if (!found) return {};
   const canonical = found.detail.navHrefOverride ?? `/intervention/${slug}`;
+  // Honor the editor-set Rank Math SEO of the underlying WP page.
+  const seo = await fetchDetailSeo(found.detail.sourcePageSlug ?? found.detail.slug);
   return buildMetadata({
     title: `${found.detail.title} — Intervention.com`,
     description: found.detail.summary,
     canonicalPath: canonical,
     image: found.detail.image,
+    seo,
   });
 }
 
