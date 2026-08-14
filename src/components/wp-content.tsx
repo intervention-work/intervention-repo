@@ -482,13 +482,14 @@ function BlockView({ block }: { block: Block }) {
         />
       );
     case 'image': {
-      // Render at the image's natural size (never stretched to full width), so
-      // portraits and logos don't balloon. Wide coverage maps stay full width.
+      // Wide coverage maps stay full width. Everything else renders at a modest
+      // size and is LEFT-aligned so it flows with the (left-aligned) copy rather
+      // than floating centered and oversized.
       const isMap = isCoverageMap(block.src);
       return (
         <figure
-          className={`mx-auto overflow-hidden rounded-2xl border border-border bg-surface ${
-            isMap ? 'w-full max-w-[820px]' : 'w-fit max-w-[min(100%,34rem)]'
+          className={`overflow-hidden rounded-2xl border border-border bg-surface ${
+            isMap ? 'mx-auto w-full max-w-[820px]' : 'w-fit max-w-[min(100%,26rem)]'
           }`}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -497,7 +498,7 @@ function BlockView({ block }: { block: Block }) {
             alt={block.alt}
             loading="lazy"
             style={isMap ? MAP_TONE : undefined}
-            className={`mx-auto block h-auto ${isMap ? 'w-full' : 'max-w-full'}`}
+            className={`block h-auto ${isMap ? 'w-full' : 'max-w-full'}`}
           />
         </figure>
       );

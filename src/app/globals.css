@@ -115,3 +115,78 @@ html.lenis body { height: auto; }
     scroll-behavior: auto !important;
   }
 }
+
+/* ---------------------------------------------------------------
+ * HubSpot embedded forms (.hs-embed) -> design language
+ * The v2 embed injects a plain <form>; we restyle it to match the
+ * native site inputs (rounded, sage focus, ink labels, pill button).
+ * --------------------------------------------------------------- */
+.hs-embed .hs-form { display: grid; gap: 1.15rem; }
+.hs-embed fieldset { max-width: none !important; }
+.hs-embed .hs-form-field > label {
+  display: block;
+  margin-bottom: 0.45rem;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-ink-body);
+}
+.hs-embed .hs-form-field > label .hs-form-required { color: var(--color-sage-700); }
+.hs-embed .hs-field-desc {
+  margin: 0.1rem 0 0.5rem;
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  color: var(--color-ink-muted);
+}
+.hs-embed input.hs-input,
+.hs-embed select.hs-input,
+.hs-embed textarea.hs-input {
+  width: 100% !important;
+  box-sizing: border-box;
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  padding: 0.7rem 0.95rem;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  color: var(--color-ink);
+  background: #fff;
+  transition: border-color 0.15s ease;
+}
+.hs-embed .hs-input:focus { outline: none; border-color: var(--color-sage-400); }
+.hs-embed textarea.hs-input { min-height: 7rem; resize: vertical; }
+.hs-embed .hs-input[type="file"] { padding: 0.55rem; background: var(--color-surface); }
+.hs-embed .inputs-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
+.hs-embed .hs-form-booleancheckbox-display,
+.hs-embed .inputs-list label {
+  display: flex;
+  gap: 0.55rem;
+  align-items: flex-start;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--color-ink-body);
+}
+.hs-embed .hs-form-booleancheckbox-display input,
+.hs-embed .inputs-list input { margin-top: 0.25rem; accent-color: var(--color-sage-700); }
+.hs-embed .legal-consent-container,
+.hs-embed .hs-richtext { font-family: var(--font-sans); font-size: 0.8rem; color: var(--color-ink-muted); line-height: 1.5; }
+.hs-embed .hs-button.primary,
+.hs-embed input[type="submit"].hs-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 9999px;
+  padding: 0.85rem 2rem;
+  background: var(--color-sage-700);
+  color: #fff;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.hs-embed .hs-button.primary:hover,
+.hs-embed input[type="submit"].hs-button:hover { background: var(--color-sage-900); }
+.hs-embed .hs-error-msg,
+.hs-embed .hs-error-msgs label { color: #dc2626; font-size: 0.8rem; font-family: var(--font-sans); }
