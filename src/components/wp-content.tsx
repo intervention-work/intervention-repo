@@ -725,9 +725,13 @@ function FeatureCards({ items }: { items: Feature[] }) {
  * evenly spacing every sibling leaves headings floating between topics instead
  * of belonging to the text underneath them.
  */
-// Detect a run (>=3) of "short heading + blurb" clusters starting at `start`,
-// scanning at the block level so a trailing accordion/button after the last
-// blurb doesn't break the run. Returns the features + the index after the run.
+// A blurb only becomes a card when it's SHORT: a single paragraph of at most a
+// few lines. Longer / multi-paragraph copy stays as a plain heading + prose.
+const FEATURE_MAX_WORDS = 45;
+
+// Detect a run (>=3) of "short heading + short blurb" clusters starting at
+// `start`, scanning at the block level so a trailing accordion/button after the
+// last blurb doesn't break the run. Returns the features + index after the run.
 function collectFeatureRun(
   blocks: Block[],
   start: number
@@ -745,8 +749,10 @@ function collectFeatureRun(
       paras.push((blocks[j] as Extract<Block, { kind: 'paragraph' }>).html);
       j++;
     }
-    if (!paras.length) break; // a heading with no blurb is not a feature
-    features.push({ title: head.html, bodyHtml: paras.map((h) => `<p>${h}</p>`).join('') });
+    // Card only for exactly one short paragraph; anything longer is prose.
+    if (paras.length !== 1) break;
+    if (wordCount(stripTags(paras[0])) > FEATURE_MAX_WORDS) break;
+    features.push({ title: head.html, bodyHtml: `<p>${paras[0]}</p>` });
     i = j;
   }
   return features.length >= 3 ? { features, next: i } : null;

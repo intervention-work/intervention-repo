@@ -138,25 +138,37 @@ function pushParagraphOrButton(out: Block[], html: string): void {
 //   new:  <div class="hs-form-frame" data-portal-id data-form-id data-region>
 //   old:  <script>hbspt.forms.create({ portalId:"..", formId:"..", region:".." })</script>
 // The raw <script>/frame would be stripped, so we surface it as an hsform block.
-function hubspotEmbed(
-  el: HTMLElement
-): { portalId: string; formId: string; region: string } | null {
-  const frame = el.querySelector('.hs-form-frame');
-  if (frame) {
-    const portalId = frame.getAttribute('data-portal-id') ?? '';
-    const formId = frame.getAttribute('data-form-id') ?? '';
-    if (portalId && formId) {
-      return { portalId, formId, region: frame.getAttribute('data-region') ?? 'na1' };
+type HsEmbed = { portalId: string; formId: string; region: string };
+
+function hsFromFrame(f: HTMLElement): HsEmbed | null {
+  if (!(f.getAttribute('class') ?? '').split(/\s+/).includes('hs-form-frame')) return null;
+  const portalId = f.getAttribute('data-portal-id') ?? '';
+  const formId = f.getAttribute('data-form-id') ?? '';
+  return portalId && formId
+    ? { portalId, formId, region: f.getAttribute('data-region') ?? 'na1' }
+    : null;
+}
+
+// Detect a HubSpot embed at THIS element only (itself, or a direct child) — never
+// a deep descendant, so a big container that merely wraps a form (plus lots of
+// prose) is not mistaken for the form and its copy is not dropped.
+function hubspotEmbed(el: HTMLElement): HsEmbed | null {
+  const self = hsFromFrame(el);
+  if (self) return self;
+  for (const c of el.childNodes) {
+    const ce = c as HTMLElement;
+    const tag = (ce.tagName ?? '').toLowerCase();
+    if (!tag) continue;
+    const frame = hsFromFrame(ce);
+    if (frame) return frame;
+    if (tag === 'script' && (ce.text ?? '').includes('hbspt.forms.create')) {
+      const txt = ce.text ?? '';
+      const get = (k: string) =>
+        new RegExp(`${k}\\s*:\\s*["']([^"']+)`).exec(txt)?.[1] ?? '';
+      const portalId = get('portalId');
+      const formId = get('formId');
+      if (portalId && formId) return { portalId, formId, region: get('region') || 'na1' };
     }
-  }
-  for (const s of el.querySelectorAll('script')) {
-    const txt = s.text ?? '';
-    if (!txt.includes('hbspt.forms.create')) continue;
-    const get = (k: string) =>
-      new RegExp(`${k}\\s*:\\s*["']([^"']+)`).exec(txt)?.[1] ?? '';
-    const portalId = get('portalId');
-    const formId = get('formId');
-    if (portalId && formId) return { portalId, formId, region: get('region') || 'na1' };
   }
   return null;
 }
@@ -182,12 +194,12 @@ function extractWidget(el: HTMLElement, type: string, out: Block[]): void {
     }
     case 'html': {
       // Custom-HTML widgets are usually a HubSpot form embed.
-      const hs = hubspotEmbed(el);
+      const c = el.querySelector('.elementor-widget-container') ?? el;
+      const hs = hubspotEmbed(c);
       if (hs) {
         out.push({ kind: 'hsform', ...hs });
         return;
       }
-      const c = el.querySelector('.elementor-widget-container') ?? el;
       emitHtmlBlocks(c, out);
       return;
     }
