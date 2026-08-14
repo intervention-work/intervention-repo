@@ -1,5 +1,18 @@
 import type { NextConfig } from 'next';
 
+// Single source of truth for the WordPress backend. Switching from the dev CMS
+// to production (or any future host) is just this one env var, no code change.
+const WP_API_URL =
+  process.env.NEXT_PUBLIC_WP_API_URL ??
+  'https://interventiodev.wpenginepowered.com/wp-json';
+const WP_HOST = (() => {
+  try {
+    return new URL(WP_API_URL).hostname;
+  } catch {
+    return 'interventiodev.wpenginepowered.com';
+  }
+})();
+
 type Redirect = { source: string; destination: string; permanent: boolean };
 
 // Redirects marketing manages in WordPress (Rank Math Redirections) are pulled
@@ -8,9 +21,7 @@ type Redirect = { source: string; destination: string; permanent: boolean };
 // updated) or unreachable, we fail safe and just use the manual list, so the
 // build never breaks. WordPress redirect changes apply on the next deploy.
 async function wordpressRedirects(): Promise<Redirect[]> {
-  const base =
-    process.env.NEXT_PUBLIC_WP_API_URL ??
-    'https://interventiodev.wpenginepowered.com/wp-json';
+  const base = WP_API_URL;
   const wpOrigin = (() => {
     try {
       return new URL(base).origin;
@@ -67,7 +78,11 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: 'api.dicebear.com' },
-      { protocol: 'https', hostname: 'interventiodev.wpenginepowered.com' },
+      // The active WordPress media host (from NEXT_PUBLIC_WP_API_URL) plus the
+      // dev host, so images keep loading during the dev -> production switch.
+      ...[...new Set([WP_HOST, 'interventiodev.wpenginepowered.com'])].map(
+        (hostname) => ({ protocol: 'https' as const, hostname })
+      ),
     ],
   },
 

@@ -10,7 +10,9 @@
 import { parseWp } from '../src/lib/wp-parse';
 import { groupSections, stripTags, type Block } from '../src/lib/wp-content-parse';
 
-const BASE = 'https://interventiodev.wpenginepowered.com/wp-json';
+const BASE =
+  process.env.NEXT_PUBLIC_WP_API_URL ??
+  'https://interventiodev.wpenginepowered.com/wp-json';
 const UA = { 'User-Agent': 'Mozilla/5.0 Chrome/120' };
 
 async function getAll(type: 'pages' | 'posts') {

@@ -1,6 +1,6 @@
 // Deep-dive: catalog Elementor widget types + notable structural patterns
 // across EVERY WP page + post, to decide which reusable components to build.
-const BASE='https://interventiodev.wpenginepowered.com/wp-json';
+const BASE=process.env.NEXT_PUBLIC_WP_API_URL ?? 'https://interventiodev.wpenginepowered.com/wp-json';
 const UA={'User-Agent':'Mozilla/5.0 Chrome/120'};
 async function all(kind:string){const out:any[]=[];for(let p=1;p<=6;p++){const r=await fetch(`${BASE}/wp/v2/${kind}?per_page=100&page=${p}&status=publish&_fields=slug,content`,{headers:UA});if(!r.ok)break;const d=await r.json();if(!d.length)break;out.push(...d);if(d.length<100)break;}return out;}
 async function main(){

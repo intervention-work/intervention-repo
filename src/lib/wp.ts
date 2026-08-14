@@ -746,15 +746,13 @@ export async function fetchDetail(
   return { section, detail };
 }
 
-// Uniform hero background per detail-page section (a template design choice, not
-// per-page content): every detail page in a section shares ONE hero background.
-// The image itself is pulled from a reference service in WordPress, so editors
-// still control the actual photo there (change it on that service, all detail
-// heroes in the section follow). Falls back to the section image if unset.
-const SECTION_HERO_REFERENCE: Record<string, string> = {
-  intervention: 'alcohol-intervention',
-  services: 'drug-intervention',
-};
+// Optional uniform hero background per detail-page section: when a section maps
+// to a reference service slug, every detail page in that section shares that
+// service's hero image. Empty by default so each detail page uses its OWN
+// featured image (natural for real content). To force a shared hero for a
+// section, map it to a service slug that exists in that section, e.g.
+//   const SECTION_HERO_REFERENCE = { services: 'senior-support-services' };
+const SECTION_HERO_REFERENCE: Record<string, string> = {};
 
 export async function fetchSectionHeroImage(
   sectionSlug: string
