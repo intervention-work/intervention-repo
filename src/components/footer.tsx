@@ -20,14 +20,14 @@ const COLUMNS: Col[] = [
     ],
   },
   {
-    title: 'Services',
+    title: 'Additional Services',
     links: [
-      { label: 'Find an Interventionist', href: '/services' },
+      { label: 'Concierge Assessment (CARE)', href: '/services/care-unit-assessment' },
+      { label: 'Breakfree Journey', href: '/services/breakfree-journey' },
+      { label: 'Recovery Coach Companion', href: '/services/recovery-coach-companion' },
+      { label: 'Recovery Case Management', href: '/services/recovery-care-management' },
       { label: 'Senior Support Services', href: '/services/senior-support-services' },
-      { label: 'CARE Unit Assessment', href: '/services/care-unit-assessment' },
-      { label: 'Recovery Care Management', href: '/services/recovery-care-management' },
-      { label: 'BreakFree Journey', href: '/services/breakfree-journey' },
-      { label: 'Family Class', href: '/family-class' },
+      { label: 'Find an Interventionist', href: '/interventionists-by-state' },
     ],
   },
 ];

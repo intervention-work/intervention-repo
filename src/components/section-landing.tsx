@@ -8,10 +8,25 @@ import { viewport } from '@/lib/motion';
 import { PageHero } from '@/components/page-hero';
 import { CtaBanner } from '@/components/cta-banner';
 import { ContentBlocks } from '@/components/content-blocks';
+import { WpContent } from '@/components/wp-content';
 import { FaqList } from '@/components/faq-list';
 import type { Section } from '@/content/types';
+import type { Block } from '@/lib/wp-content-parse';
 
-export function SectionLanding({ section }: { section: Section }) {
+export function SectionLanding({
+  section,
+  bodyBlocks,
+}: {
+  section: Section;
+  /** Parsed WordPress page body — the real editorial content for this section. */
+  bodyBlocks?: Block[];
+}) {
+  const hasBody = bodyBlocks && bodyBlocks.length > 0;
+  const hasAcf =
+    Boolean(section.intro) ||
+    (section.blocks?.length ?? 0) > 0 ||
+    (section.faq?.length ?? 0) > 0;
+
   return (
     <main>
       <PageHero
@@ -22,32 +37,40 @@ export function SectionLanding({ section }: { section: Section }) {
         image={section.image}
       />
 
-      {/* Intro + rich content */}
-      <section className="bg-white py-24 lg:py-32">
-        <div className="mx-auto max-w-3xl px-6">
-          <motion.p
-            initial={{ opacity: 0, y: 14 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={viewport}
-            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="font-display text-2xl leading-[1.45] text-ink-body md:text-[1.6rem]"
-          >
-            {section.intro}
-          </motion.p>
-
-          {section.blocks && section.blocks.length > 0 && (
-            <div className="mt-14">
-              <ContentBlocks blocks={section.blocks} />
-            </div>
-          )}
-
-          {section.faq && section.faq.length > 0 && (
-            <div className="mt-16 border-t border-border pt-14">
-              <FaqList items={section.faq} />
-            </div>
-          )}
-        </div>
-      </section>
+      {/* Body: prefer the real WordPress page content; fall back to ACF fields. */}
+      {(hasBody || hasAcf) && (
+        <section className="bg-white py-24 lg:py-32">
+          <div className="mx-auto max-w-3xl px-6">
+            {hasBody ? (
+              <WpContent blocks={bodyBlocks} />
+            ) : (
+              <>
+                {section.intro && (
+                  <motion.p
+                    initial={{ opacity: 0, y: 14 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={viewport}
+                    transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                    className="font-display text-2xl leading-[1.45] text-ink-body md:text-[1.6rem]"
+                  >
+                    {section.intro}
+                  </motion.p>
+                )}
+                {section.blocks && section.blocks.length > 0 && (
+                  <div className="mt-14">
+                    <ContentBlocks blocks={section.blocks} />
+                  </div>
+                )}
+                {section.faq && section.faq.length > 0 && (
+                  <div className="mt-16 border-t border-border pt-14">
+                    <FaqList items={section.faq} />
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* Child cards */}
       {section.children.length > 0 && (
