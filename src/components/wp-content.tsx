@@ -433,12 +433,14 @@ function BlockView({ block }: { block: Block }) {
           </p>
         );
       }
-      // A "heading" that is really a full sentence should read as a lead.
+      // A heading with 14+ words is really a paragraph the editor put in an H
+      // widget for visual sizing. Render it as normal prose so it doesn't blow
+      // up to display size on the headless site.
       if (words >= 14) {
         return (
-          <p
-            className="max-w-[48ch] text-pretty font-display text-xl leading-snug text-ink md:text-[1.45rem]"
-            dangerouslySetInnerHTML={{ __html: block.html }}
+          <div
+            className={`${styles.prose} ${MEASURE} text-pretty`}
+            dangerouslySetInnerHTML={{ __html: `<p>${block.html}</p>` }}
           />
         );
       }
@@ -611,10 +613,15 @@ function renderBlocks(blocks: Block[]): ReactNode[] {
           </Carousel>
         );
       } else if (group.length > 1) {
+        // Grid images: fill their cell with a fixed aspect ratio so every row is
+        // the same height → horizontal and vertical gaps are visually equal.
         out.push(
           <div key={`img-${i}`} className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             {group.map((g, k) => (
-              <BlockView key={k} block={g} />
+              <figure key={k} className="overflow-hidden rounded-2xl border border-border bg-surface aspect-[4/3] w-full">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={(g as Extract<Block,{kind:'image'}>).src} alt={(g as Extract<Block,{kind:'image'}>).alt} loading="lazy" className="h-full w-full object-cover" />
+              </figure>
             ))}
           </div>
         );

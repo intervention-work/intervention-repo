@@ -47,15 +47,15 @@ export function IconList({ items }: { items: Array<{ icon: string; label: string
 
   if (short) {
     return (
-      <ul className="grid grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-5">
+      <ul className="grid grid-cols-3 gap-6">
         {items.map((item, i) => {
           const Icon = iconFor(item.icon);
           return (
-            <li key={i} className="flex flex-col items-center gap-2 text-center">
-              <span className="flex h-14 w-14 items-center justify-center rounded-full bg-sage-50 text-sage-700">
-                <Icon size={22} strokeWidth={1.75} />
+            <li key={i} className="flex flex-col items-center gap-3 text-center">
+              <span className="flex h-20 w-20 items-center justify-center rounded-full bg-sage-50 text-sage-700">
+                <Icon size={28} strokeWidth={1.6} />
               </span>
-              <span className="font-sans text-sm font-medium text-ink">{item.label}</span>
+              <span className="font-sans text-sm font-medium text-ink leading-snug">{item.label}</span>
             </li>
           );
         })}
