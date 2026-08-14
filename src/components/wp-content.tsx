@@ -481,21 +481,27 @@ function BlockView({ block }: { block: Block }) {
           region={block.region}
         />
       );
-    case 'image':
-      // Cap the width so WP media isn't upscaled past its native size and
-      // doesn't visually outweigh the copy around it.
+    case 'image': {
+      // Render at the image's natural size (never stretched to full width), so
+      // portraits and logos don't balloon. Wide coverage maps stay full width.
+      const isMap = isCoverageMap(block.src);
       return (
-        <figure className="mx-auto max-w-[820px] overflow-hidden rounded-2xl border border-border bg-surface">
+        <figure
+          className={`mx-auto overflow-hidden rounded-2xl border border-border bg-surface ${
+            isMap ? 'w-full max-w-[820px]' : 'w-fit max-w-[min(100%,34rem)]'
+          }`}
+        >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={block.src}
             alt={block.alt}
             loading="lazy"
-            style={isCoverageMap(block.src) ? MAP_TONE : undefined}
-            className="mx-auto block h-auto w-full"
+            style={isMap ? MAP_TONE : undefined}
+            className={`mx-auto block h-auto ${isMap ? 'w-full' : 'max-w-full'}`}
           />
         </figure>
       );
+    }
     case 'list': {
       if (block.chips) return <ChipGrid items={block.items} />;
       return (
