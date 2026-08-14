@@ -4,6 +4,7 @@ import { ContentPage } from '@/components/content-page';
 import { JsonLd } from '@/components/json-ld';
 import { fetchWpPage, fetchWpPost, fetchHeroForLeaf } from '@/lib/wp';
 import { buildMetadata, articleSchema, breadcrumbSchema, SITE } from '@/lib/seo';
+import { HERO_DEFAULT } from '@/lib/hero-images';
 import { mapWp } from '@/lib/wp-parse';
 
 export const revalidate = 3600;
@@ -104,9 +105,9 @@ export default async function CatchAllWpPage(props: PageProps<'/[...slug]'>) {
         eyebrow={mapped.eyebrow || undefined}
         title={heroTitle}
         summary={mapped.summary || undefined}
-        // Blog posts show their WordPress featured image as the hero; service
-        // pages linked at root get the uniform section hero.
-        image={heroImage ?? (isPost ? page.image : undefined)}
+        // Service/intervention pages get their section hero; blog posts show
+        // their featured image; everything else gets the neutral default.
+        image={heroImage ?? (isPost ? page.image ?? HERO_DEFAULT : HERO_DEFAULT)}
         bodyBlocks={mapped.blocks}
         sidebar={mapped.sidebar}
       />

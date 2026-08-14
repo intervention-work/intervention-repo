@@ -16,10 +16,13 @@ import type { Block } from '@/lib/wp-content-parse';
 export function SectionLanding({
   section,
   bodyBlocks,
+  heroImage,
 }: {
   section: Section;
   /** Parsed WordPress page body — the real editorial content for this section. */
   bodyBlocks?: Block[];
+  /** Hero background (bundled design asset); falls back to the ACF image. */
+  heroImage?: string;
 }) {
   const hasBody = bodyBlocks && bodyBlocks.length > 0;
   const hasAcf =
@@ -34,7 +37,7 @@ export function SectionLanding({
         eyebrow={section.label}
         title={section.title}
         summary={section.summary}
-        image={section.image}
+        image={heroImage ?? section.image}
       />
 
       {/* Body: prefer the real WordPress page content; fall back to ACF fields. */}

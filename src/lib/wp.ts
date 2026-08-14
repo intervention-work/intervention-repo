@@ -1,4 +1,5 @@
 import type { Section, DetailContent, ContentBlock } from '@/content/types';
+import { heroForSection } from '@/lib/hero-images';
 
 const WP_API =
   process.env.NEXT_PUBLIC_WP_API_URL ??
@@ -781,24 +782,14 @@ export async function fetchDetail(
 // Optional uniform hero background per detail-page section: when a section maps
 // to a reference service slug, every detail page in that section shares that
 // service's hero image. Empty by default so each detail page uses its OWN
-// featured image (natural for real content). To force a shared hero for a
-// section, map it to a service slug that exists in that section, e.g.
-//   const SECTION_HERO_REFERENCE = { services: 'senior-support-services' };
-const SECTION_HERO_REFERENCE: Record<string, string> = {};
-
+// featured image. The uniform per-section hero background now comes from bundled
+// design assets (heroForSection), so every detail/section page has a background
+// regardless of what WordPress provides. intervention = mountains, services =
+// beach, everything else = a neutral default.
 export async function fetchSectionHeroImage(
   sectionSlug: string
 ): Promise<string | undefined> {
-  const refSlug = SECTION_HERO_REFERENCE[sectionSlug];
-  if (!refSlug) return undefined;
-  try {
-    const posts = await wpFetch<Array<{ slug: string; acf: { image?: string } }>>(
-      `/wp/v2/detail_page?slug=${encodeURIComponent(refSlug)}&_fields=slug,acf&acf_format=standard`
-    );
-    return posts[0]?.acf?.image || undefined;
-  } catch {
-    return undefined;
-  }
+  return heroForSection(sectionSlug);
 }
 
 // The WordPress menu links several detail pages to their ROOT-level permalink

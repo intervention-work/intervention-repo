@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { ContentPage } from '@/components/content-page';
 import { fetchSection, fetchPageBody, fetchSeo } from '@/lib/wp';
+import { heroForSection } from '@/lib/hero-images';
 import { buildMetadata } from '@/lib/seo';
 import { mapWp } from '@/lib/wp-parse';
 
@@ -35,7 +36,7 @@ export default async function InsurancePage() {
       eyebrow={section.eyebrow}
       title={section.title}
       summary={section.summary}
-      image={section.image}
+      image={section.image || heroForSection(SLUG)}
       intro={section.intro}
       blocks={section.blocks}
       bodyBlocks={blocks}

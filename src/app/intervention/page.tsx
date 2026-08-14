@@ -3,6 +3,7 @@ import { SectionLanding } from '@/components/section-landing';
 import { fetchSection, fetchPageBody } from '@/lib/wp';
 import { mapWp } from '@/lib/wp-parse';
 import { buildMetadata } from '@/lib/seo';
+import { heroForSection } from '@/lib/hero-images';
 
 export const revalidate = 3600;
 
@@ -22,5 +23,5 @@ export default async function InterventionPage() {
   if (!section) return null;
   const raw = await fetchPageBody(section.sourcePageSlug ?? 'intervention');
   const { blocks } = mapWp(raw, { title: section.title, summary: section.summary });
-  return <SectionLanding section={section} bodyBlocks={blocks} />;
+  return <SectionLanding section={section} bodyBlocks={blocks} heroImage={heroForSection('intervention')} />;
 }
