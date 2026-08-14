@@ -133,6 +133,34 @@ function pushParagraphOrButton(out: Block[], html: string): void {
   out.push({ kind: 'paragraph', html });
 }
 
+// --- HubSpot form embeds ----------------------------------------------------
+// Detect either HubSpot embed style anywhere in an element:
+//   new:  <div class="hs-form-frame" data-portal-id data-form-id data-region>
+//   old:  <script>hbspt.forms.create({ portalId:"..", formId:"..", region:".." })</script>
+// The raw <script>/frame would be stripped, so we surface it as an hsform block.
+function hubspotEmbed(
+  el: HTMLElement
+): { portalId: string; formId: string; region: string } | null {
+  const frame = el.querySelector('.hs-form-frame');
+  if (frame) {
+    const portalId = frame.getAttribute('data-portal-id') ?? '';
+    const formId = frame.getAttribute('data-form-id') ?? '';
+    if (portalId && formId) {
+      return { portalId, formId, region: frame.getAttribute('data-region') ?? 'na1' };
+    }
+  }
+  for (const s of el.querySelectorAll('script')) {
+    const txt = s.text ?? '';
+    if (!txt.includes('hbspt.forms.create')) continue;
+    const get = (k: string) =>
+      new RegExp(`${k}\\s*:\\s*["']([^"']+)`).exec(txt)?.[1] ?? '';
+    const portalId = get('portalId');
+    const formId = get('formId');
+    if (portalId && formId) return { portalId, formId, region: get('region') || 'na1' };
+  }
+  return null;
+}
+
 // --- Widget extractors ------------------------------------------------------
 
 function extractWidget(el: HTMLElement, type: string, out: Block[]): void {
@@ -153,18 +181,10 @@ function extractWidget(el: HTMLElement, type: string, out: Block[]): void {
       return;
     }
     case 'html': {
-      // Custom-HTML widgets are usually a HubSpot form embed. Capture it as a
-      // block so the form renders (the raw <script>/frame would be stripped).
-      const frame = el.querySelector('.hs-form-frame');
-      const portalId = frame?.getAttribute('data-portal-id') ?? '';
-      const formId = frame?.getAttribute('data-form-id') ?? '';
-      if (portalId && formId) {
-        out.push({
-          kind: 'hsform',
-          portalId,
-          formId,
-          region: frame?.getAttribute('data-region') ?? 'na1',
-        });
+      // Custom-HTML widgets are usually a HubSpot form embed.
+      const hs = hubspotEmbed(el);
+      if (hs) {
+        out.push({ kind: 'hsform', ...hs });
         return;
       }
       const c = el.querySelector('.elementor-widget-container') ?? el;
@@ -287,6 +307,9 @@ function walkNode(node: HTMLElement, out: Block[]): void {
     if (wtype && KNOWN_WIDGETS.has(wtype)) { extractWidget(el, wtype, out); continue; }
     if (wtype && SKIP_WIDGETS.has(wtype)) continue;
     if (LEAF_TAGS.has(tag)) { emitLeaf(el, tag, out); continue; }
+    // A HubSpot form embedded in a plain container (not an html widget).
+    const hs = hubspotEmbed(el);
+    if (hs) { out.push({ kind: 'hsform', ...hs }); continue; }
     walkNode(el, out); // container / unknown widget / wrapper
   }
 }

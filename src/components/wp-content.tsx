@@ -692,16 +692,72 @@ function TopicList({ items }: { items: Topic[] }) {
 }
 
 /**
+ * A "feature" cluster = a short heading followed by a short blurb (no CTA). A
+ * run of these reads far better as a 2-up card grid than as stacked prose.
+ */
+type Feature = { title: string; bodyHtml: string };
+
+// Reusable card grid: two cards per row on desktop, one on mobile.
+function FeatureCards({ items }: { items: Feature[] }) {
+  return (
+    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+      {items.map((f, i) => (
+        <div
+          key={i}
+          className="rounded-2xl border border-border bg-surface p-6 md:p-7"
+        >
+          <h3
+            className="font-display text-xl leading-snug text-ink md:text-[1.35rem]"
+            dangerouslySetInnerHTML={{ __html: f.title }}
+          />
+          <div
+            className={`${styles.prose} mt-3 text-[15px]`}
+            dangerouslySetInnerHTML={{ __html: f.bodyHtml }}
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/**
  * Cluster each heading with the copy that follows it. WP emits a flat list, so
  * evenly spacing every sibling leaves headings floating between topics instead
  * of belonging to the text underneath them.
  */
-function BlockFlow({ blocks }: { blocks: Block[] }) {
+// Detect a run (>=3) of "short heading + blurb" clusters starting at `start`,
+// scanning at the block level so a trailing accordion/button after the last
+// blurb doesn't break the run. Returns the features + the index after the run.
+function collectFeatureRun(
+  blocks: Block[],
+  start: number
+): { features: Feature[]; next: number } | null {
+  const features: Feature[] = [];
+  let i = start;
+  while (i < blocks.length) {
+    const head = blocks[i];
+    if (head.kind !== 'heading') break;
+    const title = stripTags(head.html);
+    if (!title || wordCount(title) > 9 || title === title.toUpperCase()) break;
+    let j = i + 1;
+    const paras: string[] = [];
+    while (j < blocks.length && blocks[j].kind === 'paragraph') {
+      paras.push((blocks[j] as Extract<Block, { kind: 'paragraph' }>).html);
+      j++;
+    }
+    if (!paras.length) break; // a heading with no blurb is not a feature
+    features.push({ title: head.html, bodyHtml: paras.map((h) => `<p>${h}</p>`).join('') });
+    i = j;
+  }
+  return features.length >= 3 ? { features, next: i } : null;
+}
+
+// Existing prose logic: cluster each heading with the copy under it, and turn
+// heading+blurb+CTA runs into a TopicList.
+function proseSegment(blocks: Block[]): ReactNode[] {
   const groups: Block[][] = [];
   for (const b of blocks) {
     const cur = groups[groups.length - 1];
-    // A heading opens a new cluster, but runs of headings (kicker + title,
-    // title + standfirst) belong to the same one.
     const startNew =
       !cur || (b.kind === 'heading' && cur.some((x) => x.kind !== 'heading'));
     if (startNew) groups.push([b]);
@@ -731,7 +787,30 @@ function BlockFlow({ blocks }: { blocks: Block[] }) {
     );
     i++;
   }
+  return out;
+}
 
+function BlockFlow({ blocks }: { blocks: Block[] }) {
+  const out: ReactNode[] = [];
+  let i = 0;
+  while (i < blocks.length) {
+    // Feature run -> 2-up card grid.
+    const fr = collectFeatureRun(blocks, i);
+    if (fr) {
+      out.push(<FeatureCards key={`features-${i}`} items={fr.features} />);
+      i = fr.next;
+      continue;
+    }
+    // Otherwise gather blocks up to the next feature run and render as prose.
+    let j = i + 1;
+    while (j < blocks.length && !collectFeatureRun(blocks, j)) j++;
+    out.push(
+      <div key={`seg-${i}`} className="space-y-12">
+        {proseSegment(blocks.slice(i, j))}
+      </div>
+    );
+    i = j;
+  }
   return <div className="space-y-12">{out}</div>;
 }
 
