@@ -193,13 +193,45 @@ async function fetchDetailsByParent(parentSlug: string): Promise<DetailContent[]
     .map((p) => toDetailContent(p.slug, p.acf));
 }
 
+function titleizeSlug(slug: string): string {
+  return slug
+    .split('-')
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+}
+
+// Section pages may have empty ACF hero fields (e.g. on a WordPress install
+// where only the detail_page records were set up). Derive a usable hero from
+// the page's OWN content so the title/summary/labels are never blank.
+async function fillSectionHeroFallback(section: Section, slug: string): Promise<void> {
+  if (section.title && section.summary && section.label) return; // ACF fully set
+  let derived = { eyebrow: '', title: '', summary: '', body: '' };
+  try {
+    const raw = await fetchPageBody(section.sourcePageSlug ?? slug);
+    if (raw) {
+      derived = mapWpContent(raw, { title: section.title, summary: section.summary });
+    }
+  } catch {
+    /* fall through to defaults */
+  }
+  const label = section.label || derived.title || titleizeSlug(slug);
+  section.label = label;
+  section.title = section.title || derived.title || label;
+  section.summary = section.summary || derived.summary || '';
+  section.eyebrow = section.eyebrow || derived.eyebrow || undefined;
+  section.childrenEyebrow = section.childrenEyebrow || label;
+  section.childrenTitle = section.childrenTitle || `Explore ${label.toLowerCase()}`;
+}
+
 export async function fetchSection(slug: string): Promise<Section | null> {
   const pages = await wpFetch<Array<{ slug: string; acf: AcfSectionFields }>>(
     `/wp/v2/pages?slug=${slug}&_fields=slug,acf&acf_format=standard`
   );
   if (!pages.length) return null;
   const children = await fetchDetailsByParent(slug);
-  return toSection(slug, pages[0].acf, children);
+  const section = toSection(slug, pages[0].acf, children);
+  await fillSectionHeroFallback(section, slug);
+  return section;
 }
 
 // ---------------------------------------------------------------------------

@@ -37,7 +37,8 @@ export type Block =
       }>;
     }
   | { kind: 'icon-cards'; items: Array<{ icon: string; title: string; desc: string }> }
-  | { kind: 'media-text'; image: { src: string; alt: string }; side: 'left' | 'right'; blocks: Block[] };
+  | { kind: 'media-text'; image: { src: string; alt: string }; side: 'left' | 'right'; blocks: Block[] }
+  | { kind: 'hsform'; portalId: string; formId: string; region: string };
 
 export type Section = { heading?: string; blocks: Block[] };
 

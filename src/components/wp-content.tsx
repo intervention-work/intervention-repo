@@ -4,6 +4,7 @@ import { Carousel } from './carousel';
 import { Heading } from './heading';
 import { IconList } from './icon-list';
 import { Accordion } from './accordion';
+import { HubSpotEmbed } from './hubspot-embed';
 import { groupSections, stripTags, wordCount, type Block, type Card as CardData, type Section } from '@/lib/wp-content-parse';
 import { parseWp } from '@/lib/wp-parse';
 import {
@@ -471,6 +472,14 @@ function BlockView({ block }: { block: Block }) {
     case 'button':
       return (
         <CtaLink href={block.href} label={block.label} external={block.external} />
+      );
+    case 'hsform':
+      return (
+        <HubSpotEmbed
+          portalId={block.portalId}
+          formId={block.formId}
+          region={block.region}
+        />
       );
     case 'image':
       // Cap the width so WP media isn't upscaled past its native size and

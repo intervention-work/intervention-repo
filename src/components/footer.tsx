@@ -11,12 +11,12 @@ const COLUMNS: Col[] = [
   {
     title: 'Interventions',
     links: [
-      { label: 'Alcohol', href: '/intervention/alcohol-intervention' },
-      { label: 'Drug', href: '/intervention/drug-intervention' },
-      { label: 'Eating Disorder', href: '/intervention/eating-disorder-intervention' },
+      { label: 'Drug & Alcohol', href: '/intervention/drug-alcohol-intervention' },
+      { label: 'Eating Disorder', href: '/intervention/eating-disorder' },
       { label: 'Mental Health', href: '/intervention/mental-health-crisis' },
       { label: 'Complex Trauma', href: '/intervention/complex-trauma' },
       { label: 'Early Autism', href: '/intervention/early-autism' },
+      { label: 'By State', href: '/interventionists-by-state' },
     ],
   },
   {
@@ -33,9 +33,8 @@ const COLUMNS: Col[] = [
 ];
 
 const LEGAL = [
-  { label: 'Privacy', href: '#' },
-  { label: 'HIPAA notice', href: '#' },
-  { label: 'Terms', href: '#' },
+  { label: 'Privacy Policy', href: '/privacy-policy' },
+  { label: 'Terms and Conditions', href: '/terms-and-conditions' },
 ];
 
 export function Footer() {

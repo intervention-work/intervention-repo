@@ -59,6 +59,8 @@ function blockText(b: Block): string {
       return b.cards
         .map((c) => `${c.title} ${c.subtitle} ${c.price} ${c.button?.label ?? ''}`)
         .join(' ');
+    case 'hsform':
+      return '';
   }
 }
 

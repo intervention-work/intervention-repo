@@ -152,6 +152,25 @@ function extractWidget(el: HTMLElement, type: string, out: Block[]): void {
       emitHtmlBlocks(c, out);
       return;
     }
+    case 'html': {
+      // Custom-HTML widgets are usually a HubSpot form embed. Capture it as a
+      // block so the form renders (the raw <script>/frame would be stripped).
+      const frame = el.querySelector('.hs-form-frame');
+      const portalId = frame?.getAttribute('data-portal-id') ?? '';
+      const formId = frame?.getAttribute('data-form-id') ?? '';
+      if (portalId && formId) {
+        out.push({
+          kind: 'hsform',
+          portalId,
+          formId,
+          region: frame?.getAttribute('data-region') ?? 'na1',
+        });
+        return;
+      }
+      const c = el.querySelector('.elementor-widget-container') ?? el;
+      emitHtmlBlocks(c, out);
+      return;
+    }
     case 'button': {
       const a = el.querySelector('a');
       const label = stripTags(a?.text ?? '').trim();
@@ -242,7 +261,7 @@ const KNOWN_WIDGETS = new Set([
   'heading', 'text-editor', 'theme-post-excerpt', 'button', 'image',
   'theme-post-featured-image', 'icon-list', 'icon-box', 'n-accordion',
   'accordion', 'testimonial-carousel', 'testimonial', 'reviews',
-  'image-carousel', 'divider',
+  'image-carousel', 'divider', 'html',
 ]);
 // nav-menu etc. are site chrome. shortcode/html are NOT skipped — they often
 // wrap real rendered content (only the literal [shortcode] text is dropped).
