@@ -85,13 +85,13 @@ export function Hero() {
             Talk to a specialist
             <ArrowRight size={16} strokeWidth={1.75} />
           </Link>
-          <a
-            href="tel:+18007891605"
+          <Link
+            href="/contact"
             className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-6 py-4 font-sans text-base text-white backdrop-blur-sm transition-colors duration-300 hover:bg-white/20"
           >
             <Phone size={14} strokeWidth={1.75} />
             (800) 789-1605
-          </a>
+          </Link>
         </div>
 
         <div className="mt-9 flex items-center gap-12">
@@ -164,13 +164,13 @@ export function Hero() {
               placeholder="Your phone number"
               className="w-full rounded-xl border border-white/15 bg-white/10 px-3.5 py-2.5 font-sans text-[13px] text-white outline-none transition-colors placeholder:text-white/35 focus:border-white/50"
             />
-            <a
-              href="tel:+18007891605"
+            <Link
+              href="/contact"
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-sage-500 py-2.5 font-sans text-[13px] font-medium text-white transition-colors duration-300 hover:bg-sage-700"
             >
               <Phone size={12} strokeWidth={1.75} />
-              Call now — it&apos;s free
-            </a>
+              Get in touch — it&apos;s free
+            </Link>
           </div>
 
           <p className="mt-3 text-center font-sans text-[10px] text-white/35">

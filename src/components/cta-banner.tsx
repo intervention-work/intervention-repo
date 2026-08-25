@@ -45,13 +45,13 @@ export function CtaBanner({ tight = false }: { tight?: boolean }) {
               Talk to a specialist
               <ArrowRight size={16} strokeWidth={1.75} />
             </Link>
-            <a
-              href="tel:+18007891605"
+            <Link
+              href="/contact"
               className="inline-flex items-center gap-2 rounded-full border border-border px-7 py-4 font-sans text-base text-ink transition-[background-color,transform] duration-200 ease-expo-out hover:bg-surface active:scale-[0.97]"
             >
               <Phone size={15} strokeWidth={1.75} className="text-sage-500" />
-              (800) 789-1605
-            </a>
+              Contact us
+            </Link>
           </div>
 
           <p className="mt-6 font-sans text-[13px] tracking-wide text-ink-muted">
