@@ -797,25 +797,31 @@ export async function fetchSectionHeroImage(
 }
 
 // The WordPress menu links several detail pages to their ROOT-level permalink
-// (e.g. /recovery-coach-companion) rather than /services/[slug], so they render
-// through the catch-all route. Given a catch-all leaf slug, return the uniform
-// section hero background if that page is really a services/intervention detail
-// page, so the background matches its /section/[slug] twin. Returns undefined
-// for ordinary pages (state pages, legal, blog, etc.).
-export async function fetchHeroForLeaf(
+// (e.g. /care-unit-assessment) rather than /services/[slug], so they render
+// through the catch-all route. Return the matching section + detail so the
+// catch-all can use ACF-driven label/title/summary for the hero (instead of
+// the stale WP page title) and derive the correct section hero background.
+// Returns null for ordinary pages (state pages, legal, blog, etc.).
+export async function fetchLeafDetail(
   leaf: string
-): Promise<string | undefined> {
+): Promise<{ detail: DetailContent; section: Section } | null> {
   const [intervention, services] = await Promise.all([
     fetchSection('intervention'),
     fetchSection('services'),
   ]);
-  const belongsTo = (section: Section | null) =>
-    (section?.children ?? []).some(
-      (c) => c.slug === leaf || c.sourcePageSlug === leaf
-    );
-  if (belongsTo(services)) return fetchSectionHeroImage('services');
-  if (belongsTo(intervention)) return fetchSectionHeroImage('intervention');
-  return undefined;
+  const trySection = (s: Section | null) => {
+    const d = s?.children.find((c) => c.slug === leaf || c.sourcePageSlug === leaf);
+    return d && s ? { detail: d, section: s } : null;
+  };
+  return trySection(services) ?? trySection(intervention);
+}
+
+// Thin wrapper kept for any future callers that only need the hero image URL.
+export async function fetchHeroForLeaf(
+  leaf: string
+): Promise<string | undefined> {
+  const found = await fetchLeafDetail(leaf);
+  return found ? fetchSectionHeroImage(found.section.slug) : undefined;
 }
 
 // WP menu node (from /intervention/v1/nav). Mirrors Appearance > Menus exactly.

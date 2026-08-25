@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { ContentPage } from '@/components/content-page';
 import { JsonLd } from '@/components/json-ld';
-import { fetchWpPage, fetchWpPost, fetchHeroForLeaf } from '@/lib/wp';
+import { fetchWpPage, fetchWpPost, fetchLeafDetail } from '@/lib/wp';
 import { buildMetadata, articleSchema, breadcrumbSchema, SITE } from '@/lib/seo';
-import { HERO_DEFAULT } from '@/lib/hero-images';
+import { heroForSection, HERO_DEFAULT } from '@/lib/hero-images';
 import { mapWp } from '@/lib/wp-parse';
 
 export const revalidate = 3600;
@@ -57,19 +57,37 @@ export async function generateMetadata(
 export default async function CatchAllWpPage(props: PageProps<'/[...slug]'>) {
   const { slug } = await props.params;
   const leaf = slug[slug.length - 1];
-  // Some detail pages are linked at their root permalink by the WP menu and land
-  // here; give them the same uniform section hero as their /section/[slug] twin.
-  const [page, heroImage] = await Promise.all([
+  // Fetch the WP page/post and the matching detail_page record (if this slug
+  // belongs to a services/intervention detail page linked at root level via a
+  // nav URL override). Both calls hit fetchSection which is deduplicated.
+  const [page, leafDetail] = await Promise.all([
     loadEntry(leaf),
-    fetchHeroForLeaf(leaf),
+    fetchLeafDetail(leaf),
   ]);
-  if (!page) notFound();
+  if (!page && !leafDetail) notFound();
+
+  // Hero image: section image for detail pages, post featured image for blog
+  // posts, neutral default for all other pages.
+  const isPostType = page?.type === 'post';
+  const heroImage = leafDetail
+    ? heroForSection(leafDetail.section.slug)
+    : isPostType ? page?.image ?? HERO_DEFAULT : HERO_DEFAULT;
+
+  // For detail pages reached via nav URL override (e.g. /care-unit-assessment),
+  // the ACF label/title/summary from the detail_page CPT is the authoritative
+  // source of truth. The WP page title is often stale; the detail_page record
+  // is what editors update via the WP Admin ACF panel.
+  const detailLabel = leafDetail?.detail.label || leafDetail?.detail.title || undefined;
+  const detailSummary = leafDetail?.detail.summary || leafDetail?.detail.intro || undefined;
 
   // Map the raw WP content into hero + body (removes the duplicated opening).
-  // Pass the ACF summary so the hero subtitle is populated even when the
-  // Elementor body doesn't contain a matching intro paragraph.
-  const mapped = mapWp(page.body, { summary: page.acfSummary || undefined });
-  const heroTitle = mapped.title || page.title || titleize(leaf);
+  // Pass ACF-driven title/summary so matching intro blocks are stripped and
+  // the hero shows the correct up-to-date data.
+  const mapped = mapWp(page?.body ?? '', {
+    title: detailLabel || undefined,
+    summary: detailSummary || page?.acfSummary || undefined,
+  });
+  const heroTitle = mapped.title || page?.title || titleize(leaf);
 
   const crumbs = [
     { label: 'Home', href: '/' },
@@ -80,12 +98,11 @@ export default async function CatchAllWpPage(props: PageProps<'/[...slug]'>) {
     { label: heroTitle },
   ];
 
-  const isPost = page.type === 'post';
   const url = `${SITE}/${slug.join('/')}`;
   const schema: object[] = [
     breadcrumbSchema(crumbs.map((c) => ({ name: c.label, path: c.href }))),
   ];
-  if (isPost) {
+  if (isPostType && page) {
     schema.push(
       articleSchema({
         title: page.title,
@@ -107,9 +124,7 @@ export default async function CatchAllWpPage(props: PageProps<'/[...slug]'>) {
         eyebrow={mapped.eyebrow || undefined}
         title={heroTitle}
         summary={mapped.summary || undefined}
-        // Service/intervention pages get their section hero; blog posts show
-        // their featured image; everything else gets the neutral default.
-        image={heroImage ?? (isPost ? page.image ?? HERO_DEFAULT : HERO_DEFAULT)}
+        image={heroImage}
         bodyBlocks={mapped.blocks}
         sidebar={mapped.sidebar}
       />
