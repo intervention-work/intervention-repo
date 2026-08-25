@@ -457,6 +457,8 @@ export type WpPage = {
   author?: string;
   /** Editor-set SEO overrides from WordPress (Rank Math), when available. */
   seo?: WpSeo;
+  /** ACF section_page summary field — the hero subtitle for catch-all pages. */
+  acfSummary?: string;
 };
 
 // Editor-controlled SEO from WordPress (Rank Math). Populated by the SEO bridge
@@ -547,9 +549,10 @@ export async function fetchWpPage(slug: string): Promise<WpPage | null> {
         excerpt: { rendered: string };
         content: { rendered: string };
         modified_gmt?: string;
+        acf?: { summary?: string };
         _embedded?: { 'wp:featuredmedia'?: Array<{ source_url?: string }> };
       }>
-    >(`/wp/v2/pages?slug=${encodeURIComponent(slug)}&_embed=wp:featuredmedia&_fields=slug,link,title,excerpt,content,modified_gmt,_links,_embedded`);
+    >(`/wp/v2/pages?slug=${encodeURIComponent(slug)}&_embed=wp:featuredmedia&acf_format=standard&_fields=slug,link,title,excerpt,content,modified_gmt,acf,_links,_embedded`);
     if (!pages.length) return null;
     const p = pages[0];
     const seo = await fetchSeo('page', p.slug);
@@ -563,6 +566,7 @@ export async function fetchWpPage(slug: string): Promise<WpPage | null> {
       image: p._embedded?.['wp:featuredmedia']?.[0]?.source_url,
       modified: p.modified_gmt ? `${p.modified_gmt}Z` : undefined,
       seo,
+      acfSummary: p.acf?.summary || undefined,
     };
   } catch {
     return null;

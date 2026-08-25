@@ -2,7 +2,7 @@
 
 import { Phone, Mail, Clock } from 'lucide-react';
 import { PageHero } from '@/components/page-hero';
-import { HubSpotContactForm } from '@/components/hubspot-form';
+import { HubSpotEmbed } from '@/components/hubspot-embed';
 import { useSettings } from '@/lib/settings';
 
 const IMAGE =
@@ -36,9 +36,10 @@ export function ContactView() {
             </p>
 
             <div className="relative mt-10">
-              <HubSpotContactForm
-                phoneDisplay={phoneDisplay}
-                phoneHref={phoneHref}
+              <HubSpotEmbed
+                portalId="46095144"
+                formId="4fd83930-97c1-4d8a-a51b-3fd18583507e"
+                region="na1"
               />
               <p className="mt-4 font-sans text-xs text-ink-muted">
                 Your information is confidential and will only be used to

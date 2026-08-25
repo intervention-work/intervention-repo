@@ -66,7 +66,9 @@ export default async function CatchAllWpPage(props: PageProps<'/[...slug]'>) {
   if (!page) notFound();
 
   // Map the raw WP content into hero + body (removes the duplicated opening).
-  const mapped = mapWp(page.body);
+  // Pass the ACF summary so the hero subtitle is populated even when the
+  // Elementor body doesn't contain a matching intro paragraph.
+  const mapped = mapWp(page.body, { summary: page.acfSummary || undefined });
   const heroTitle = mapped.title || page.title || titleize(leaf);
 
   const crumbs = [

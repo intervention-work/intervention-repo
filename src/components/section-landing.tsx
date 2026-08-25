@@ -114,9 +114,9 @@ export function SectionLanding({
                   className="group flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-white transition-shadow duration-300 hover:shadow-[0_24px_60px_-32px_rgba(17,24,39,0.35)]"
                 >
                   <div className="relative aspect-[16/10] w-full overflow-hidden bg-ink">
-                    {(child.image ?? section.image) && (
+                    {(child.image ?? section.image ?? heroImage) && (
                       <Image
-                        src={(child.image ?? section.image) as string}
+                        src={(child.image ?? section.image ?? heroImage) as string}
                         alt=""
                         fill
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 380px"

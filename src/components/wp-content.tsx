@@ -491,7 +491,7 @@ function BlockView({ block }: { block: Block }) {
       return (
         <figure
           className={`overflow-hidden rounded-2xl border border-border bg-surface ${
-            isMap ? 'mx-auto w-full max-w-[820px]' : 'w-fit max-w-[min(100%,26rem)]'
+            isMap ? 'mx-auto w-full max-w-[820px]' : 'mx-auto w-full'
           }`}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -500,7 +500,7 @@ function BlockView({ block }: { block: Block }) {
             alt={block.alt}
             loading="lazy"
             style={isMap ? MAP_TONE : undefined}
-            className={`block h-auto ${isMap ? 'w-full' : 'max-w-full'}`}
+            className="block h-auto w-full"
           />
         </figure>
       );
