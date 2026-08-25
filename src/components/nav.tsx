@@ -31,7 +31,7 @@ function decodeWpLabel(label: string): string {
 function toPath(url: string): string {
   if (!url || url === '#') return '#';
   try { return new URL(url).pathname.replace(/\/+$/, '') || '/'; }
-  catch { return url; }
+  catch { return url.replace(/\/+$/, '') || '/'; }
 }
 
 // Convert the WordPress menu tree into the pill-nav shape. For intervention and
