@@ -45,7 +45,7 @@ function linksFromMenu(menu: NavNode[], sections: NavSection[]): TopLink[] {
     const section = sectionMap.get(href);
     if (section) {
       return {
-        label: decodeWpLabel(node.label),
+        label: section.label || decodeWpLabel(node.label),
         href,
         items: section.children.map((c) => ({
           label: c.label,
@@ -75,22 +75,35 @@ function buildLinks(sections: NavSection[]): TopLink[] {
       href: c.hrefOverride ?? `/${parentSlug}/${c.slug}`,
     }));
   };
+  const svcSection = sections.find((s) => s.slug === 'services');
 
   return [
-    { label: 'About', href: '/about' },
+    {
+      label: 'About Us',
+      href: '/about-us',
+      items: [
+        { label: 'Our Team', href: '/our-team' },
+        { label: 'FAQ', href: '/faq' },
+      ],
+    },
     { label: 'Intervention', href: '/intervention', items: items('intervention') },
-    { label: 'Services', href: '/services', items: items('services') },
+    {
+      label: svcSection?.label || 'Additional Services',
+      href: '/services',
+      items: items('services'),
+    },
     {
       label: 'Resources',
       href: '/resources',
       items: [
-        { label: 'Find an Interventionist', href: '/services' },
-        { label: 'Research & Outcomes', href: '/resources' },
         { label: 'Podcast', href: 'https://americarecovers.com/', external: true },
+        { label: 'Breakfree Intervention Training', href: '/trainings/breakfree-intervention-skills-training' },
+        { label: 'Family Class', href: '/family-class' },
+        { label: 'Verify Your Insurance', href: '/insurance' },
       ],
     },
-    { label: 'Family Class', href: '/family-class' },
-    { label: 'Contact', href: '/contact' },
+    { label: 'Our Blog', href: '/intervention-blog' },
+    { label: 'Contact Us', href: '/contact' },
   ];
 }
 

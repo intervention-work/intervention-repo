@@ -20,7 +20,14 @@ const DRY_RUN = process.argv.includes('--dry-run');
 const UA = { 'User-Agent': 'intervention-update/1.0' };
 
 // Changes to detail_page records, keyed by their acf.slug.
-type DetailChange = { slug: string; menu_order?: number; label?: string; title?: string };
+type DetailChange = {
+  slug: string;
+  menu_order?: number;
+  label?: string;
+  title?: string;
+  navHrefOverride?: string;
+  parentSection?: string;
+};
 const DETAIL_CHANGES: DetailChange[] = [
   // Services: new ordering + two renames.
   { slug: 'care-unit-assessment', menu_order: 1, label: 'Concierge Assessment (CARE)', title: 'Concierge Assessment (CARE)' },
@@ -29,8 +36,19 @@ const DETAIL_CHANGES: DetailChange[] = [
   { slug: 'recovery-care-management', menu_order: 5, label: 'Recovery Case Management', title: 'Recovery Case Management' },
   { slug: 'on-set-care-unit', menu_order: 6 },
   { slug: 'senior-support-services', menu_order: 7 },
-  // Intervention: rename the state locator card/nav label.
-  { slug: 'interventionists-by-state', label: 'Find an Interventionist' },
+  // Intervention: rename state-locator; override nav href to root level (catch-all resolves it).
+  { slug: 'interventionists-by-state', label: 'Find an Interventionist', navHrefOverride: '/interventionists-by-state' },
+  // Intervention: merge drug + alcohol into one nav item. The drug record becomes the combined entry.
+  // navHrefOverride will be '/drug-alcohol-intervention/' once that WP page is created by the client.
+  // Until then it links to the existing /intervention/drug-intervention page.
+  {
+    slug: 'drug-intervention',
+    menu_order: 3,
+    label: 'Drug or Alcohol Intervention Services',
+    title: 'Drug or Alcohol Intervention Services',
+  },
+  // Remove alcohol-intervention from the nav/cards by clearing its parent_section.
+  { slug: 'alcohol-intervention', parentSection: '' },
 ];
 
 // Changes to section landing pages, keyed by page slug.
@@ -66,6 +84,8 @@ async function main() {
       c.menu_order !== undefined ? `order=${c.menu_order}` : '',
       c.label ? `label="${c.label}"` : '',
       c.title ? `title="${c.title}"` : '',
+      c.navHrefOverride !== undefined ? `navHref="${c.navHrefOverride}"` : '',
+      c.parentSection !== undefined ? `parentSection="${c.parentSection}"` : '',
     ].filter(Boolean).join('  ');
     if (!id) { console.log(`  MISSING  ${c.slug}`); continue; }
     console.log(`  ${c.slug.padEnd(28)} ${parts}`);
@@ -73,6 +93,8 @@ async function main() {
     const acf: Record<string, string> = {};
     if (c.label) acf.label = c.label;
     if (c.title) acf.title = c.title;
+    if (c.navHrefOverride !== undefined) acf.nav_href_override = c.navHrefOverride;
+    if (c.parentSection !== undefined) acf.parent_section = c.parentSection;
     const body: Record<string, unknown> = {};
     if (c.menu_order !== undefined) body.menu_order = c.menu_order;
     if (Object.keys(acf).length) body.acf = acf;
