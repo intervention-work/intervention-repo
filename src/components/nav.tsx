@@ -38,18 +38,22 @@ function toPath(url: string): string {
 // Editing here is the single source of truth for About Us and Resources dropdowns.
 const LINKS_OVERRIDE: Record<string, MenuItem[]> = {
   '/about-us': [
-    { label: 'Our Team', href: '/our-team' },
+    { label: 'Our Team', href: '/about-us' },
     { label: 'FAQ', href: '/faq' },
   ],
   '/resources': [
     { label: 'Our Blog', href: '/intervention-blog' },
     { label: 'Breakfree Intervention Training', href: '/trainings/breakfree-intervention-skills-training' },
     { label: 'Family Class', href: '/family-class' },
+    { label: 'Verify Your Insurance', href: '/insurance' },
   ],
 };
 
 // Top-level WP menu items to suppress from the top bar (they live as sub-items elsewhere).
 const SUPPRESSED_PATHS = new Set(['/family-class']);
+
+// Paths that must render as plain links with no dropdown, regardless of WP menu children.
+const FORCE_LEAF_PATHS = new Set(['/contact']);
 
 // Convert the WordPress menu tree into the pill-nav shape. For intervention and
 // services dropdowns we override children with the detail_page ACF data so the
@@ -75,6 +79,9 @@ function linksFromMenu(menu: NavNode[], sections: NavSection[]): TopLink[] {
       }
       if (override) {
         return { label: decodeWpLabel(node.label), href, items: override };
+      }
+      if (FORCE_LEAF_PATHS.has(href)) {
+        return { label: decodeWpLabel(node.label), href, items: undefined };
       }
       return {
         label: decodeWpLabel(node.label),
