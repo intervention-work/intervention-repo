@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
-import { ContentPage } from '@/components/content-page';
-import { HubSpotEmbed } from '@/components/hubspot-embed';
+import { PageHero } from '@/components/page-hero';
+import { WpContent } from '@/components/wp-content';
+import { CtaBanner } from '@/components/cta-banner';
+import { ResourceFormSection } from '@/components/resource-form-section';
 import { fetchSection, fetchPageBody, fetchSeo } from '@/lib/wp';
 import { heroForSection } from '@/lib/hero-images';
 import { buildMetadata } from '@/lib/seo';
@@ -27,29 +29,38 @@ export default async function FamilyClassPage() {
   const section = await fetchSection(SLUG);
   if (!section) return null;
   const raw = await fetchPageBody(section.sourcePageSlug ?? SLUG);
-  const { blocks, sidebar } = mapWp(raw, {
+  const { blocks } = mapWp(raw, {
     title: section.title,
     summary: section.intro || section.summary,
   });
+
   return (
-    <>
-      <ContentPage
-        crumbs={[{ label: 'Home', href: '/' }, { label: section.label }]}
-        eyebrow={section.eyebrow}
+    <main>
+      <PageHero
+        crumbs={[{ label: 'Home', href: '/' }, { label: 'Resources', href: '/resources' }, { label: section.label }]}
+        eyebrow={section.eyebrow || 'Resources'}
         title={section.title}
         summary={section.summary}
         image={section.image || heroForSection(SLUG)}
-        intro={section.intro}
-        blocks={section.blocks}
-        bodyBlocks={blocks}
-        sidebar={sidebar}
       />
-      <section className="bg-white py-20 lg:py-28">
-        <div className="mx-auto max-w-[680px] px-6">
-          <h2 className="font-display text-3xl text-ink mb-8">Get in touch</h2>
-          <HubSpotEmbed portalId="46095144" formId="4fd83930-97c1-4d8a-a51b-3fd18583507e" region="na1" />
-        </div>
-      </section>
-    </>
+
+      {blocks.length > 0 && (
+        <section className="bg-white py-24 lg:py-32">
+          <div className="mx-auto max-w-3xl px-6">
+            <WpContent blocks={blocks} />
+          </div>
+        </section>
+      )}
+
+      <ResourceFormSection
+        eyebrow="Family Class"
+        heading="Register for our next session."
+        subheading="Fill out the form and a specialist will confirm your spot and answer any questions."
+        portalId="46095144"
+        formId="4fd83930-97c1-4d8a-a51b-3fd18583507e"
+      />
+
+      <CtaBanner />
+    </main>
   );
 }

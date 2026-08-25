@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { ContentPage } from '@/components/content-page';
-import { HubSpotEmbed } from '@/components/hubspot-embed';
+import { PageHero } from '@/components/page-hero';
+import { WpContent } from '@/components/wp-content';
+import { CtaBanner } from '@/components/cta-banner';
+import { ResourceFormSection } from '@/components/resource-form-section';
 import { fetchWpPage } from '@/lib/wp';
 import { buildMetadata } from '@/lib/seo';
 import { mapWp } from '@/lib/wp-parse';
@@ -27,33 +29,42 @@ export default async function BreakfreeTrainingPage() {
   const page = await fetchWpPage(SLUG);
   if (!page) notFound();
 
-  const { blocks, sidebar } = mapWp(page.body, {
+  const { blocks } = mapWp(page.body, {
     title: page.title,
     summary: page.acfSummary || page.excerpt || undefined,
   });
 
-  const crumbs = [
-    { label: 'Home', href: '/' },
-    { label: 'Trainings', href: '/trainings' },
-    { label: page.title },
-  ];
-
   return (
-    <>
-      <ContentPage
-        crumbs={crumbs}
+    <main>
+      <PageHero
+        crumbs={[
+          { label: 'Home', href: '/' },
+          { label: 'Resources', href: '/resources' },
+          { label: page.title },
+        ]}
+        eyebrow="Breakfree Training"
         title={page.title}
         summary={page.acfSummary || page.excerpt || undefined}
         image={page.image}
-        bodyBlocks={blocks}
-        sidebar={sidebar}
       />
-      <section className="bg-white py-20 lg:py-28">
-        <div className="mx-auto max-w-[680px] px-6">
-          <h2 className="font-display text-3xl text-ink mb-8">Get in touch</h2>
-          <HubSpotEmbed portalId="46095144" formId="4fd83930-97c1-4d8a-a51b-3fd18583507e" region="na1" />
-        </div>
-      </section>
-    </>
+
+      {blocks.length > 0 && (
+        <section className="bg-white py-24 lg:py-32">
+          <div className="mx-auto max-w-3xl px-6">
+            <WpContent blocks={blocks} />
+          </div>
+        </section>
+      )}
+
+      <ResourceFormSection
+        eyebrow="Enroll today"
+        heading="Sign up for Breakfree Training."
+        subheading="Submit the form and our team will reach out to get you enrolled and answer any questions."
+        portalId="46095144"
+        formId="4fd83930-97c1-4d8a-a51b-3fd18583507e"
+      />
+
+      <CtaBanner />
+    </main>
   );
 }
