@@ -34,37 +34,60 @@ function toPath(url: string): string {
   catch { return url.replace(/\/+$/, '') || '/'; }
 }
 
+// Dropdown items for nav slots that are not driven by a CPT section.
+// Editing here is the single source of truth for About Us and Resources dropdowns.
+const LINKS_OVERRIDE: Record<string, MenuItem[]> = {
+  '/about-us': [
+    { label: 'Our Team', href: '/our-team' },
+    { label: 'FAQ', href: '/faq' },
+  ],
+  '/resources': [
+    { label: 'Our Blog', href: '/intervention-blog' },
+    { label: 'Breakfree Intervention Training', href: '/trainings/breakfree-intervention-skills-training' },
+    { label: 'Family Class', href: '/family-class' },
+  ],
+};
+
+// Top-level WP menu items to suppress from the top bar (they live as sub-items elsewhere).
+const SUPPRESSED_PATHS = new Set(['/family-class']);
+
 // Convert the WordPress menu tree into the pill-nav shape. For intervention and
 // services dropdowns we override children with the detail_page ACF data so the
-// nav always reflects the current menu_order and labels — without requiring a
-// manual WP Appearance > Menus update every time the ACF records change.
+// nav always reflects the current menu_order and labels. For About Us and Resources
+// we use LINKS_OVERRIDE so those dropdowns stay correct without WP Menus edits.
 function linksFromMenu(menu: NavNode[], sections: NavSection[]): TopLink[] {
   const sectionMap = new Map(sections.map((s) => [`/${s.slug}`, s]));
-  return menu.map((node) => {
-    const href = toPath(node.url || '#');
-    const section = sectionMap.get(href);
-    if (section) {
+  return menu
+    .filter((node) => !SUPPRESSED_PATHS.has(toPath(node.url || '#')))
+    .map((node) => {
+      const href = toPath(node.url || '#');
+      const section = sectionMap.get(href);
+      const override = LINKS_OVERRIDE[href];
+      if (section) {
+        return {
+          label: section.label || decodeWpLabel(node.label),
+          href,
+          items: section.children.map((c) => ({
+            label: c.label,
+            href: c.hrefOverride ?? `${href}/${c.slug}`,
+          })),
+        };
+      }
+      if (override) {
+        return { label: decodeWpLabel(node.label), href, items: override };
+      }
       return {
-        label: section.label || decodeWpLabel(node.label),
+        label: decodeWpLabel(node.label),
         href,
-        items: section.children.map((c) => ({
-          label: c.label,
-          href: c.hrefOverride ?? `${href}/${c.slug}`,
-        })),
+        items: node.children.length
+          ? node.children.map((c) => ({
+              label: decodeWpLabel(c.label),
+              href: toPath(c.url) || '#',
+              external: /^https?:\/\//i.test(c.url),
+            }))
+          : undefined,
       };
-    }
-    return {
-      label: decodeWpLabel(node.label),
-      href,
-      items: node.children.length
-        ? node.children.map((c) => ({
-            label: decodeWpLabel(c.label),
-            href: toPath(c.url) || '#',
-            external: /^https?:\/\//i.test(c.url),
-          }))
-        : undefined,
-    };
-  });
+    });
 }
 
 function buildLinks(sections: NavSection[]): TopLink[] {
@@ -78,31 +101,14 @@ function buildLinks(sections: NavSection[]): TopLink[] {
   const svcSection = sections.find((s) => s.slug === 'services');
 
   return [
-    {
-      label: 'About Us',
-      href: '/about-us',
-      items: [
-        { label: 'Our Team', href: '/our-team' },
-        { label: 'FAQ', href: '/faq' },
-      ],
-    },
+    { label: 'About Us', href: '/about-us', items: LINKS_OVERRIDE['/about-us'] },
     { label: 'Intervention', href: '/intervention', items: items('intervention') },
     {
       label: svcSection?.label || 'Additional Services',
       href: '/services',
       items: items('services'),
     },
-    {
-      label: 'Resources',
-      href: '/resources',
-      items: [
-        { label: 'Podcast', href: 'https://americarecovers.com/', external: true },
-        { label: 'Breakfree Intervention Training', href: '/trainings/breakfree-intervention-skills-training' },
-        { label: 'Family Class', href: '/family-class' },
-        { label: 'Verify Your Insurance', href: '/insurance' },
-      ],
-    },
-    { label: 'Our Blog', href: '/intervention-blog' },
+    { label: 'Resources', href: '/resources', items: LINKS_OVERRIDE['/resources'] },
     { label: 'Contact Us', href: '/contact' },
   ];
 }
