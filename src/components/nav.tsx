@@ -11,21 +11,60 @@ import type { NavSection, NavNode } from '@/lib/wp';
 type MenuItem = { label: string; href: string; external?: boolean };
 type TopLink = { label: string; href: string; items?: MenuItem[] };
 
-// Convert the WordPress menu tree into the pill-nav shape. This is the primary
-// source once the WP menu is configured — nav mirrors Appearance > Menus.
-function linksFromMenu(menu: NavNode[]): TopLink[] {
-  const external = (url: string) => /^https?:\/\//i.test(url);
-  return menu.map((node) => ({
-    label: node.label,
-    href: node.url || '#',
-    items: node.children.length
-      ? node.children.map((c) => ({
+// Decode common HTML entities that WP stores verbatim in menu labels
+// (e.g. "Breakfree &#038; Launch" → "Breakfree & Launch").
+function decodeWpLabel(label: string): string {
+  return label
+    .replace(/&#0*38;/g, '&')
+    .replace(/&amp;/g, '&')
+    .replace(/&#8217;/g, '’')
+    .replace(/&#8216;/g, '‘')
+    .replace(/&#8220;/g, '“')
+    .replace(/&#8221;/g, '”')
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'")
+    .replace(/&nbsp;/g, ' ');
+}
+
+// WP menu URLs are absolute (e.g. https://cms.intervention.com/services).
+// Strip the origin so Next.js Link components get site-relative paths.
+function toPath(url: string): string {
+  if (!url || url === '#') return '#';
+  try { return new URL(url).pathname.replace(/\/+$/, '') || '/'; }
+  catch { return url; }
+}
+
+// Convert the WordPress menu tree into the pill-nav shape. For intervention and
+// services dropdowns we override children with the detail_page ACF data so the
+// nav always reflects the current menu_order and labels — without requiring a
+// manual WP Appearance > Menus update every time the ACF records change.
+function linksFromMenu(menu: NavNode[], sections: NavSection[]): TopLink[] {
+  const sectionMap = new Map(sections.map((s) => [`/${s.slug}`, s]));
+  return menu.map((node) => {
+    const href = toPath(node.url || '#');
+    const section = sectionMap.get(href);
+    if (section) {
+      return {
+        label: decodeWpLabel(node.label),
+        href,
+        items: section.children.map((c) => ({
           label: c.label,
-          href: c.url || '#',
-          external: external(c.url),
-        }))
-      : undefined,
-  }));
+          href: c.hrefOverride ?? `${href}/${c.slug}`,
+        })),
+      };
+    }
+    return {
+      label: decodeWpLabel(node.label),
+      href,
+      items: node.children.length
+        ? node.children.map((c) => ({
+            label: decodeWpLabel(c.label),
+            href: toPath(c.url) || '#',
+            external: /^https?:\/\//i.test(c.url),
+          }))
+        : undefined,
+    };
+  });
 }
 
 function buildLinks(sections: NavSection[]): TopLink[] {
@@ -63,7 +102,7 @@ export function Nav({
   menu?: NavNode[];
 }) {
   const { phoneDisplay, phoneHref } = useSettings();
-  const LINKS = menu.length ? linksFromMenu(menu) : buildLinks(sections);
+  const LINKS = menu.length ? linksFromMenu(menu, sections) : buildLinks(sections);
   const pathname = usePathname() ?? '/';
   const [scrolled, setScrolled] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
