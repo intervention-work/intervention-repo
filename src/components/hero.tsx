@@ -45,6 +45,13 @@ export function Hero() {
         }}
       />
 
+      {/* Mobile-only black overlay for text legibility */}
+      <div
+        aria-hidden
+        className="absolute inset-0 md:hidden"
+        style={{ background: 'rgba(0,0,0,0.38)' }}
+      />
+
       {/* BOTTOM-LEFT — headline block, flush to viewport edge */}
       <motion.div
         initial={{ opacity: 0, y: 22 }}
@@ -61,9 +68,9 @@ export function Hero() {
         </p>
 
         <h1
-          className="font-display leading-[1.05] text-white"
+          className="font-display font-semibold leading-[1.05] text-white"
           style={{
-            fontSize: 'clamp(2.5rem, 4.8vw, 4.5rem)',
+            fontSize: 'clamp(2.1rem, 4.8vw, 4.5rem)',
           }}
         >
           When nothing else has worked,{' '}
@@ -72,22 +79,22 @@ export function Hero() {
           </em>
         </h1>
 
-        <p className="mt-6 max-w-[540px] font-sans text-base leading-relaxed text-white/75 md:text-lg">
+        <p className="mt-6 max-w-[540px] font-sans text-sm leading-relaxed text-white/75 md:text-lg">
           Compassionate, certified interventions for addiction, mental health,
           and eating disorders. Free consultation. Nationwide.
         </p>
 
-        <div className="mt-8 flex flex-wrap items-center gap-3">
+        <div className="mt-8 flex flex-col gap-3 md:flex-row md:flex-wrap md:items-center">
           <Link
             href="/contact"
-            className="inline-flex items-center gap-2 rounded-full bg-sage-500 px-7 py-4 font-sans text-base font-medium text-white shadow-[0_10px_30px_-10px_rgba(74,124,95,0.7)] transition-colors duration-300 hover:bg-sage-700"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-sage-500 px-7 py-4 font-sans text-base font-medium text-white shadow-[0_10px_30px_-10px_rgba(74,124,95,0.7)] transition-colors duration-300 hover:bg-sage-700 md:w-auto"
           >
             Talk to a specialist
             <ArrowRight size={16} strokeWidth={1.75} />
           </Link>
           <Link
             href="/contact"
-            className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-6 py-4 font-sans text-base text-white backdrop-blur-sm transition-colors duration-300 hover:bg-white/20"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/25 bg-white/10 px-6 py-4 font-sans text-base text-white backdrop-blur-sm transition-colors duration-300 hover:bg-white/20 md:w-auto"
           >
             <Phone size={14} strokeWidth={1.75} />
             (800) 789-1605
