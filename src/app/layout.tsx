@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Source_Serif_4, DM_Sans } from 'next/font/google';
+import Script from 'next/script';
 import './globals.css';
 
 import { DevServiceWorkerCleanup } from '@/components/dev-sw-cleanup';
@@ -61,6 +62,16 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body className="bg-white font-sans text-ink">
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-2E33R6CJX2"
+          strategy="afterInteractive"
+        />
+        <Script id="ga-init" strategy="afterInteractive">{`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-2E33R6CJX2');
+        `}</Script>
         <JsonLd data={[organizationSchema(), websiteSchema()]} />
         <DevServiceWorkerCleanup />
         <SettingsProvider value={settings}>
