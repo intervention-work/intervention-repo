@@ -115,7 +115,7 @@ export function Specialties() {
                     className="absolute inset-0"
                     style={{
                       background:
-                        'linear-gradient(to top, rgba(17,24,39,0.78) 0%, rgba(17,24,39,0.35) 38%, transparent 70%)',
+                        'linear-gradient(to top, rgba(12,17,28,0.95) 0%, rgba(12,17,28,0.72) 45%, rgba(12,17,28,0.25) 80%, transparent 100%)',
                     }}
                   />
                 </motion.div>
@@ -142,7 +142,7 @@ export function Specialties() {
                       aria-hidden={!isActive}
                       className="col-start-1 row-start-1 will-change-[opacity,transform]"
                     >
-                      <p className="font-sans text-[10px] tracking-[0.22em] uppercase text-white/65">
+                      <p className="font-sans text-[10px] tracking-[0.22em] uppercase text-white/90">
                         {s.eyebrow}
                       </p>
                       <h3
@@ -150,7 +150,7 @@ export function Specialties() {
                       >
                         {s.title}
                       </h3>
-                      <p className="mt-3 font-sans text-base leading-relaxed text-white/75">
+                      <p className="mt-3 font-sans text-base leading-relaxed text-white/90">
                         {s.desc}
                       </p>
                     </motion.div>

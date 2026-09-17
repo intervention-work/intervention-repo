@@ -190,3 +190,6 @@ html.lenis body { height: auto; }
 .hs-embed input[type="submit"].hs-button:hover { background: var(--color-sage-900); }
 .hs-embed .hs-error-msg,
 .hs-embed .hs-error-msgs label { color: #dc2626; font-size: 0.8rem; font-family: var(--font-sans); }
+
+/* Hide intervention banner image (wp-image-43524) temporarily — do not remove */
+.wp-image-43524 { display: none !important; }
