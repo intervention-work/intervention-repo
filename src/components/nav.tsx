@@ -52,6 +52,13 @@ const LINKS_OVERRIDE: Record<string, MenuItem[]> = {
 // Top-level WP menu items to suppress from the top bar (they live as sub-items elsewhere).
 const SUPPRESSED_PATHS = new Set(['/family-class']);
 
+// Child detail_page slugs to hide from the Intervention and Services nav dropdowns.
+const SUPPRESSED_CHILD_SLUGS = new Set([
+  'on-set-care-unit',
+  'care-unit-assessment',
+  'early-autism-intervention',
+]);
+
 // Paths that must render as plain links with no dropdown, regardless of WP menu children.
 const FORCE_LEAF_PATHS = new Set(['/contact']);
 
@@ -71,10 +78,12 @@ function linksFromMenu(menu: NavNode[], sections: NavSection[]): TopLink[] {
         return {
           label: section.label || decodeWpLabel(node.label),
           href,
-          items: section.children.map((c) => ({
-            label: c.label,
-            href: c.hrefOverride ?? `${href}/${c.slug}`,
-          })),
+          items: section.children
+            .filter((c) => !SUPPRESSED_CHILD_SLUGS.has(c.slug))
+            .map((c) => ({
+              label: c.label,
+              href: c.hrefOverride ?? `${href}/${c.slug}`,
+            })),
         };
       }
       if (override) {
@@ -100,10 +109,12 @@ function linksFromMenu(menu: NavNode[], sections: NavSection[]): TopLink[] {
 function buildLinks(sections: NavSection[]): TopLink[] {
   const items = (parentSlug: string): MenuItem[] => {
     const section = sections.find((s) => s.slug === parentSlug);
-    return (section?.children ?? []).map((c) => ({
-      label: c.label,
-      href: c.hrefOverride ?? `/${parentSlug}/${c.slug}`,
-    }));
+    return (section?.children ?? [])
+      .filter((c) => !SUPPRESSED_CHILD_SLUGS.has(c.slug))
+      .map((c) => ({
+        label: c.label,
+        href: c.hrefOverride ?? `/${parentSlug}/${c.slug}`,
+      }));
   };
   const svcSection = sections.find((s) => s.slug === 'services');
 
