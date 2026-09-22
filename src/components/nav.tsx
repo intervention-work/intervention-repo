@@ -56,7 +56,7 @@ const SUPPRESSED_PATHS = new Set(['/family-class']);
 const SUPPRESSED_CHILD_SLUGS = new Set([
   'on-set-care-unit',
   'care-unit-assessment',
-  'early-autism-intervention',
+  'early-autism',
 ]);
 
 // Paths that must render as plain links with no dropdown, regardless of WP menu children.
