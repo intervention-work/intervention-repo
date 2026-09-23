@@ -35,7 +35,7 @@ function InstagramIcon() {
 
 const CERTIFICATIONS = [
   {
-    src: '/brand/fair-care-promise.jpg',
+    src: '/brand/fair-care-promise.png',
     alt: 'Fair Care Promise — Delivering Care Since 1997',
     caption: 'Delivering Care Since 1997',
     href: 'https://www.naatp.org',
