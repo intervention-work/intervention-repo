@@ -35,22 +35,28 @@ function InstagramIcon() {
 
 const CERTIFICATIONS = [
   {
-    name: 'Fair Care Promise',
-    line1: 'NAATP Member',
-    line2: 'Delivering Care Since 1997',
+    src: '/brand/fair-care-promise.jpg',
+    alt: 'Fair Care Promise — Delivering Care Since 1997',
+    caption: 'Delivering Care Since 1997',
     href: 'https://www.naatp.org',
+    width: 120,
+    height: 120,
   },
   {
-    name: 'AIS',
-    line1: 'Association of Intervention Specialists',
-    line2: 'Member / Board Member 2016–2025',
+    src: '/brand/ais-logo.png',
+    alt: 'Association of Intervention Specialists — Member / Board Member 2016–2025',
+    caption: 'Member / Board Member 2016–2025',
     href: 'https://www.associationofinterventionspecialists.org',
+    width: 160,
+    height: 80,
   },
   {
-    name: 'CIP',
-    line1: 'Certified Intervention Professional',
-    line2: 'PACERT Certified Since 2014',
+    src: '/brand/cip-badge.png',
+    alt: 'CIP — Certified Intervention Professional, Certified Since 2014',
+    caption: 'Certified Since 2014',
     href: 'https://www.pacertboard.org',
+    width: 120,
+    height: 120,
   },
 ];
 
@@ -99,18 +105,24 @@ export function Footer() {
       <div className="mx-auto max-w-[1200px] px-6 py-16">
 
         {/* Certification badges row */}
-        <div className="mb-10 grid grid-cols-1 gap-6 border-b border-border pb-10 sm:grid-cols-3">
+        <div className="mb-10 grid grid-cols-3 gap-6 border-b border-border pb-10">
           {CERTIFICATIONS.map((cert) => (
             <a
-              key={cert.name}
+              key={cert.alt}
               href={cert.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex flex-col items-center gap-1 text-center transition-opacity hover:opacity-75"
+              className="flex flex-col items-center gap-2 text-center transition-opacity hover:opacity-75"
             >
-              <span className="font-display text-2xl font-semibold text-ink">{cert.name}</span>
-              <span className="font-sans text-xs font-medium text-ink-body">{cert.line1}</span>
-              <span className="font-sans text-xs text-ink-muted">{cert.line2}</span>
+              <Image
+                src={cert.src}
+                alt={cert.alt}
+                width={cert.width}
+                height={cert.height}
+                unoptimized
+                className="h-20 w-auto object-contain"
+              />
+              <span className="font-sans text-xs text-ink-muted">{cert.caption}</span>
             </a>
           ))}
         </div>
@@ -148,26 +160,38 @@ export function Footer() {
             </a>
 
             {/* Trust badges */}
-            <div className="mt-6 flex flex-wrap items-center gap-3">
+            <div className="mt-6 flex flex-wrap items-center gap-4">
               <a
                 href="https://legitscript.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-2.5 py-1.5 font-sans text-[11px] font-medium text-ink-body transition-colors hover:border-ink-muted"
                 aria-label="LegitScript Certified"
+                className="transition-opacity hover:opacity-75"
               >
-                <Shield size={12} strokeWidth={1.75} className="text-sage-500" />
-                LegitScript Certified
+                <Image
+                  src="/brand/legitscript.png"
+                  alt="LegitScript Certified"
+                  width={80}
+                  height={80}
+                  unoptimized
+                  className="h-14 w-auto object-contain"
+                />
               </a>
               <a
                 href="https://www.securitymetrics.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-2.5 py-1.5 font-sans text-[11px] font-medium text-ink-body transition-colors hover:border-ink-muted"
                 aria-label="SecurityMetrics Credit Card Safe"
+                className="transition-opacity hover:opacity-75"
               >
-                <Shield size={12} strokeWidth={1.75} className="text-sage-500" />
-                Credit Card Safe
+                <Image
+                  src="/brand/security-metrics.png"
+                  alt="SecurityMetrics Credit Card Safe"
+                  width={80}
+                  height={80}
+                  unoptimized
+                  className="h-14 w-auto object-contain"
+                />
               </a>
             </div>
           </div>
