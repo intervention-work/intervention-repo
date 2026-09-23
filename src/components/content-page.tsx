@@ -24,6 +24,8 @@ type ContentPageProps = {
   bodyBlocks?: Block[];
   /** WP's "All Services" menu, lifted out of the body into a sticky rail. */
   sidebar?: WpSidebar;
+  /** Show the About Us mission statement banner above the page body. */
+  showMissionBanner?: boolean;
   children?: ReactNode;
 };
 
@@ -37,6 +39,7 @@ export function ContentPage({
   blocks = [],
   bodyBlocks,
   sidebar,
+  showMissionBanner,
   children,
 }: ContentPageProps) {
   return (
@@ -48,6 +51,17 @@ export function ContentPage({
         summary={summary}
         image={image}
       />
+
+      {showMissionBanner && (
+        <div className="border-b border-sage-100 bg-sage-50 py-8 px-6 text-center">
+          <p className="font-display text-xl italic text-sage-900 md:text-2xl">
+            Together we can do more than we can apart.
+          </p>
+          <p className="mt-2 font-sans text-sm text-sage-700">
+            Our mission is to help families work together to accomplish more than they would on their own.
+          </p>
+        </div>
+      )}
 
       <section className="bg-white py-24 lg:py-32">
         {/* The rail costs ~356px, so widen the shell when there is one — at

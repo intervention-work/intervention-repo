@@ -127,6 +127,7 @@ export default async function CatchAllWpPage(props: PageProps<'/[...slug]'>) {
         image={heroImage}
         bodyBlocks={mapped.blocks}
         sidebar={mapped.sidebar}
+        showMissionBanner={leaf === 'about-us'}
       />
     </>
   );

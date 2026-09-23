@@ -17,11 +17,11 @@ const STEPS: Step[] = [
   {
     id: 'call',
     num: '01',
-    tab: 'Call us',
+    tab: 'Contact us',
     title: 'A free, confidential conversation.',
-    desc: 'We answer in under an hour, 24 hours a day. There is no script. We listen first.',
+    desc: 'We respond within the hour, 24 hours a day. Tell us what\'s happening and we listen first.',
     detail:
-      'Most families call us mid-crisis. The first call is not a sales pitch — it is a structured intake that captures what is happening, who is involved, and the immediate risks. By the time we hang up, you have a senior interventionist assigned and a tentative plan.',
+      'Most families contact us mid-crisis. The first conversation is not a sales pitch. It is a structured intake that captures what is happening, who is involved, and the immediate risks. By the time we finish, you have a senior interventionist assigned and a tentative plan.',
   },
   {
     id: 'plan',

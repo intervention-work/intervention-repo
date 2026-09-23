@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { SectionLanding } from '@/components/section-landing';
+import { StateGrid } from '@/components/state-grid';
 import { fetchSection, fetchPageBody } from '@/lib/wp';
 import { mapWp } from '@/lib/wp-parse';
 import { buildMetadata } from '@/lib/seo';
@@ -23,5 +24,14 @@ export default async function InterventionPage() {
   if (!section) return null;
   const raw = await fetchPageBody(section.sourcePageSlug ?? 'intervention');
   const { blocks } = mapWp(raw, { title: section.title, summary: section.summary });
-  return <SectionLanding section={section} bodyBlocks={blocks} heroImage={heroForSection('intervention')} />;
+  return (
+    <SectionLanding
+      section={section}
+      bodyBlocks={blocks}
+      heroImage={heroForSection('intervention')}
+      cardsFirst
+      cardExclude={['interventionists-by-state']}
+      afterCards={<StateGrid />}
+    />
+  );
 }

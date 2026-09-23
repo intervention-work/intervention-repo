@@ -38,7 +38,7 @@ function toPath(url: string): string {
 // Editing here is the single source of truth for About Us and Resources dropdowns.
 const LINKS_OVERRIDE: Record<string, MenuItem[]> = {
   '/about-us': [
-    { label: 'Our Team', href: '/about-us' },
+    { label: 'Our Team', href: '/our-team' },
     { label: 'FAQ', href: '/faq' },
   ],
   '/resources': [
