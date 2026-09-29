@@ -275,7 +275,7 @@ export function HubSpotContactForm({
         <button
           type="submit"
           disabled={status === 'submitting'}
-          className="inline-flex items-center justify-center rounded-full bg-sage-700 px-8 py-4 font-sans text-base font-medium text-white transition-colors duration-300 hover:bg-sage-900 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex w-full items-center justify-center rounded-full bg-sage-700 px-8 py-4 font-sans text-base font-medium text-white transition-colors duration-300 hover:bg-sage-900 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
         >
           {status === 'submitting' ? 'Sending…' : 'Send message'}
         </button>

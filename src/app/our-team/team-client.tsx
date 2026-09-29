@@ -48,7 +48,7 @@ export function OurTeamContent() {
   return (
     <main>
       {/* Hero */}
-      <section className="bg-ink px-6 py-20 lg:py-28">
+      <section className="bg-ink px-6 py-12 md:py-20 lg:py-28">
         <div className="mx-auto max-w-[1200px]">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -69,8 +69,8 @@ export function OurTeamContent() {
       </section>
 
       {/* Team members */}
-      <section className="bg-white py-20">
-        <div className="mx-auto max-w-[1200px] px-6 space-y-20">
+      <section className="bg-white py-14 md:py-20">
+        <div className="mx-auto max-w-[1200px] px-6 space-y-14 lg:space-y-20">
 
           {/* Brad Lamm */}
           <motion.div
@@ -78,7 +78,7 @@ export function OurTeamContent() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={viewport}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="grid grid-cols-1 gap-12 border-b border-border pb-20 lg:grid-cols-2 lg:items-start"
+            className="grid grid-cols-1 gap-10 border-b border-border pb-14 lg:grid-cols-2 lg:items-start lg:pb-20"
           >
             <div>
               <p className="font-sans text-xs tracking-[0.22em] uppercase text-sage-500">
@@ -94,7 +94,7 @@ export function OurTeamContent() {
                 <ExpandableBio shortBio={BRAD_SHORT} longParas={BRAD_LONG_PARAS} />
               </div>
             </div>
-            <div className="lg:max-w-xs">
+            <div className="mx-auto w-full max-w-xs lg:mx-0">
               <div className="relative aspect-[3/4] w-full overflow-hidden rounded-2xl">
                 <Image
                   src="/images/brad-lamm.jpg"
@@ -113,9 +113,9 @@ export function OurTeamContent() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={viewport}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:items-start"
+            className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:items-start"
           >
-            <div className="lg:order-first lg:max-w-xs">
+            <div className="mx-auto w-full max-w-xs lg:order-first lg:mx-0">
               <div className="relative aspect-[3/4] w-full overflow-hidden rounded-2xl">
                 <Image
                   src="/images/shoaib-haroon.jpeg"

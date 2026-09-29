@@ -29,7 +29,7 @@ export function ResourceFormSection({
   const { phoneDisplay, phoneHref } = useSettings();
 
   return (
-    <section className="border-t border-border bg-surface py-24 lg:py-32">
+    <section className="border-t border-border bg-surface py-12 md:py-20 lg:py-32">
       <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-14 px-6 lg:grid-cols-[1fr_360px] lg:gap-16">
         <motion.div
           initial={{ opacity: 0, y: 14 }}

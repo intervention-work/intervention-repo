@@ -92,7 +92,7 @@ export function Specialties() {
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
           className="relative mt-12 overflow-hidden rounded-3xl bg-surface"
         >
-          <div className="relative aspect-[16/10] w-full md:aspect-[16/8]">
+          <div className="relative aspect-[4/3] w-full sm:aspect-[16/10] md:aspect-[16/8]">
             {SPECIALTIES.map((s, i) => {
               const isActive = s.id === active;
               return (
@@ -123,7 +123,7 @@ export function Specialties() {
             })}
 
             {/* Caption layer — all captions in one grid cell, opacity-faded. */}
-            <div className="pointer-events-none absolute inset-0 flex items-end p-6 md:p-10 lg:p-12">
+            <div className="pointer-events-none absolute inset-0 flex items-end overflow-hidden p-5 md:p-10 lg:p-12">
               <div className="grid w-full max-w-md">
                 {SPECIALTIES.map((s) => {
                   const isActive = s.id === active;
@@ -150,7 +150,7 @@ export function Specialties() {
                       >
                         {s.title}
                       </h3>
-                      <p className="mt-3 font-sans text-base leading-relaxed text-white/90">
+                      <p className="mt-2 hidden font-sans text-sm leading-relaxed text-white/90 sm:mt-3 sm:block sm:text-base">
                         {s.desc}
                       </p>
                     </motion.div>

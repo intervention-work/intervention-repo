@@ -55,7 +55,7 @@ export function DetailPage({
         image={heroImage ?? detail.image ?? section.image}
       />
 
-      <section className="bg-white py-24 lg:py-32">
+      <section className="bg-white py-14 md:py-24 lg:py-32">
         <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-14 px-6 lg:grid-cols-[1fr_360px] lg:gap-16">
           {/* Main content */}
           <div>
@@ -150,7 +150,7 @@ export function DetailPage({
 
       {/* Related links */}
       {related.length > 0 && (
-        <section className="border-t border-border bg-surface py-20 lg:py-24">
+        <section className="border-t border-border bg-surface py-12 md:py-20 lg:py-24">
           <div className="mx-auto max-w-[1200px] px-6">
             <p className="font-sans text-[13px] tracking-[0.22em] uppercase text-sage-500">
               More in {section.label}

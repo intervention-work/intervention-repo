@@ -63,7 +63,7 @@ export function ContentPage({
         </div>
       )}
 
-      <section className="bg-white py-24 lg:py-32">
+      <section className="bg-white py-12 md:py-20 lg:py-32">
         {/* The rail costs ~356px, so widen the shell when there is one — at
             max-w-5xl the copy would be squeezed to roughly 620px. */}
         <div className={`mx-auto px-6 ${sidebar ? 'max-w-[1200px]' : 'max-w-5xl'}`}>

@@ -101,7 +101,7 @@ export function Hero() {
           </Link>
         </div>
 
-        <div className="mt-9 flex items-center gap-12">
+        <div className="mt-9 flex items-center justify-center gap-8 md:justify-start md:gap-12">
           {STATS.map((s) => (
             <div key={s.label}>
               <p
@@ -176,7 +176,7 @@ export function Hero() {
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-sage-500 py-2.5 font-sans text-[13px] font-medium text-white transition-colors duration-300 hover:bg-sage-700"
             >
               <Phone size={12} strokeWidth={1.75} />
-              Get in touch — it&apos;s free
+              Get in touch, it&apos;s free
             </Link>
           </div>
 

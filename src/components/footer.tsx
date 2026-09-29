@@ -105,7 +105,7 @@ export function Footer() {
       <div className="mx-auto max-w-[1200px] px-6 py-16">
 
         {/* Certification badges row */}
-        <div className="mb-10 grid grid-cols-3 gap-6 border-b border-border pb-10">
+        <div className="mb-10 grid grid-cols-3 gap-3 border-b border-border pb-10 sm:gap-6">
           {CERTIFICATIONS.map((cert) => (
             <a
               key={cert.alt}

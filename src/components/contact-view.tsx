@@ -21,7 +21,7 @@ export function ContactView() {
         image={IMAGE}
       />
 
-      <section className="bg-white py-24 lg:py-32">
+      <section className="bg-white py-12 md:py-20 lg:py-32">
         <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-14 px-6 lg:grid-cols-[1fr_380px] lg:gap-16">
           {/* Form */}
           <div>

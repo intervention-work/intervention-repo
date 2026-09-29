@@ -45,7 +45,7 @@ export function SectionLanding({
     : section.children;
 
   const bodySection = (hasBody || hasAcf) ? (
-    <section className="bg-white py-24 lg:py-32">
+    <section className="bg-white py-14 md:py-24 lg:py-32">
       <div className="mx-auto max-w-3xl px-6">
         {hasBody ? (
           <WpContent blocks={bodyBlocks} />
@@ -79,7 +79,7 @@ export function SectionLanding({
   ) : null;
 
   const cardsSection = displayChildren.length > 0 ? (
-    <section className="bg-surface py-24 lg:py-32">
+    <section className="bg-surface py-14 md:py-24 lg:py-32">
       <div className="mx-auto max-w-[1200px] px-6">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
