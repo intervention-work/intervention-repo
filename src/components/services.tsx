@@ -150,7 +150,7 @@ export function Specialties() {
                       >
                         {s.title}
                       </h3>
-                      <p className="mt-2 font-sans text-xs leading-snug text-white/90 sm:mt-3 sm:text-sm sm:leading-relaxed md:text-base">
+                      <p className="mt-2 font-sans text-sm leading-snug text-white/90 sm:mt-3 sm:leading-relaxed md:text-base">
                         {s.desc}
                       </p>
                     </motion.div>
