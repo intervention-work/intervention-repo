@@ -92,7 +92,7 @@ export function Specialties() {
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
           className="relative mt-12 overflow-hidden rounded-3xl bg-surface"
         >
-          <div className="relative aspect-[4/3] w-full sm:aspect-[16/10] md:aspect-[16/8]">
+          <div className="relative aspect-[3/4] w-full sm:aspect-[16/10] md:aspect-[16/8]">
             {SPECIALTIES.map((s, i) => {
               const isActive = s.id === active;
               return (
@@ -150,7 +150,7 @@ export function Specialties() {
                       >
                         {s.title}
                       </h3>
-                      <p className="mt-2 hidden font-sans text-sm leading-relaxed text-white/90 sm:mt-3 sm:block sm:text-base">
+                      <p className="mt-2 font-sans text-xs leading-snug text-white/90 sm:mt-3 sm:text-sm sm:leading-relaxed md:text-base">
                         {s.desc}
                       </p>
                     </motion.div>
