@@ -72,7 +72,7 @@ export function WhoNeeds() {
                 <p className="mt-2 font-sans text-sm leading-relaxed text-ink-muted">{cat.desc}</p>
               </div>
               <div className="mt-5 flex items-center gap-1.5 font-sans text-sm font-medium text-sage-700 transition-colors duration-200 group-hover:text-sage-900">
-                Get help
+                Get Help
                 <ArrowRight size={14} strokeWidth={1.75} />
               </div>
             </Link>

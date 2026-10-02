@@ -24,7 +24,7 @@ export function CtaBanner({ tight = false }: { tight?: boolean }) {
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
         >
           <p className="font-sans text-sm tracking-[0.22em] uppercase text-sage-500">
-            Free consultation
+            Free Consultation
           </p>
           <h2
             className="mt-4 font-display text-4xl leading-[1.05] text-ink md:text-5xl lg:text-[3.5rem]"
@@ -42,7 +42,7 @@ export function CtaBanner({ tight = false }: { tight?: boolean }) {
               href="/contact"
               className="inline-flex items-center gap-2 rounded-full bg-sage-700 px-8 py-4 font-sans text-base font-medium text-white shadow-[0_12px_32px_-12px_rgba(45,90,61,0.65)] transition-[background-color,transform] duration-200 ease-expo-out hover:bg-sage-900 active:scale-[0.97]"
             >
-              Talk to a specialist
+              Talk to a Specialist
               <ArrowRight size={16} strokeWidth={1.75} />
             </Link>
             <Link
@@ -50,7 +50,7 @@ export function CtaBanner({ tight = false }: { tight?: boolean }) {
               className="inline-flex items-center gap-2 rounded-full border border-border px-7 py-4 font-sans text-base text-ink transition-[background-color,transform] duration-200 ease-expo-out hover:bg-surface active:scale-[0.97]"
             >
               <Phone size={15} strokeWidth={1.75} className="text-sage-500" />
-              Contact us
+              Contact Us
             </Link>
           </div>
 

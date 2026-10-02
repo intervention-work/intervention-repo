@@ -5,6 +5,7 @@ import { viewport } from '@/lib/motion';
 
 const OUTLETS = [
   'The New York Times',
+  'The Wall Street Journal',
   'ABC News',
   'USA Today',
   'Forbes',

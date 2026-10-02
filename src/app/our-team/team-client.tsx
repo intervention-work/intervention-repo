@@ -37,7 +37,7 @@ function ExpandableBio({ shortBio, longParas }: { shortBio: string; longParas: s
         onClick={() => setExpanded((v) => !v)}
         className="mt-3 font-sans text-sm text-sage-700 underline underline-offset-2 transition-colors hover:text-sage-900"
       >
-        {expanded ? 'Collapse bio' : 'Read full bio'}
+        {expanded ? 'Collapse Bio' : 'Read Full Bio'}
       </button>
     </div>
   );
@@ -163,7 +163,7 @@ export function OurTeamContent() {
             href="/contact"
             className="mt-8 inline-flex items-center rounded-full bg-sage-700 px-8 py-4 font-sans text-base font-medium text-white transition-colors duration-300 hover:bg-sage-900"
           >
-            Get help now
+            Get Help Now
           </Link>
         </motion.div>
       </section>

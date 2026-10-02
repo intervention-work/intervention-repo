@@ -17,7 +17,7 @@ const STEPS: Step[] = [
   {
     id: 'call',
     num: '01',
-    tab: 'Contact us',
+    tab: 'Contact Us',
     title: 'A free, confidential conversation.',
     desc: 'We respond within the hour, 24 hours a day. Tell us what\'s happening and we listen first.',
     detail:
@@ -26,7 +26,7 @@ const STEPS: Step[] = [
   {
     id: 'plan',
     num: '02',
-    tab: 'We build the plan',
+    tab: 'We Build the Plan',
     title: 'A tailored approach for your family.',
     desc: 'Your interventionist designs the meeting around the people in the room — not a template.',
     detail:
@@ -35,7 +35,7 @@ const STEPS: Step[] = [
   {
     id: 'meeting',
     num: '03',
-    tab: 'The meeting',
+    tab: 'The Meeting',
     title: 'A structured, loving conversation.',
     desc: 'We are in the room. We open the door to help. Every moment is guided.',
     detail:
@@ -66,7 +66,7 @@ export function HowItWorks() {
           className="mx-auto max-w-2xl text-center"
         >
           <p className="font-sans text-sm tracking-[0.22em] uppercase text-sage-500">
-            How it works
+            How It Works
           </p>
           <h2
             className="mt-4 font-display text-3xl leading-[1.1] text-ink md:text-4xl lg:text-[2.75rem]"

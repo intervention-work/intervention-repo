@@ -52,7 +52,7 @@ export function IconList({ items }: { items: Array<{ icon: string; label: string
           const Icon = iconFor(item.icon);
           return (
             <li key={i} className="flex flex-col items-center gap-3 text-center">
-              <span className="flex h-20 w-20 items-center justify-center rounded-full bg-sage-50 text-sage-700">
+              <span className="flex h-20 w-20 items-center justify-center rounded-full bg-sage-50 text-sage-500">
                 <Icon size={28} strokeWidth={1.6} />
               </span>
               <span className="font-sans text-sm font-medium text-ink leading-snug">{item.label}</span>
@@ -69,7 +69,7 @@ export function IconList({ items }: { items: Array<{ icon: string; label: string
         const Icon = iconFor(item.icon);
         return (
           <li key={i} className="flex items-start gap-3">
-            <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-sage-50 text-sage-700">
+            <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-sage-50 text-sage-500">
               <Icon size={16} strokeWidth={1.9} />
             </span>
             <span className="font-sans text-[15px] leading-relaxed text-ink-body">{item.label}</span>

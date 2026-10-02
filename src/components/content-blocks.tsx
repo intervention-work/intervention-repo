@@ -69,7 +69,7 @@ export function ContentBlocks({ blocks }: { blocks: ContentBlock[] }) {
                   className="rounded-2xl border border-border bg-surface p-6"
                 >
                   <p
-                    className="font-display text-3xl leading-none text-sage-700 md:text-4xl"
+                    className="font-display text-3xl leading-none text-sage-500 md:text-4xl"
                   >
                     {stat.value}
                   </p>

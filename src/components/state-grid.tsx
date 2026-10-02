@@ -30,7 +30,7 @@ export function StateGrid() {
           className="mx-auto max-w-2xl text-center"
         >
           <p className="font-sans text-sm tracking-[0.22em] uppercase text-sage-500">
-            Nationwide coverage
+            Nationwide Coverage
           </p>
           <h2 className="mt-4 font-display text-3xl leading-[1.1] text-ink md:text-4xl lg:text-[2.75rem]">
             Find an Interventionist Near You
@@ -64,7 +64,7 @@ export function StateGrid() {
             href="/interventionists-by-state"
             className="inline-flex items-center gap-2 rounded-full bg-ink px-8 py-4 font-sans text-sm font-medium text-white transition-colors duration-300 hover:bg-ink-body"
           >
-            View All Interventionists By State
+            View All Interventionists by State
             <ArrowRight size={15} strokeWidth={1.75} />
           </Link>
         </div>

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Source_Serif_4, DM_Sans } from 'next/font/google';
+import { DM_Serif_Display, DM_Sans } from 'next/font/google';
 import Script from 'next/script';
 import './globals.css';
 
@@ -11,11 +11,11 @@ import { SettingsProvider } from '@/lib/settings';
 import { fetchGlobalSettings, fetchNavSections, fetchNav } from '@/lib/wp';
 import { organizationSchema, websiteSchema } from '@/lib/seo';
 
-const sourceSerif = Source_Serif_4({
+const dmSerifDisplay = DM_Serif_Display({
+  weight: '400',
   subsets: ['latin'],
   variable: '--font-serif-display',
   display: 'swap',
-  axes: ['opsz'],
 });
 
 const dmSans = DM_Sans({
@@ -28,7 +28,7 @@ const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://intervention.com';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),
-  title: "Intervention — Compassionate, certified interventions for families | A Change Institute Brand",
+  title: "Intervention — Compassionate, certified interventions for families | A Change Institute Service",
   description: "Nation’s leading interventionists since 2003. Free, confidential consultation for addiction, mental health, and eating disorders. Available 24/7 nationwide.",
   alternates: { canonical: '/' },
   openGraph: {
@@ -58,7 +58,7 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${sourceSerif.variable} ${dmSans.variable}`}
+      className={`${dmSerifDisplay.variable} ${dmSans.variable}`}
       suppressHydrationWarning
     >
       <body className="bg-white font-sans text-ink">

@@ -144,7 +144,7 @@ export function SectionLanding({
                     {child.summary}
                   </p>
                   <span className="mt-5 inline-flex items-center gap-1.5 font-sans text-sm font-medium text-sage-500">
-                    Learn more
+                    Learn More
                     <ArrowRight
                       size={14}
                       strokeWidth={1.75}

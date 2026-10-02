@@ -73,7 +73,7 @@ export function Certifications() {
           className="mt-12 text-center"
         >
           <p className="font-sans text-sm tracking-[0.22em] uppercase text-ink-muted">
-            Follow us
+            Follow Us
           </p>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
             {SOCIALS.map((s) => (

@@ -54,10 +54,10 @@ export function ContentPage({
 
       {showMissionBanner && (
         <div className="border-b border-sage-100 bg-sage-50 py-8 px-6 text-center">
-          <p className="font-display text-xl italic text-sage-900 md:text-2xl">
+          <p className="font-display text-xl italic text-sage-500 md:text-2xl">
             Together we can do more than we can apart.
           </p>
-          <p className="mt-2 font-sans text-sm text-sage-700">
+          <p className="mt-2 font-sans text-sm text-sage-500">
             Our mission is to help families work together to accomplish more than they would on their own.
           </p>
         </div>

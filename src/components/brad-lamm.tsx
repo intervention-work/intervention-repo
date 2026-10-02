@@ -62,7 +62,7 @@ export function BradLamm() {
               href="/contact"
               className="mt-8 inline-flex items-center gap-2 rounded-full bg-sage-700 px-7 py-3.5 font-sans text-sm font-medium text-white transition-colors duration-300 hover:bg-sage-900"
             >
-              Talk to Brad's team
+              Talk to Brad's Team
               <ArrowRight size={15} strokeWidth={1.75} />
             </Link>
           </motion.div>

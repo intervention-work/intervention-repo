@@ -306,7 +306,7 @@ export function Nav({
                 : 'bg-ink text-white hover:bg-ink-body')
             }
           >
-            Get help now
+            Get Help Now
           </Link>
           <button
             type="button"
@@ -402,7 +402,7 @@ export function Nav({
                 onClick={() => setMobileOpen(false)}
                 className="inline-flex items-center justify-center rounded-full bg-sage-700 px-6 py-3.5 font-sans text-base font-medium text-white"
               >
-                Get help now
+                Get Help Now
               </Link>
               <a
                 href={phoneHref}

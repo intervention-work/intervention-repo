@@ -72,7 +72,7 @@ export function Specialties() {
           className="mx-auto max-w-2xl text-center"
         >
           <p className="font-sans text-sm tracking-[0.22em] uppercase text-sage-500">
-            What we do
+            What We Do
           </p>
           <h2
             className="mt-4 font-display text-3xl leading-[1.1] text-ink md:text-4xl lg:text-[2.75rem]"

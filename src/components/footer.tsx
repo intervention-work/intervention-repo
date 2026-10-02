@@ -219,7 +219,7 @@ export function Footer() {
           {/* Reach us */}
           <div>
             <h4 className="font-sans text-[11px] tracking-[0.2em] uppercase text-ink-muted">
-              Reach us
+              Reach Us
             </h4>
             <ul className="mt-4 space-y-2.5">
               <li>

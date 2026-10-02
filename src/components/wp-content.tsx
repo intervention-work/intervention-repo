@@ -18,6 +18,21 @@ import {
  *   (clickable vs plain distinguished) · images → rounded media · tables/quotes.
  */
 
+const TC_LOWER = new Set([
+  'a','an','the','and','but','or','for','nor','in','on','at','to','by','up','of','as',
+]);
+
+function toTitleCase(str: string): string {
+  const words = str.trim().split(/\s+/);
+  return words
+    .map((w, i) => {
+      const lower = w.toLowerCase();
+      if (i !== 0 && i !== words.length - 1 && TC_LOWER.has(lower)) return lower;
+      return w.charAt(0).toUpperCase() + w.slice(1);
+    })
+    .join(' ');
+}
+
 /** Readable measure for running text; grids and media stay full-width. */
 const MEASURE = 'max-w-[68ch]';
 
@@ -48,13 +63,14 @@ function CtaLink({
   const secondary = variant
     ? variant === 'secondary'
     : NAVIGATIONAL_CTA.test(label.trim());
+  const displayLabel = toTitleCase(label);
   return (
     <a
       href={href}
       {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
       className={secondary ? BTN_SECONDARY : BTN_PRIMARY}
     >
-      {label}
+      {displayLabel}
       {secondary && (
         <span
           aria-hidden
@@ -345,7 +361,7 @@ function PricingCards({
           key={i}
           className="flex flex-col items-center rounded-2xl border border-border bg-white p-8 text-center transition-shadow duration-300 hover:shadow-[0_24px_60px_-24px_rgba(17,24,39,0.22)]"
         >
-          <p className="font-sans text-lg font-semibold text-sage-700">{c.title}</p>
+          <p className="font-sans text-lg font-semibold text-sage-500">{c.title}</p>
           {c.subtitle && (
             <p className="mt-2 font-sans text-xs uppercase tracking-[0.15em] text-ink-muted">
               {c.subtitle}
@@ -362,7 +378,7 @@ function PricingCards({
               {...(c.button.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
               className="mt-auto inline-flex items-center justify-center rounded-full bg-sage-700 px-6 py-3 font-sans text-sm font-medium text-white transition-colors duration-300 hover:bg-sage-900"
             >
-              {c.button.label}
+              {toTitleCase(c.button.label)}
             </a>
           )}
         </div>
@@ -388,7 +404,7 @@ function IconCards({ items }: { items: Array<{ icon: string; title: string; desc
         const Icon = iconFor(it.icon);
         return (
           <div key={i} className="flex flex-col items-center text-center">
-            <span className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-sage-50 text-sage-700">
+            <span className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-sage-50 text-sage-500">
               <Icon size={28} strokeWidth={1.75} />
             </span>
             {it.title && <p className="font-sans text-base font-semibold text-ink">{it.title}</p>}
@@ -428,7 +444,7 @@ function BlockView({ block }: { block: Block }) {
       // A short all-caps line is a kicker, not a display heading.
       if (text && words <= 8 && text === text.toUpperCase()) {
         return (
-          <p className="font-sans text-xs font-semibold tracking-[0.22em] uppercase text-sage-700">
+          <p className="font-sans text-xs font-semibold tracking-[0.22em] uppercase text-sage-500">
             {text}
           </p>
         );

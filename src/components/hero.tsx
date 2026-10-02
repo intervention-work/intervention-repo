@@ -68,7 +68,7 @@ export function Hero() {
         </p>
 
         <h1
-          className="font-display font-semibold leading-[1.05] text-white"
+          className="font-display leading-[1.05] text-white"
           style={{
             fontSize: 'clamp(2.1rem, 4.8vw, 4.5rem)',
           }}
@@ -89,7 +89,7 @@ export function Hero() {
             href="/contact"
             className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-sage-500 px-7 py-4 font-sans text-base font-medium text-white shadow-[0_10px_30px_-10px_rgba(74,124,95,0.7)] transition-colors duration-300 hover:bg-sage-700 md:w-auto"
           >
-            Talk to a specialist
+            Talk to a Specialist
             <ArrowRight size={16} strokeWidth={1.75} />
           </Link>
           <Link
@@ -139,12 +139,12 @@ export function Hero() {
           </div>
 
           <p className="mb-1 font-sans text-[10px] tracking-[0.22em] uppercase text-white/55">
-            Speak with a specialist
+            Speak with a Specialist
           </p>
           <p
             className="mb-4 font-display text-lg leading-snug text-white md:text-xl"
           >
-            Talk to a specialist today.
+            Talk to a Specialist Today.
           </p>
 
           <ul className="mb-5 space-y-2">
@@ -176,7 +176,7 @@ export function Hero() {
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-sage-500 py-2.5 font-sans text-[13px] font-medium text-white transition-colors duration-300 hover:bg-sage-700"
             >
               <Phone size={12} strokeWidth={1.75} />
-              Get in touch, it&apos;s free
+              Get in Touch, It&apos;s Free
             </Link>
           </div>
 

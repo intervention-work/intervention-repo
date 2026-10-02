@@ -28,7 +28,7 @@ export function ContactView() {
             <h2
               className="font-display text-3xl leading-tight text-ink md:text-4xl"
             >
-              Send us a message.
+              Send Us a Message.
             </h2>
             <p className="mt-4 font-sans text-lg text-ink-muted md:text-xl">
               Tell us a little about what’s happening. A specialist will reach
@@ -54,7 +54,7 @@ export function ContactView() {
               <p
                 className="font-display text-xl text-ink md:text-2xl"
               >
-                Prefer to talk now?
+                Prefer to Talk Now?
               </p>
               <p className="mt-3 font-sans text-sm leading-relaxed text-ink-muted">
                 Calling is often the fastest way to reach us. We’re here any
