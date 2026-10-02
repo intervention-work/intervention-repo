@@ -83,7 +83,6 @@ const COLUMNS: Col[] = [
   {
     title: 'Additional Services',
     links: [
-      { label: 'Concierge Assessment (CARE)', href: '/services/care-unit-assessment' },
       { label: 'Breakfree Journey', href: '/services/breakfree-journey' },
       { label: 'Recovery Coach Companion', href: '/services/recovery-coach-companion' },
       { label: 'Recovery Case Management', href: '/services/recovery-care-management' },
@@ -150,7 +149,7 @@ export function Footer() {
               aria-label="Change Institute — guiding families since 2003"
             >
               <Image
-                src="/brand/ci-lockup.svg"
+                src="/images/change-insititue-logo.svg"
                 alt="Change Institute"
                 width={150}
                 height={33}
