@@ -28,11 +28,11 @@ const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://intervention.com';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),
-  title: "Intervention — Compassionate, certified interventions for families | A Change Institute Service",
+  title: "Intervention: Compassionate, Certified Interventions for Families | A Change Institute Service",
   description: "Nation’s leading interventionists since 2003. Free, confidential consultation for addiction, mental health, and eating disorders. Available 24/7 nationwide.",
   alternates: { canonical: '/' },
   openGraph: {
-    title: "Intervention — Help families find their way forward",
+    title: "Intervention: Help Families Find Their Way Forward",
     description: "Compassionate, structured interventions for substance use, mental health, and behavioral challenges. Free consultation. Nationwide.",
     type: 'website',
     siteName: 'Intervention.com',
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: "Intervention — Help families find their way forward",
+    title: "Intervention: Help Families Find Their Way Forward",
     description: "Compassionate, structured interventions for substance use, mental health, and behavioral challenges. Free consultation. Nationwide.",
     images: [`${SITE}/images/hero-v2-poster.jpg`],
   },
