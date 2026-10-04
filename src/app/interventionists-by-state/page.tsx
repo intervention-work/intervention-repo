@@ -8,7 +8,7 @@ import { PageHero } from '@/components/page-hero';
 import { WpContent } from '@/components/wp-content';
 import { CtaBanner } from '@/components/cta-banner';
 
-export const revalidate = 3600;
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata(): Promise<Metadata> {
   const data = await fetchDetail('intervention', 'interventionists-by-state');
