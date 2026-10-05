@@ -8,6 +8,7 @@ import { fetchSection, fetchPageBody } from '@/lib/wp';
 import { mapWp } from '@/lib/wp-parse';
 import { buildMetadata } from '@/lib/seo';
 import { heroForSection } from '@/lib/hero-images';
+import { isSuppressedService } from '@/lib/suppressed-services';
 
 const STATIC_SERVICES = [
   { label: 'Concierge Assessment (CARE)', href: '/services/care-unit-assessment', summary: 'A comprehensive assessment to identify the right care path for your loved one.' },
@@ -16,7 +17,7 @@ const STATIC_SERVICES = [
   { label: 'Recovery Case Management', href: '/services/recovery-care-management', summary: 'Coordinated care management for sustained, long-term recovery.' },
   { label: 'Senior Support Services', href: '/services/senior-support-services', summary: 'Specialized support for older adults and their families navigating addiction or mental health challenges.' },
   { label: 'On Set Care Unit', href: '/services/on-set-care-unit', summary: 'Dedicated support services for entertainment industry professionals.' },
-];
+].filter((svc) => !isSuppressedService({ path: svc.href, title: svc.label }));
 
 export const revalidate = 3600;
 

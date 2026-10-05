@@ -1,5 +1,6 @@
 import type { Section, DetailContent, ContentBlock } from '@/content/types';
 import { heroForSection } from '@/lib/hero-images';
+import { isSuppressedService } from '@/lib/suppressed-services';
 
 const WP_API =
   process.env.NEXT_PUBLIC_WP_API_URL ??
@@ -229,7 +230,10 @@ export async function fetchSection(slug: string): Promise<Section | null> {
     `/wp/v2/pages?slug=${slug}&_fields=slug,acf&acf_format=standard`
   );
   if (!pages.length) return null;
-  const children = await fetchDetailsByParent(slug);
+  const rawChildren = await fetchDetailsByParent(slug);
+  const children = rawChildren.filter(
+    (c) => !isSuppressedService({ slug: c.slug, title: c.label })
+  );
   const section = toSection(slug, pages[0].acf, children);
   await fillSectionHeroFallback(section, slug);
   return section;

@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { fetchAllPagePaths, fetchAllPosts, fetchSection } from '@/lib/wp';
+import { isSuppressedServicePath } from '@/lib/suppressed-services';
 
 export const revalidate = 3600;
 
@@ -78,6 +79,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       (p) =>
         !covered.has(p) &&
         !REDIRECT_PATHS.has(p) &&
+        !isSuppressedServicePath(p) &&
         !EXCLUDE_PREFIXES.some((ex) => p.startsWith(ex))
     )
     .map((p) => ({

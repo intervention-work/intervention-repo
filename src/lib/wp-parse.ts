@@ -11,6 +11,7 @@ import {
   stripTags,
   wordCount,
 } from './wp-content-parse';
+import { filterSuppressedBlocks } from './suppressed-services';
 
 const WP_HOST = (() => {
   try {
@@ -628,7 +629,7 @@ export function mapWp(html: string, hero: { title?: string; summary?: string } =
     eyebrow,
     title: hero.title || dTitle,
     summary: hero.summary || dSummary,
-    blocks: blocks.slice(j),
+    blocks: filterSuppressedBlocks(blocks.slice(j)),
     sidebar,
   };
 }
