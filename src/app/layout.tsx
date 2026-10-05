@@ -71,7 +71,6 @@ export default async function RootLayout({
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
           gtag('config', 'G-2E33R6CJX2');
-          gtag('config', 'G-185595BY9R');
         `}</Script>
         <JsonLd data={[organizationSchema(), websiteSchema()]} />
         <DevServiceWorkerCleanup />
