@@ -63,13 +63,14 @@ export default async function RootLayout({
     >
       <body className="bg-white font-sans text-ink">
         <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-185595BY9R"
+          src="https://www.googletagmanager.com/gtag/js?id=G-2E33R6CJX2"
           strategy="afterInteractive"
         />
         <Script id="ga-init" strategy="afterInteractive">{`
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
+          gtag('config', 'G-2E33R6CJX2');
           gtag('config', 'G-185595BY9R');
         `}</Script>
         <JsonLd data={[organizationSchema(), websiteSchema()]} />
