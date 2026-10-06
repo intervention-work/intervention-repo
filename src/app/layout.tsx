@@ -72,6 +72,10 @@ export default async function RootLayout({
           gtag('js', new Date());
           gtag('config', 'G-2E33R6CJX2');
         `}</Script>
+        <Script
+          src="https://420748.tctm.co/t.js"
+          strategy="afterInteractive"
+        />
         <JsonLd data={[organizationSchema(), websiteSchema()]} />
         <DevServiceWorkerCleanup />
         <SettingsProvider value={settings}>
