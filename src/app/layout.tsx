@@ -62,16 +62,37 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body className="bg-white font-sans text-ink">
+        {/* Google Tag Manager */}
+        <Script id="gtm-init" strategy="afterInteractive">{`
+          (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+          new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+          j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+          'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+          })(window,document,'script','dataLayer','GTM-NN4ZB8QP');
+        `}</Script>
+        <noscript>
+          <iframe
+            src="https://www.googletagmanager.com/ns.html?id=GTM-NN4ZB8QP"
+            height="0"
+            width="0"
+            style={{ display: 'none', visibility: 'hidden' }}
+          />
+        </noscript>
+
+        {/* GA4 (property 326681126) + Google Ads */}
         <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-2E33R6CJX2"
+          src="https://www.googletagmanager.com/gtag/js?id=G-185595BY9R"
           strategy="afterInteractive"
         />
-        <Script id="ga-init" strategy="afterInteractive">{`
+        <Script id="gtag-init" strategy="afterInteractive">{`
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
-          gtag('config', 'G-2E33R6CJX2');
+          gtag('config', 'G-185595BY9R');
+          gtag('config', 'AW-11482468131');
         `}</Script>
+
+        {/* CallTrackingMetrics */}
         <Script
           src="https://420748.tctm.co/t.js"
           strategy="afterInteractive"
