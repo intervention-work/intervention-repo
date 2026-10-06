@@ -124,6 +124,15 @@ const nextConfig: NextConfig = {
       { source: '/wp-login.php/:path*', destination: `${wpHost}/wp-login.php/:path*`, permanent: false },
       { source: '/index.php', destination: `${wpHost}/index.php`, permanent: false },
       { source: '/xmlrpc.php', destination: `${wpHost}/xmlrpc.php`, permanent: false },
+      // WP ships admin assets (dashicons CSS, admin JS, favicons, media uploads)
+      // under /wp-content/ and /wp-includes/. Because WP's siteurl option is
+      // https://intervention.com, every admin page requests these from the
+      // Next.js app and gets a 404 - which is why admin icons disappeared and
+      // older content with intervention.com image URLs would break. Forward
+      // these subpaths to the WP Engine host so both admin and legacy image
+      // references resolve.
+      { source: '/wp-content/:path*', destination: `${wpHost}/wp-content/:path*`, permanent: false },
+      { source: '/wp-includes/:path*', destination: `${wpHost}/wp-includes/:path*`, permanent: false },
     ];
     // Manual rules win on conflict (they are the deliberate, tested ones).
     const manualSources = new Set(manual.map((r) => r.source));
