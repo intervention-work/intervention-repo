@@ -1,0 +1,23 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm ci --cache .npm --prefer-offline
+    build:
+      commands:
+        # Expose Amplify Console env vars to the Next.js SERVER runtime.
+        # Without this, process.env.REVALIDATE_SECRET is undefined inside
+        # the Lambda that serves /api/revalidate, so the WordPress save
+        # webhook returns 401 and content stays stale for up to 1 hour.
+        # Uses node -e to avoid printing secret values to build logs.
+        - node -e "const f=require('fs');['REVALIDATE_SECRET','NEXT_PUBLIC_WP_API_URL','NEXT_REVALIDATE_SECONDS','NEXT_PUBLIC_SITE_URL'].forEach(k=>{if(process.env[k])f.appendFileSync('.env.production',k+'='+process.env[k]+'\n')});"
+        - npm run build
+  artifacts:
+    baseDirectory: .next
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - .next/cache/**/*
+      - .npm/**/*
