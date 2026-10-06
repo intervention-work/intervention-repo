@@ -95,6 +95,18 @@ const nextConfig: NextConfig = {
   ],
 
   redirects: async () => {
+    // WordPress backend lives on WP Engine; intervention.com now points to the
+    // Next.js app. Send any wp-admin/wp-login/wp-json/xmlrpc/index.php traffic
+    // to the WP Engine host so editors clicking "WP Admin" from WP Engine's
+    // portal reach a real WordPress install, not a 404.
+    const wpHost = (() => {
+      try {
+        return new URL(WP_API_URL).origin;
+      } catch {
+        return 'https://interventions.wpenginepowered.com';
+      }
+    })();
+
     // Only universally-safe aliases live here. The production About page is
     // /about-us, so /about redirects to it. The WordPress Resources menu points
     // at /resources-3 (no such page), so send it to the real /resources. Every
@@ -105,6 +117,13 @@ const nextConfig: NextConfig = {
       { source: '/about', destination: '/about-us', permanent: true },
       { source: '/resources-3', destination: '/resources', permanent: true },
       { source: '/resources-3/:path*', destination: '/resources', permanent: true },
+      // WordPress backend handoff (headless site keeps editing on WP Engine).
+      { source: '/wp-admin', destination: `${wpHost}/wp-admin`, permanent: false },
+      { source: '/wp-admin/:path*', destination: `${wpHost}/wp-admin/:path*`, permanent: false },
+      { source: '/wp-login.php', destination: `${wpHost}/wp-login.php`, permanent: false },
+      { source: '/wp-login.php/:path*', destination: `${wpHost}/wp-login.php/:path*`, permanent: false },
+      { source: '/index.php', destination: `${wpHost}/index.php`, permanent: false },
+      { source: '/xmlrpc.php', destination: `${wpHost}/xmlrpc.php`, permanent: false },
     ];
     // Manual rules win on conflict (they are the deliberate, tested ones).
     const manualSources = new Set(manual.map((r) => r.source));

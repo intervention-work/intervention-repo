@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { motion } from 'motion/react';
 import { ArrowRight, Phone, Shield, Check } from 'lucide-react';
+import { useSettings } from '@/lib/settings';
 
 const STATS = [
   { n: '20+', label: 'Years' },
@@ -17,6 +18,7 @@ const CARD_BULLETS = [
 ];
 
 export function Hero() {
+  const { phoneDisplay, phoneHref } = useSettings();
   return (
     <section
       id="top"
@@ -92,13 +94,13 @@ export function Hero() {
             Talk to a Specialist
             <ArrowRight size={16} strokeWidth={1.75} />
           </Link>
-          <Link
-            href="/contact"
+          <a
+            href={phoneHref}
             className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/25 bg-white/10 px-6 py-4 font-sans text-base text-white backdrop-blur-sm transition-colors duration-300 hover:bg-white/20 md:w-auto"
           >
             <Phone size={14} strokeWidth={1.75} />
-            (800) 789-1605
-          </Link>
+            {phoneDisplay}
+          </a>
         </div>
 
         <div className="mt-9 flex items-center justify-center gap-8 md:justify-start md:gap-12">

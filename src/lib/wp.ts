@@ -891,11 +891,31 @@ export async function fetchGlobalSettings(): Promise<GlobalSettings> {
     }>('/intervention/v1/settings');
     return {
       phoneDisplay: data.phone_display || SETTINGS_FALLBACK.phoneDisplay,
-      phoneHref: data.phone_href || SETTINGS_FALLBACK.phoneHref,
+      phoneHref: normalizePhoneHref(
+        data.phone_href || SETTINGS_FALLBACK.phoneHref,
+        data.phone_display
+      ),
       email: data.email || SETTINGS_FALLBACK.email,
     };
   } catch {
     // If WP is unreachable, fall back to brand defaults so pages still render.
     return SETTINGS_FALLBACK;
   }
+}
+
+// WP editors sometimes save phone_href without the `tel:` scheme (e.g.
+// "+18007891605"), which the browser then treats as a relative URL and 404s.
+// Normalise so every link is a working `tel:` URI regardless of input.
+function normalizePhoneHref(raw: string, display?: string): string {
+  const v = (raw || '').trim();
+  if (/^tel:/i.test(v)) return v;
+  // If it's already a digit sequence (with optional +), prefix tel:
+  if (/^\+?[\d\-\s().]+$/.test(v)) {
+    const digits = v.replace(/[^\d+]/g, '');
+    return `tel:${digits.startsWith('+') ? digits : `+1${digits}`}`;
+  }
+  // Fallback: derive from the display number
+  const fromDisplay = (display || '').replace(/[^\d]/g, '');
+  if (fromDisplay) return `tel:+1${fromDisplay}`;
+  return SETTINGS_FALLBACK.phoneHref;
 }
