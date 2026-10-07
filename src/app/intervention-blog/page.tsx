@@ -1,21 +1,23 @@
 import type { Metadata } from 'next';
 import { PageHero } from '@/components/page-hero';
 import { CtaBanner } from '@/components/cta-banner';
-import { BlogList } from '@/components/blog-list';
+import { BlogList, BLOG_PER_PAGE } from '@/components/blog-list';
 import { fetchAllPosts } from '@/lib/wp';
 import { buildMetadata } from '@/lib/seo';
 
 export const revalidate = 3600;
 
 export const metadata: Metadata = buildMetadata({
-  title: 'Intervention Blog — Intervention.com',
+  title: 'Intervention Blog | Intervention.com',
   description:
     'Articles, guidance, and research on intervention, addiction, mental health, and family recovery.',
   canonicalPath: '/intervention-blog',
 });
 
 export default async function BlogIndexPage() {
-  const posts = await fetchAllPosts();
+  const allPosts = await fetchAllPosts();
+  const totalPages = Math.max(1, Math.ceil(allPosts.length / BLOG_PER_PAGE));
+  const posts = allPosts.slice(0, BLOG_PER_PAGE);
 
   return (
     <main>
@@ -27,7 +29,7 @@ export default async function BlogIndexPage() {
       />
 
       <section className="mx-auto max-w-[1200px] px-6 py-20 lg:py-24">
-        <BlogList posts={posts} />
+        <BlogList posts={posts} page={1} totalPages={totalPages} />
       </section>
 
       <CtaBanner />

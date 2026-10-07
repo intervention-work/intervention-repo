@@ -1,10 +1,8 @@
-'use client';
-
-import { useState } from 'react';
 import Link from 'next/link';
 import type { PostCard } from '@/lib/wp';
 
-const PER_PAGE = 12;
+// Posts per paginated page. Shared with /intervention-blog and /intervention-blog/page/[page].
+export const BLOG_PER_PAGE = 12;
 
 function formatDate(iso: string): string {
   const d = new Date(iso);
@@ -13,21 +11,27 @@ function formatDate(iso: string): string {
     : d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
-export function BlogList({ posts }: { posts: PostCard[] }) {
-  const [page, setPage] = useState(1);
-  const totalPages = Math.max(1, Math.ceil(posts.length / PER_PAGE));
-  const start = (page - 1) * PER_PAGE;
-  const visible = posts.slice(start, start + PER_PAGE);
+// Page 1 lives at /intervention-blog (no suffix) so existing backlinks and
+// Google's cached canonical stay intact. Pages 2+ live at /intervention-blog/page/N
+// with real server-rendered <Link> navigation (replacing the previous client-only
+// pagination that left posts 13+ orphaned from crawlers).
+function pageHref(page: number): string {
+  return page === 1 ? '/intervention-blog' : `/intervention-blog/page/${page}`;
+}
 
-  const goto = (p: number) => {
-    setPage(p);
-    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
+export function BlogList({
+  posts,
+  page,
+  totalPages,
+}: {
+  posts: PostCard[];
+  page: number;
+  totalPages: number;
+}) {
   return (
     <>
       <div className="grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
-        {visible.map((post) => (
+        {posts.map((post) => (
           <Link
             key={post.slug}
             href={post.path}
@@ -52,9 +56,7 @@ export function BlogList({ posts }: { posts: PostCard[] }) {
                   {formatDate(post.date)}
                 </p>
               )}
-              <h2
-                className="font-display text-xl leading-snug text-ink"
-              >
+              <h2 className="font-display text-xl leading-snug text-ink">
                 {post.title}
               </h2>
               {post.excerpt && (
@@ -75,38 +77,51 @@ export function BlogList({ posts }: { posts: PostCard[] }) {
           aria-label="Blog pagination"
           className="mt-16 flex flex-wrap items-center justify-center gap-2"
         >
-          <button
-            type="button"
-            onClick={() => goto(Math.max(1, page - 1))}
-            disabled={page === 1}
-            className="rounded-full border border-border px-4 py-2 font-sans text-sm text-ink transition-colors hover:bg-surface disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            Prev
-          </button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-            <button
-              key={p}
-              type="button"
-              onClick={() => goto(p)}
-              aria-current={p === page ? 'page' : undefined}
-              className={
-                'h-10 w-10 rounded-full font-sans text-sm transition-colors ' +
-                (p === page
-                  ? 'bg-sage-700 text-white'
-                  : 'border border-border text-ink hover:bg-surface')
-              }
+          {page > 1 ? (
+            <Link
+              href={pageHref(page - 1)}
+              rel="prev"
+              className="rounded-full border border-border px-4 py-2 font-sans text-sm text-ink transition-colors hover:bg-surface"
             >
-              {p}
-            </button>
-          ))}
-          <button
-            type="button"
-            onClick={() => goto(Math.min(totalPages, page + 1))}
-            disabled={page === totalPages}
-            className="rounded-full border border-border px-4 py-2 font-sans text-sm text-ink transition-colors hover:bg-surface disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            Next
-          </button>
+              Prev
+            </Link>
+          ) : (
+            <span className="rounded-full border border-border px-4 py-2 font-sans text-sm text-ink opacity-40">
+              Prev
+            </span>
+          )}
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) =>
+            p === page ? (
+              <span
+                key={p}
+                aria-current="page"
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-sage-700 font-sans text-sm text-white"
+              >
+                {p}
+              </span>
+            ) : (
+              <Link
+                key={p}
+                href={pageHref(p)}
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-border font-sans text-sm text-ink transition-colors hover:bg-surface"
+              >
+                {p}
+              </Link>
+            ),
+          )}
+          {page < totalPages ? (
+            <Link
+              href={pageHref(page + 1)}
+              rel="next"
+              className="rounded-full border border-border px-4 py-2 font-sans text-sm text-ink transition-colors hover:bg-surface"
+            >
+              Next
+            </Link>
+          ) : (
+            <span className="rounded-full border border-border px-4 py-2 font-sans text-sm text-ink opacity-40">
+              Next
+            </span>
+          )}
         </nav>
       )}
     </>

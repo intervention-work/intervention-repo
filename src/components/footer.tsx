@@ -97,6 +97,19 @@ const LEGAL = [
   { label: 'Terms and Conditions', href: '/terms-and-conditions' },
 ];
 
+// Decision-stage WordPress landing pages that previously had zero internal
+// links (Ahrefs flagged 6 orphan "does my {relation}..." pages). Linking from
+// the footer passes PageRank, preserves their default indexable status, and
+// keeps all six discoverable from every page without touching the main nav.
+const SIGNS_LINKS = [
+  { label: 'Does my loved one need an intervention?',  href: '/does-my-loved-one-need-a-drug-intervention' },
+  { label: 'Does my child need an intervention?',      href: '/does-my-child-need-a-drug-intervention' },
+  { label: 'Does my parent need an intervention?',     href: '/does-my-parent-need-a-drug-intervention' },
+  { label: 'Does my sibling need an intervention?',    href: '/does-my-sibling-need-a-drug-intervention' },
+  { label: 'Does my friend need an intervention?',     href: '/does-my-friend-need-a-drug-intervention' },
+  { label: 'Does my employee need an intervention?',   href: '/does-my-employee-need-a-drug-intervention' },
+];
+
 export function Footer() {
   const { phoneDisplay, phoneHref, email } = useSettings();
   return (
@@ -271,6 +284,26 @@ export function Footer() {
               ))}
             </div>
           </div>
+        </div>
+
+        {/* Signs & guidance link row — restores PageRank to decision-stage pages
+            that were orphaned (no incoming internal links across the site). */}
+        <div className="mt-10">
+          <h4 className="font-sans text-[11px] tracking-[0.2em] uppercase text-ink-muted">
+            Signs It May Be Time
+          </h4>
+          <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
+            {SIGNS_LINKS.map((l) => (
+              <li key={l.href}>
+                <Link
+                  href={l.href}
+                  className="font-sans text-sm text-ink-body transition-colors duration-200 hover:text-sage-700"
+                >
+                  {l.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
 
         <p className="mt-6 font-sans text-xs text-ink-muted/80">

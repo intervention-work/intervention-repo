@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { fetchAllPagePaths, fetchAllPosts, fetchSection } from '@/lib/wp';
 import { isSuppressedServicePath } from '@/lib/suppressed-services';
+import { BLOG_PER_PAGE } from '@/components/blog-list';
 
 export const revalidate = 3600;
 
@@ -70,6 +71,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
+  // Paginated blog listing pages (2..N). Page 1 is already in staticRoutes as
+  // /intervention-blog. These let Googlebot discover posts 13+ even if it
+  // does not re-crawl page 1 after the pagination refactor.
+  const blogTotalPages = Math.max(1, Math.ceil(allPosts.length / BLOG_PER_PAGE));
+  const blogPaginationRoutes: MetadataRoute.Sitemap = Array.from(
+    { length: Math.max(0, blogTotalPages - 1) },
+    (_, i) => ({
+      url: `${SITE}/intervention-blog/page/${i + 2}`,
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.5,
+    }),
+  );
+
   // Collect paths already covered so catch-all doesn't duplicate them.
   const covered = new Set([
     ...staticRoutes.map((r) => new URL(r.url).pathname),
@@ -92,5 +107,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.6,
     }));
 
-  return [...staticRoutes, ...detailRoutes, ...postRoutes, ...catchAllRoutes];
+  return [
+    ...staticRoutes,
+    ...detailRoutes,
+    ...postRoutes,
+    ...blogPaginationRoutes,
+    ...catchAllRoutes,
+  ];
 }

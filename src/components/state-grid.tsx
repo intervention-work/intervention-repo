@@ -5,6 +5,19 @@ import { motion } from 'motion/react';
 import { ArrowRight, MapPin } from 'lucide-react';
 import { viewport } from '@/lib/motion';
 
+// States with a dedicated WordPress landing page. Every state chip was
+// previously pointing at the index, which Ahrefs flagged as 23 orphan
+// pages (the detail pages had no incoming internal links). Verified live
+// (HTTP 200) 2026-10-07; the 31 states not in this set keep pointing at
+// the index so no broken links get introduced. When editors publish a
+// new state landing in WordPress, add its slug here.
+const STATES_WITH_DETAIL = new Set<string>([
+  'california', 'colorado', 'connecticut', 'florida', 'georgia',
+  'illinois', 'iowa', 'kansas', 'maine', 'massachusetts',
+  'michigan', 'minnesota', 'missouri', 'new-jersey', 'new-york',
+  'pennsylvania', 'tennessee', 'washington', 'washington-dc', 'wisconsin',
+]);
+
 const STATES = [
   'Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado',
   'Connecticut', 'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho',
@@ -17,6 +30,17 @@ const STATES = [
   'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington',
   'Washington DC', 'West Virginia', 'Wisconsin', 'Wyoming',
 ];
+
+function slugify(label: string): string {
+  return label.toLowerCase().replace(/\s+/g, '-');
+}
+
+function stateHref(label: string): string {
+  const slug = slugify(label);
+  return STATES_WITH_DETAIL.has(slug)
+    ? `/interventionists-by-state/${slug}`
+    : '/interventionists-by-state';
+}
 
 export function StateGrid() {
   return (
@@ -50,7 +74,7 @@ export function StateGrid() {
           {STATES.map((state) => (
             <Link
               key={state}
-              href="/interventionists-by-state"
+              href={stateHref(state)}
               className="inline-flex items-center gap-1.5 rounded-full border border-border bg-white px-4 py-2 font-sans text-sm text-ink-body transition-colors duration-200 hover:border-sage-400 hover:bg-sage-50 hover:text-sage-700"
             >
               <MapPin size={11} strokeWidth={1.75} className="text-sage-400" />
