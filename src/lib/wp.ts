@@ -268,6 +268,27 @@ const WP_HOST = (() => {
   }
 })();
 
+// Editor-authored legacy paths that still linger inside WordPress page bodies
+// (e.g. "Brad Lamm" / "drug abuse intervention" anchors on state pages). The
+// target routes do not exist in the Next.js app, so Ahrefs flagged them as
+// 404s and as 34 broken outbound links. Rewriting at the sanitizer layer fixes
+// the live-site link graph without needing editors to touch every WP page.
+const INTERNAL_LINK_REWRITES: Record<string, string> = {
+  '/interventionists/brad-lamm': '/our-team',
+  '/interventionists/jacob-hardt': '/our-team',
+  '/intervention-blog/interventionists/brad-lamm': '/our-team',
+  '/intervention-blog/interventionists/jacob-hardt': '/our-team',
+  '/intervention/substance-use': '/intervention/drug-alcohol-intervention',
+};
+
+function rewriteInternalHref(href: string): string {
+  if (!href || /^https?:\/\//i.test(href)) return href;
+  if (!href.startsWith('/')) return href;
+  const noSlash = href.replace(/\/+$/, '') || '/';
+  const target = INTERNAL_LINK_REWRITES[noSlash];
+  return target ?? href;
+}
+
 export function sanitizeWpHtml(html: string): string {
   let out = html;
 
@@ -360,6 +381,8 @@ export function sanitizeWpHtml(html: string): string {
       let href = m ? (m[1] ?? m[2] ?? '') : '';
       // Internal links → site-relative so navigation stays on the new site.
       if (WP_HOST && href.startsWith(WP_HOST)) href = href.slice(WP_HOST.length) || '/';
+      // Remap legacy editor-authored paths that 404 on the new site.
+      href = rewriteInternalHref(href);
       const external = /^https?:\/\//i.test(href);
       if (!href) return '<a>';
       return external
@@ -437,9 +460,20 @@ function decodeEntities(s: string): string {
 }
 
 // Absolute WP permalink → site-relative path (no trailing slash, '' → '/').
+// WordPress stores permalinks with `siteurl` baked in (currently intervention.com
+// via the WP Settings → General option), so `link` is typically absolute. Earlier
+// versions only stripped WP_HOST (interventions.wpenginepowered.com) and left any
+// other host intact; downstream `${SITE}${path}` concatenation then produced the
+// doubled-host sitemap entries (https://intervention.comhttps://intervention.com/...)
+// that Semrush/Ahrefs flagged. Parse with URL to extract the pathname whatever
+// host WP returned.
 function linkToPath(link: string): string {
   let p = link;
-  if (WP_HOST && p.startsWith(WP_HOST)) p = p.slice(WP_HOST.length);
+  try {
+    p = new URL(link).pathname;
+  } catch {
+    // Not an absolute URL; treat `link` as a path.
+  }
   p = p.replace(/\/+$/, '');
   return p || '/';
 }

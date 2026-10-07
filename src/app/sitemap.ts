@@ -32,7 +32,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE}/interventionists-by-state`,  lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${SITE}/intervention-blog`,          lastModified: now, changeFrequency: 'weekly',  priority: 0.8 },
     { url: `${SITE}/contact`,                    lastModified: now, changeFrequency: 'yearly',  priority: 0.8 },
-    { url: `${SITE}/about`,                      lastModified: now, changeFrequency: 'yearly',  priority: 0.7 },
+    { url: `${SITE}/about-us`,                   lastModified: now, changeFrequency: 'yearly',  priority: 0.7 },
     { url: `${SITE}/resources`,                  lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${SITE}/insurance`,                  lastModified: now, changeFrequency: 'yearly',  priority: 0.7 },
     { url: `${SITE}/family-class`,               lastModified: now, changeFrequency: 'yearly',  priority: 0.6 },

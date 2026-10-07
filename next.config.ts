@@ -117,6 +117,15 @@ const nextConfig: NextConfig = {
       { source: '/about', destination: '/about-us', permanent: true },
       { source: '/resources-3', destination: '/resources', permanent: true },
       { source: '/resources-3/:path*', destination: '/resources', permanent: true },
+      // Ahrefs/Semrush flagged these as 404 targets (both bare and under
+      // /intervention-blog/). Brad Lamm and Jacob Hardt bios live on /our-team,
+      // and the "substance-use" service is now called drug-alcohol-intervention.
+      // 301s so link equity transfers and the broken-link report clears.
+      { source: '/interventionists/brad-lamm', destination: '/our-team', permanent: true },
+      { source: '/interventionists/jacob-hardt', destination: '/our-team', permanent: true },
+      { source: '/intervention-blog/interventionists/brad-lamm', destination: '/our-team', permanent: true },
+      { source: '/intervention-blog/interventionists/jacob-hardt', destination: '/our-team', permanent: true },
+      { source: '/intervention/substance-use', destination: '/intervention/drug-alcohol-intervention', permanent: true },
       // WordPress backend handoff (headless site keeps editing on WP Engine).
       { source: '/wp-admin', destination: `${wpHost}/wp-admin`, permanent: false },
       { source: '/wp-admin/:path*', destination: `${wpHost}/wp-admin/:path*`, permanent: false },

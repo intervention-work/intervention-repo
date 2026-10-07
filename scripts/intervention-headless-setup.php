@@ -3,7 +3,7 @@
  * Plugin Name:  Intervention Headless Setup
  * Plugin URI:   https://intervention.com
  * Description:  Registers the detail_page CPT and all ACF field groups required for the headless Next.js migration. Requires ACF PRO. Adds SEO (Rank Math) + redirects bridge endpoints.
- * Version:      2.3.0
+ * Version:      2.4.0
  * Author:       Intervention.com
  */
 
@@ -706,3 +706,36 @@ add_action( 'admin_init', function () {
 
     update_option( 'ihs_field_groups_v200_imported', true );
 } );
+
+// ---------------------------------------------------------------------------
+// 11. Elementor preview URL fix for the headless setup
+// ---------------------------------------------------------------------------
+// On a normal WordPress site, Elementor's editor loads the live page in an
+// iframe for the WYSIWYG preview. Here `home_url()` is https://intervention.com
+// which serves the Next.js app, so Elementor cannot inject its editor hooks and
+// the editor spins forever on "Loading". Route the preview iframe at WordPress
+// itself (https://interventions.wpenginepowered.com) ONLY for Elementor's
+// internal preview requests, so the editor can finish loading. Public links on
+// the live site and the REST API continue to use the intervention.com URL.
+$ihs_wp_backend_url = 'https://interventions.wpenginepowered.com';
+
+add_filter( 'elementor/document/urls/preview', function ( $url ) use ( $ihs_wp_backend_url ) {
+    return str_replace( home_url(), $ihs_wp_backend_url, $url );
+} );
+
+add_filter( 'elementor/document/urls/wp_preview', function ( $url ) use ( $ihs_wp_backend_url ) {
+    return str_replace( home_url(), $ihs_wp_backend_url, $url );
+} );
+
+// Elementor's editor also calls set_url_scheme and admin_url for the backend
+// iframe loader; patch home_url inside Elementor's editor requests only, so no
+// public-facing URL gets rewritten. Scope by $_GET['action']=elementor and the
+// elementor-preview query var to avoid affecting any other request.
+add_filter( 'home_url', function ( $url, $path, $scheme, $blog_id ) use ( $ihs_wp_backend_url ) {
+    $is_elementor_editor  = is_admin() && isset( $_GET['action'] ) && $_GET['action'] === 'elementor';
+    $is_elementor_preview = isset( $_GET['elementor-preview'] );
+    if ( $is_elementor_editor || $is_elementor_preview ) {
+        return str_replace( get_option( 'home' ), $ihs_wp_backend_url, $url );
+    }
+    return $url;
+}, 10, 4 );
