@@ -17,6 +17,9 @@ const REDIRECT_PATHS = new Set([
   '/intervention-help',
   '/intervention-help/thank-you',
   '/free-resources',
+  // Both consolidated into /intervention/drug-alcohol-intervention via Rank Math.
+  '/intervention/drug-intervention',
+  '/intervention/alcohol-intervention',
 ]);
 
 // Utility pages not worth indexing.

@@ -33,10 +33,36 @@ function absolute(url?: string): string | undefined {
   return `${SITE}${url.startsWith('/') ? '' : '/'}${url}`;
 }
 
+// WordPress (Rank Math/Yoast) was appending a 38-char suffix to every page
+// title (" – Intervention.com (Change Institute)"), so SERP titles ran 85–130
+// chars and Ahrefs/Semrush flagged 77 pages for "Title too long". Strip that
+// baked-in suffix so Next.js owns the brand suffix via its own ${title} | Site
+// pattern. Keep this permissive: match en-dash, em-dash, pipe, and colon.
+function stripBakedTitleSuffix(raw: string): string {
+  let t = raw.trim();
+  const patterns = [
+    /\s*[\-–—|:]\s*Intervention\.com\s*\(Change Institute\)\s*$/i,
+    /\s*[\-–—|:]\s*Intervention\.com\s*$/i,
+    /\s*[\-–—|:]\s*A Change Institute Service\s*$/i,
+  ];
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (const re of patterns) {
+      if (re.test(t)) {
+        t = t.replace(re, '').trim();
+        changed = true;
+      }
+    }
+  }
+  return t || raw;
+}
+
 export function buildMetadata(input: MetaInput): Metadata {
   const seo = input.seo ?? {};
 
-  const title = seo.title || input.title;
+  const rawTitle = seo.title || input.title;
+  const title = stripBakedTitleSuffix(rawTitle);
   const description = seo.description || input.description || undefined;
   const canonical =
     seo.canonical || (input.canonicalPath ? absolute(input.canonicalPath) : undefined);

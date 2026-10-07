@@ -28,7 +28,7 @@ const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://intervention.com';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),
-  title: "Intervention: Compassionate, Certified Interventions for Families | A Change Institute Service",
+  title: "Intervention.com | Certified Family Interventions Since 2003",
   description: "Nation’s leading interventionists since 2003. Free, confidential consultation for addiction, mental health, and eating disorders. Available 24/7 nationwide.",
   alternates: { canonical: '/' },
   openGraph: {
