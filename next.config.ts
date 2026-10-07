@@ -126,6 +126,14 @@ const nextConfig: NextConfig = {
       { source: '/intervention-blog/interventionists/brad-lamm', destination: '/our-team', permanent: true },
       { source: '/intervention-blog/interventionists/jacob-hardt', destination: '/our-team', permanent: true },
       { source: '/intervention/substance-use', destination: '/intervention/drug-alcohol-intervention', permanent: true },
+      // Legacy WordPress sitemap entry that Google Search Console still has
+      // on file (manager submitted it years ago). The Next.js app serves one
+      // sitemap at /sitemap.xml; forward the old URL so GSC's existing
+      // submission keeps resolving instead of failing with 404 "couldn't fetch".
+      { source: '/sitemap_index.xml', destination: '/sitemap.xml', permanent: true },
+      { source: '/post-sitemap.xml', destination: '/sitemap.xml', permanent: true },
+      { source: '/page-sitemap.xml', destination: '/sitemap.xml', permanent: true },
+      { source: '/interventionists-sitemap.xml', destination: '/sitemap.xml', permanent: true },
       // WordPress backend handoff (headless site keeps editing on WP Engine).
       { source: '/wp-admin', destination: `${wpHost}/wp-admin`, permanent: false },
       { source: '/wp-admin/:path*', destination: `${wpHost}/wp-admin/:path*`, permanent: false },
