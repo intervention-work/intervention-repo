@@ -40,6 +40,33 @@ export function ContactView() {
                 portalId="46095144"
                 formId="4fd83930-97c1-4d8a-a51b-3fd18583507e"
                 region="na1"
+                fallback={
+                  <div className="rounded-2xl border border-border bg-surface p-6">
+                    <p className="font-display text-xl text-ink">
+                      Our form didn’t load.
+                    </p>
+                    <p className="mt-2 font-sans text-sm text-ink-muted">
+                      Looks like an ad blocker or network filter is in the way.
+                      Reach us directly — we answer 24/7.
+                    </p>
+                    <div className="mt-5 flex flex-wrap gap-3">
+                      <a
+                        href={phoneHref}
+                        className="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 font-sans text-sm font-medium text-white transition-colors hover:bg-ink-body"
+                      >
+                        <Phone size={14} strokeWidth={1.75} />
+                        Call {phoneDisplay}
+                      </a>
+                      <a
+                        href={`mailto:${email}`}
+                        className="inline-flex items-center gap-2 rounded-full border border-border bg-white px-6 py-3 font-sans text-sm font-medium text-ink transition-colors hover:border-ink"
+                      >
+                        <Mail size={14} strokeWidth={1.75} />
+                        Email us
+                      </a>
+                    </div>
+                  </div>
+                }
               />
               <p className="mt-4 font-sans text-xs text-ink-muted">
                 Your information is confidential and will only be used to

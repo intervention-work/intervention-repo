@@ -289,6 +289,27 @@ function rewriteInternalHref(href: string): string {
   return target ?? href;
 }
 
+// Editor-authored tel: links come in multiple formats inside WP body content
+// (`tel:(800) 789-1605`, `tel:800-789-1605`, `tel:+18007891605`, etc).
+// CallTrackingMetrics (`420748.tctm.co`) does Dynamic Number Insertion that
+// only swaps `tel:` hrefs matching one canonical format (typically E.164).
+// Non-matching hrefs connect to the real brand line but CTM never records
+// the call, so attribution silently collapses. Normalize here so every tel:
+// link on every page is the E.164 form CTM is listening for.
+function normalizeTelHref(href: string): string {
+  if (!/^tel:/i.test(href)) return href;
+  const digits = href.slice(4).replace(/[^\d+]/g, '');
+  if (!digits) return href;
+  if (digits.startsWith('+')) {
+    // Collapse accidental leading-double-1 like +118007891605.
+    const clean = '+' + digits.slice(1).replace(/^1(1\d{10})$/, '$1');
+    return `tel:${clean}`;
+  }
+  if (digits.length === 10) return `tel:+1${digits}`;
+  if (digits.length === 11 && digits.startsWith('1')) return `tel:+${digits}`;
+  return `tel:+${digits}`;
+}
+
 export function sanitizeWpHtml(html: string): string {
   let out = html;
 
@@ -383,6 +404,8 @@ export function sanitizeWpHtml(html: string): string {
       if (WP_HOST && href.startsWith(WP_HOST)) href = href.slice(WP_HOST.length) || '/';
       // Remap legacy editor-authored paths that 404 on the new site.
       href = rewriteInternalHref(href);
+      // Canonicalize tel: hrefs so CTM's Dynamic Number Insertion can swap them.
+      href = normalizeTelHref(href);
       const external = /^https?:\/\//i.test(href);
       if (!href) return '<a>';
       return external
@@ -942,14 +965,13 @@ export async function fetchGlobalSettings(): Promise<GlobalSettings> {
 // Normalise so every link is a working `tel:` URI regardless of input.
 function normalizePhoneHref(raw: string, display?: string): string {
   const v = (raw || '').trim();
-  if (/^tel:/i.test(v)) return v;
-  // If it's already a digit sequence (with optional +), prefix tel:
+  if (/^tel:/i.test(v)) return normalizeTelHref(v);
+  // If it's already a digit sequence (with optional +), prefix tel: and canonicalize.
   if (/^\+?[\d\-\s().]+$/.test(v)) {
-    const digits = v.replace(/[^\d+]/g, '');
-    return `tel:${digits.startsWith('+') ? digits : `+1${digits}`}`;
+    return normalizeTelHref(`tel:${v}`);
   }
   // Fallback: derive from the display number
   const fromDisplay = (display || '').replace(/[^\d]/g, '');
-  if (fromDisplay) return `tel:+1${fromDisplay}`;
+  if (fromDisplay) return normalizeTelHref(`tel:${fromDisplay}`);
   return SETTINGS_FALLBACK.phoneHref;
 }
