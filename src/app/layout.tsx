@@ -3,6 +3,7 @@ import { Source_Serif_4, DM_Sans } from 'next/font/google';
 import Script from 'next/script';
 import './globals.css';
 
+import { AnalyticsEvents } from '@/components/analytics-events';
 import { DevServiceWorkerCleanup } from '@/components/dev-sw-cleanup';
 import { Nav } from '@/components/nav';
 import { Footer } from '@/components/footer';
@@ -98,6 +99,7 @@ export default async function RootLayout({
           strategy="afterInteractive"
         />
         <JsonLd data={[organizationSchema(), websiteSchema()]} />
+        <AnalyticsEvents />
         <DevServiceWorkerCleanup />
         <SettingsProvider value={settings}>
           <Nav sections={navSections} menu={navMenu} />
