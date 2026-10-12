@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { PageHero } from '@/components/page-hero';
+import { TrainingCtaCallout } from '@/components/training-cta-callout';
 import { WpContent } from '@/components/wp-content';
 import { CtaBanner } from '@/components/cta-banner';
 import { fetchWpPage } from '@/lib/wp';
@@ -49,6 +50,8 @@ export default async function BreakfreeTrainingPage() {
         image={page.image}
         actions={actions}
       />
+
+      <TrainingCtaCallout action={actions[0]} />
 
       {rest.length > 0 && (
         <section className="bg-white pt-14 pb-8 md:pt-24 md:pb-12 lg:pt-32 lg:pb-16">

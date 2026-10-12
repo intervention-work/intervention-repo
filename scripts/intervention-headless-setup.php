@@ -3,7 +3,7 @@
  * Plugin Name:  Intervention Headless Setup
  * Plugin URI:   https://intervention.com
  * Description:  Registers the detail_page CPT and all ACF field groups required for the headless Next.js migration. Requires ACF PRO. Adds SEO (Rank Math) + redirects bridge endpoints.
- * Version:      2.4.0
+ * Version:      2.5.0
  * Author:       Intervention.com
  */
 
@@ -739,3 +739,28 @@ add_filter( 'home_url', function ( $url, $path, $scheme, $blog_id ) use ( $ihs_w
     }
     return $url;
 }, 10, 4 );
+
+// ---------------------------------------------------------------------------
+// 12. Admin REST API cross-origin fix for the headless setup
+// ---------------------------------------------------------------------------
+// WordPress derives all REST endpoint URLs from `home_url()`, which here is
+// https://intervention.com (the Next.js app). When an editor is signed into
+// wp-admin at https://interventions.wpenginepowered.com, every admin REST
+// call then goes cross-origin: the browser fires a CORS preflight, WordPress
+// does not emit the matching Access-Control-Allow-Origin header, and the
+// preflight fails with 400. Symptoms observed in the admin: Application
+// Password creation errors silently, Rank Math settings stay stuck on
+// "Updating...", the block editor cannot save, Site Health flags warnings.
+//
+// Rewrite REST URLs to the WordPress backend host, but ONLY when the request
+// originates from the admin or from a REST handler itself. Public pages and
+// the Next.js build-time REST calls continue to work exactly as before
+// because `home_url()` on those requests stays unchanged.
+add_filter( 'rest_url', function ( $url ) use ( $ihs_wp_backend_url ) {
+    $is_admin_ctx  = is_admin();
+    $is_rest_ctx   = defined( 'REST_REQUEST' ) && REST_REQUEST;
+    if ( $is_admin_ctx || $is_rest_ctx ) {
+        return str_replace( get_option( 'home' ), $ihs_wp_backend_url, $url );
+    }
+    return $url;
+}, 10, 1 );
