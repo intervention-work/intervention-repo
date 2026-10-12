@@ -63,24 +63,24 @@ export function ContentPage({
         </div>
       )}
 
-      <section className="bg-white py-12 md:py-20 lg:py-32">
-        {/* The rail costs ~356px, so widen the shell when there is one — at
-            max-w-5xl the copy would be squeezed to roughly 620px. */}
-        <div className={`mx-auto px-6 ${sidebar ? 'max-w-[1200px]' : 'max-w-5xl'}`}>
+      <section className="bg-white pt-12 pb-8 md:pt-20 md:pb-12 lg:pt-32 lg:pb-16">
+        {/* Same width as the hero so the body's left edge lines up with the
+            title above it; running text is held to a reading measure inside. */}
+        <div className="mx-auto max-w-[1200px] px-6">
           {intro && (
             <motion.p
               initial={{ opacity: 0, y: 14 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={viewport}
               transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-              className="font-display text-2xl leading-[1.4] text-ink md:text-[1.7rem]"
+              className="max-w-3xl font-display text-2xl leading-[1.4] text-ink md:text-[1.7rem]"
             >
               {intro}
             </motion.p>
           )}
 
           {bodyBlocks && bodyBlocks.length > 0 ? (
-            <div className="mt-12">
+            <div className={intro ? 'mt-12' : undefined}>
               <WpContent
                 blocks={bodyBlocks}
                 rail={sidebar ? <ServiceLinks sidebar={sidebar} /> : undefined}
@@ -89,7 +89,7 @@ export function ContentPage({
             </div>
           ) : (
             blocks.length > 0 && (
-              <div className="mt-12">
+              <div className={`max-w-5xl ${intro ? 'mt-12' : ''}`}>
                 <ContentBlocks blocks={blocks} />
               </div>
             )

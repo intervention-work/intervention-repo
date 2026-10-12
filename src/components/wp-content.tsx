@@ -8,7 +8,7 @@ import { HubSpotEmbed } from './hubspot-embed';
 import { groupSections, stripTags, wordCount, type Block, type Card as CardData, type Section } from '@/lib/wp-content-parse';
 import { parseWp } from '@/lib/wp-parse';
 import {
-  Users, User, Check, CircleDot, Smile, Heart, Star, HandHeart, ShieldCheck,
+  Users, User, Check, Smile, Heart, Star, HandHeart, ShieldCheck,
   GraduationCap, Handshake, Sparkles, type LucideIcon,
 } from 'lucide-react';
 
@@ -64,6 +64,13 @@ function CtaLink({
     ? variant === 'secondary'
     : NAVIGATIONAL_CTA.test(label.trim());
   const displayLabel = toTitleCase(label);
+  if (!href || href === '#') {
+    return (
+      <span className="inline-flex items-center justify-center rounded-full border border-border px-6 py-3 font-sans text-sm font-medium text-ink-muted">
+        {displayLabel}
+      </span>
+    );
+  }
   return (
     <a
       href={href}
@@ -149,11 +156,23 @@ function StateChip({ html }: { html: string }) {
 }
 
 function ChipGrid({ items }: { items: string[] }) {
+  // The faded unlinked style only means "no page yet" beside linked siblings;
+  // a list with no links at all (e.g. team names) would read as all disabled.
+  const anyLinks = items.some((it) => /<a\b/i.test(it));
   return (
-    <ul className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:grid-cols-4">
+    <ul
+      className={`grid grid-cols-2 gap-2.5 ${anyLinks ? 'sm:grid-cols-3 md:grid-cols-4' : 'md:grid-cols-3'}`}
+    >
       {items.map((item, i) => (
         <li key={i}>
-          <StateChip html={item} />
+          {anyLinks ? (
+            <StateChip html={item} />
+          ) : (
+            <span className="flex h-full items-center gap-2.5 rounded-xl border border-border bg-white px-4 py-3 font-sans text-sm font-medium text-ink">
+              <span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-sage-400" />
+              {stripTags(item)}
+            </span>
+          )}
         </li>
       ))}
     </ul>
@@ -353,13 +372,12 @@ function PricingCards({
     button?: { href: string; label: string; external: boolean };
   }>;
 }) {
-  const cols = cards.length === 2 ? 'sm:grid-cols-2' : 'sm:grid-cols-2 lg:grid-cols-3';
   return (
-    <div className={`grid grid-cols-1 gap-6 ${cols}`}>
+    <BalancedGrid count={cards.length}>
       {cards.map((c, i) => (
         <div
           key={i}
-          className="flex flex-col items-center rounded-2xl border border-border bg-white p-8 text-center transition-shadow duration-300 hover:shadow-[0_24px_60px_-24px_rgba(17,24,39,0.22)]"
+          className="flex w-full flex-col items-center rounded-2xl border border-border bg-white p-8 text-center transition-shadow duration-300 hover:shadow-[0_24px_60px_-24px_rgba(17,24,39,0.22)]"
         >
           <p className="font-sans text-lg font-semibold text-sage-500">{c.title}</p>
           {c.subtitle && (
@@ -383,7 +401,7 @@ function PricingCards({
           )}
         </div>
       ))}
-    </div>
+    </BalancedGrid>
   );
 }
 
@@ -394,25 +412,82 @@ const ICON_MAP: Record<string, LucideIcon> = {
   shield: ShieldCheck, 'shield-alt': ShieldCheck, 'graduation-cap': GraduationCap,
   handshake: Handshake, certificate: Sparkles, award: Sparkles,
 };
-const iconFor = (k: string): LucideIcon => ICON_MAP[k] ?? CircleDot;
+// Column widths account for the 1.5rem gap so N items fill a row exactly.
+const BASIS = {
+  2: 'sm:basis-[calc(50%-0.75rem)]',
+  3: 'sm:basis-[calc(50%-0.75rem)] lg:basis-[calc(33.333%-1rem)]',
+  4: 'sm:basis-[calc(50%-0.75rem)] lg:basis-[calc(25%-1.125rem)]',
+} as const;
+
+const fitsRow = (title: string, desc: string) => title.length <= 24 && desc.length <= 110;
+
+/**
+ * Wrapping grid whose last row is centred, so five or seven items don't leave
+ * one card stranded at the left edge of an otherwise empty row.
+ */
+function BalancedGrid({
+  count,
+  dense = false,
+  row = false,
+  children,
+}: {
+  count: number;
+  /** Short label tiles: two per row even on a phone. */
+  dense?: boolean;
+  /** Four short items: one row of four on desktop instead of 2×2. */
+  row?: boolean;
+  children: ReactNode[];
+}) {
+  const basis =
+    count === 4 && row ? BASIS[4] : count === 2 || count === 4 ? BASIS[2] : BASIS[3];
+  return (
+    <div className={`flex flex-wrap justify-center ${dense ? 'gap-3 sm:gap-6' : 'gap-6'}`}>
+      {children.map((child, i) => (
+        <div
+          key={i}
+          className={`flex ${dense ? 'basis-[calc(50%-0.375rem)]' : 'basis-full'} ${basis}`}
+        >
+          {child}
+        </div>
+      ))}
+    </div>
+  );
+}
 
 function IconCards({ items }: { items: Array<{ icon: string; title: string; desc: string }> }) {
-  const cols = items.length <= 2 ? 'sm:grid-cols-2' : 'sm:grid-cols-2 lg:grid-cols-3';
+  // Centred text suits a short label; a paragraph needs a left edge to read.
+  const prose = items.some((it) => it.desc);
+  // Quarter width only holds a one-line title and a few lines of copy.
+  const row = items.every((it) => fitsRow(it.title, it.desc));
   return (
-    <div className={`grid grid-cols-1 gap-8 ${cols}`}>
+    <BalancedGrid count={items.length} dense={!prose} row={row}>
       {items.map((it, i) => {
-        const Icon = iconFor(it.icon);
+        // Custom SVG uploads carry no glyph name; a stand-in dot on every tile
+        // adds noise without meaning, so those tiles go without an icon.
+        const Icon = ICON_MAP[it.icon];
         return (
-          <div key={i} className="flex flex-col items-center text-center">
-            <span className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-sage-50 text-sage-500">
-              <Icon size={28} strokeWidth={1.75} />
-            </span>
-            {it.title && <p className="font-sans text-base font-semibold text-ink">{it.title}</p>}
-            {it.desc && <p className="mt-2 font-sans text-sm leading-relaxed text-ink-body">{it.desc}</p>}
+          <div
+            key={i}
+            className={`flex w-full flex-col rounded-2xl border border-border bg-surface ${
+              prose ? 'items-start p-6 text-left md:p-7' : 'items-center justify-center px-4 py-6 text-center sm:px-6 sm:py-8'
+            }`}
+          >
+            {Icon && (
+              <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-white text-sage-500">
+                <Icon size={24} strokeWidth={1.75} />
+              </span>
+            )}
+            {it.title &&
+              (prose ? (
+                <p className="font-display text-xl leading-snug text-ink">{it.title}</p>
+              ) : (
+                <p className="font-sans text-base font-semibold text-balance text-ink">{it.title}</p>
+              ))}
+            {it.desc && <p className="mt-3 font-sans text-[15px] leading-relaxed text-pretty text-ink-body">{it.desc}</p>}
           </div>
         );
       })}
-    </div>
+    </BalancedGrid>
   );
 }
 
@@ -423,15 +498,37 @@ function MediaText({
   side: 'left' | 'right';
   blocks: Block[];
 }) {
-  const img = (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img src={image.src} alt={image.alt} loading="lazy" className="h-full w-full rounded-2xl object-cover" />
-  );
   return (
-    <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2">
-      {side === 'left' && <div className="min-h-[280px]">{img}</div>}
+    <div className="grid grid-cols-1 items-center gap-8 md:grid-cols-2 lg:gap-16">
+      <figure
+        className={`aspect-[4/3] overflow-hidden rounded-2xl border border-border bg-surface ${
+          side === 'right' ? 'md:order-last' : ''
+        }`}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={image.src} alt={image.alt} loading="lazy" className="h-full w-full object-cover object-top" />
+      </figure>
       <div className="space-y-5">{renderBlocks(blocks)}</div>
-      {side === 'right' && <div className="min-h-[280px]">{img}</div>}
+    </div>
+  );
+}
+
+function Profile({ block }: { block: Extract<Block, { kind: 'profile' }> }) {
+  return (
+    <div className="flex items-center gap-5 rounded-2xl border border-border bg-white p-5">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={block.image.src}
+        alt={block.image.alt}
+        loading="lazy"
+        className="h-20 w-20 shrink-0 rounded-full bg-surface object-cover object-top"
+      />
+      <div className="min-w-0">
+        <Heading level={4} html={block.nameHtml} />
+        <p className="mt-1.5 font-sans text-xs font-semibold tracking-[0.22em] uppercase text-sage-500">
+          {block.role}
+        </p>
+      </div>
     </div>
   );
 }
@@ -493,11 +590,13 @@ function BlockView({ block }: { block: Block }) {
       );
     case 'hsform':
       return (
-        <HubSpotEmbed
-          portalId={block.portalId}
-          formId={block.formId}
-          region={block.region}
-        />
+        <div className="max-w-2xl">
+          <HubSpotEmbed
+            portalId={block.portalId}
+            formId={block.formId}
+            region={block.region}
+          />
+        </div>
       );
     case 'image': {
       // Wide coverage maps stay full width. Everything else renders at a modest
@@ -507,7 +606,7 @@ function BlockView({ block }: { block: Block }) {
       return (
         <figure
           className={`overflow-hidden rounded-2xl border border-border bg-surface ${
-            isMap ? 'mx-auto w-full max-w-[820px]' : 'mx-auto w-full'
+            isMap ? 'mx-auto w-full max-w-[820px]' : 'w-full max-w-3xl'
           }`}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -557,6 +656,8 @@ function BlockView({ block }: { block: Block }) {
       return <IconCards items={block.items} />;
     case 'media-text':
       return <MediaText image={block.image} side={block.side} blocks={block.blocks} />;
+    case 'profile':
+      return <Profile block={block} />;
     case 'section-heading':
       return null;
   }
@@ -573,6 +674,18 @@ function renderBlocks(blocks: Block[]): ReactNode[] {
       while (i < blocks.length && blocks[i].kind === 'button') group.push(blocks[i++]);
       out.push(
         <div key={`btn-${i}`} className="flex flex-wrap gap-3 py-1">
+          {group.map((g, k) => (
+            <BlockView key={k} block={g} />
+          ))}
+        </div>
+      );
+      continue;
+    }
+    if (b.kind === 'profile') {
+      const group: Block[] = [];
+      while (i < blocks.length && blocks[i].kind === 'profile') group.push(blocks[i++]);
+      out.push(
+        <div key={`profiles-${i}`} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {group.map((g, k) => (
             <BlockView key={k} block={g} />
           ))}
@@ -721,14 +834,14 @@ function TopicList({ items }: { items: Topic[] }) {
  */
 type Feature = { title: string; bodyHtml: string };
 
-// Reusable card grid: two cards per row on desktop, one on mobile.
 function FeatureCards({ items }: { items: Feature[] }) {
+  const row = items.every((f) => fitsRow(stripTags(f.title), stripTags(f.bodyHtml)));
   return (
-    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+    <BalancedGrid count={items.length} row={row}>
       {items.map((f, i) => (
         <div
           key={i}
-          className="rounded-2xl border border-border bg-surface p-6 md:p-7"
+          className="w-full rounded-2xl border border-border bg-surface p-6 md:p-7"
         >
           <h3
             className="font-display text-xl leading-snug text-ink md:text-[1.35rem]"
@@ -740,7 +853,7 @@ function FeatureCards({ items }: { items: Feature[] }) {
           />
         </div>
       ))}
-    </div>
+    </BalancedGrid>
   );
 }
 
@@ -784,12 +897,22 @@ function collectFeatureRun(
 
 // Existing prose logic: cluster each heading with the copy under it, and turn
 // heading+blurb+CTA runs into a TopicList.
+// Self-contained layouts. Whatever follows one starts a new cluster; otherwise
+// it sits at paragraph spacing under the grid and reads as part of it.
+const STANDALONE = new Set<Block['kind']>([
+  'media-text', 'testimonials', 'card-group', 'pricing', 'icon-cards', 'profile',
+]);
+
 function proseSegment(blocks: Block[]): ReactNode[] {
   const groups: Block[][] = [];
   for (const b of blocks) {
     const cur = groups[groups.length - 1];
+    const last = cur?.[cur.length - 1];
     const startNew =
-      !cur || (b.kind === 'heading' && cur.some((x) => x.kind !== 'heading'));
+      !cur ||
+      (b.kind === 'heading' && cur.some((x) => x.kind !== 'heading')) ||
+      b.kind === 'media-text' ||
+      (last && STANDALONE.has(last.kind) && last.kind !== b.kind);
     if (startNew) groups.push([b]);
     else cur.push(b);
   }
@@ -835,13 +958,13 @@ function BlockFlow({ blocks }: { blocks: Block[] }) {
     let j = i + 1;
     while (j < blocks.length && !collectFeatureRun(blocks, j)) j++;
     out.push(
-      <div key={`seg-${i}`} className="space-y-12">
+      <div key={`seg-${i}`} className="space-y-14 md:space-y-16">
         {proseSegment(blocks.slice(i, j))}
       </div>
     );
     i = j;
   }
-  return <div className="space-y-12">{out}</div>;
+  return <div className="space-y-14 md:space-y-16">{out}</div>;
 }
 
 type Media = { src: string; alt: string };

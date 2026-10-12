@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { DM_Serif_Display, DM_Sans } from 'next/font/google';
+import { Source_Serif_4, DM_Sans } from 'next/font/google';
 import Script from 'next/script';
 import './globals.css';
 
@@ -11,11 +11,11 @@ import { SettingsProvider } from '@/lib/settings';
 import { fetchGlobalSettings, fetchNavSections, fetchNav } from '@/lib/wp';
 import { organizationSchema, websiteSchema } from '@/lib/seo';
 
-const dmSerifDisplay = DM_Serif_Display({
-  weight: '400',
+const sourceSerif = Source_Serif_4({
   subsets: ['latin'],
   variable: '--font-serif-display',
   display: 'swap',
+  axes: ['opsz'],
 });
 
 const dmSans = DM_Sans({
@@ -58,7 +58,7 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${dmSerifDisplay.variable} ${dmSans.variable}`}
+      className={`${sourceSerif.variable} ${dmSans.variable}`}
       suppressHydrationWarning
     >
       <body className="bg-white font-sans text-ink">

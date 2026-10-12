@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { motion } from 'motion/react';
 import { ArrowRight } from 'lucide-react';
 import { viewport } from '@/lib/motion';
-import { PageHero } from '@/components/page-hero';
+import { PageHero, type HeroAction } from '@/components/page-hero';
 import { CtaBanner } from '@/components/cta-banner';
 import { ContentBlocks } from '@/components/content-blocks';
 import { WpContent } from '@/components/wp-content';
@@ -21,6 +21,7 @@ export function SectionLanding({
   cardsFirst = false,
   cardExclude,
   afterCards,
+  heroActions,
 }: {
   section: Section;
   /** Parsed WordPress page body — the real editorial content for this section. */
@@ -33,6 +34,8 @@ export function SectionLanding({
   cardExclude?: string[];
   /** Content rendered immediately after the cards section. */
   afterCards?: ReactNode;
+  /** Lead CTAs lifted out of the body (see `splitLead`). */
+  heroActions?: HeroAction[];
 }) {
   const hasBody = bodyBlocks && bodyBlocks.length > 0;
   const hasAcf =
@@ -45,12 +48,12 @@ export function SectionLanding({
     : section.children;
 
   const bodySection = (hasBody || hasAcf) ? (
-    <section className="bg-white py-14 md:py-24 lg:py-32">
-      <div className="mx-auto max-w-3xl px-6">
+    <section className="bg-white pt-14 pb-8 md:pt-24 md:pb-12 lg:pt-32 lg:pb-16">
+      <div className="mx-auto max-w-[1200px] px-6">
         {hasBody ? (
           <WpContent blocks={bodyBlocks} />
         ) : (
-          <>
+          <div className="max-w-3xl">
             {section.intro && (
               <motion.p
                 initial={{ opacity: 0, y: 14 }}
@@ -72,7 +75,7 @@ export function SectionLanding({
                 <FaqList items={section.faq} />
               </div>
             )}
-          </>
+          </div>
         )}
       </div>
     </section>
@@ -98,7 +101,11 @@ export function SectionLanding({
           </h2>
         </motion.div>
 
-        <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div
+          className={`mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 ${
+            displayChildren.length === 4 ? 'lg:grid-cols-4' : 'lg:grid-cols-3'
+          }`}
+        >
           {displayChildren.map((child, i) => (
             <motion.div
               key={child.slug}
@@ -168,11 +175,12 @@ export function SectionLanding({
         title={section.title}
         summary={section.summary}
         image={heroImage ?? section.image}
+        actions={heroActions}
       />
 
       {section.slug === 'services' && (
-        <div className="border-b border-border bg-white px-6 py-3">
-          <div className="mx-auto max-w-[1200px]">
+        <div className="border-b border-border bg-white py-3">
+          <div className="mx-auto max-w-[1200px] px-6">
             <Link
               href="/about-us"
               className="inline-flex items-center gap-1.5 font-sans text-sm text-ink-muted transition-colors duration-200 hover:text-sage-700"

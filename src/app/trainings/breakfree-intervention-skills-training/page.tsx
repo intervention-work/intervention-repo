@@ -3,10 +3,9 @@ import { notFound } from 'next/navigation';
 import { PageHero } from '@/components/page-hero';
 import { WpContent } from '@/components/wp-content';
 import { CtaBanner } from '@/components/cta-banner';
-import { ResourceFormSection } from '@/components/resource-form-section';
 import { fetchWpPage } from '@/lib/wp';
 import { buildMetadata } from '@/lib/seo';
-import { mapWp } from '@/lib/wp-parse';
+import { mapWp, splitLead } from '@/lib/wp-parse';
 
 const SLUG = 'breakfree-intervention-skills-training';
 const CANONICAL_PATH = `/trainings/${SLUG}`;
@@ -29,10 +28,12 @@ export default async function BreakfreeTrainingPage() {
   const page = await fetchWpPage(SLUG);
   if (!page) notFound();
 
-  const { blocks } = mapWp(page.body, {
-    title: page.title,
-    summary: page.acfSummary || page.excerpt || undefined,
-  });
+  // The auto-generated excerpt of an Elementor page is its widget text run
+  // together ("… Register Now About the Training: …"), cut at 200 characters.
+  const summary = page.acfSummary || page.seo?.description || undefined;
+
+  const { blocks } = mapWp(page.body, { title: page.title, summary });
+  const { actions, rest } = splitLead(blocks);
 
   return (
     <main>
@@ -44,25 +45,18 @@ export default async function BreakfreeTrainingPage() {
         ]}
         eyebrow="Breakfree Training"
         title={page.title}
-        summary={page.acfSummary || page.excerpt || undefined}
+        summary={summary}
         image={page.image}
+        actions={actions}
       />
 
-      {blocks.length > 0 && (
-        <section className="bg-white py-24 lg:py-32">
-          <div className="mx-auto max-w-3xl px-6">
-            <WpContent blocks={blocks} />
+      {rest.length > 0 && (
+        <section className="bg-white pt-14 pb-8 md:pt-24 md:pb-12 lg:pt-32 lg:pb-16">
+          <div className="mx-auto max-w-[1200px] px-6">
+            <WpContent blocks={rest} />
           </div>
         </section>
       )}
-
-      <ResourceFormSection
-        eyebrow="Enroll today"
-        heading="Sign up for Breakfree Training."
-        subheading="Submit the form and our team will reach out to get you enrolled and answer any questions."
-        portalId="46095144"
-        formId="4fd83930-97c1-4d8a-a51b-3fd18583507e"
-      />
 
       <CtaBanner />
     </main>

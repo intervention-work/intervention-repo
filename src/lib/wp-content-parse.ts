@@ -38,6 +38,7 @@ export type Block =
     }
   | { kind: 'icon-cards'; items: Array<{ icon: string; title: string; desc: string }> }
   | { kind: 'media-text'; image: { src: string; alt: string }; side: 'left' | 'right'; blocks: Block[] }
+  | { kind: 'profile'; image: { src: string; alt: string }; nameHtml: string; role: string }
   | { kind: 'hsform'; portalId: string; formId: string; region: string };
 
 export type Section = { heading?: string; blocks: Block[] };

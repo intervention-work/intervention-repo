@@ -83,24 +83,24 @@ export function HowItWorks() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={viewport}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
-          className="mt-12 grid grid-cols-1 gap-6 lg:grid-cols-[260px_1fr] lg:gap-10"
+          className="mt-12 flex flex-col gap-4"
         >
-          {/* Tab list — active highlight slides between rows via layoutId */}
+          {/* Tab list — active highlight slides between steps via layoutId */}
           <ul
             role="tablist"
-            aria-orientation="vertical"
-            className="flex flex-row gap-2 overflow-x-auto lg:flex-col lg:overflow-visible"
+            aria-orientation="horizontal"
+            className="flex gap-2 overflow-x-auto sm:grid sm:grid-cols-4 sm:overflow-visible"
           >
             {STEPS.map((step) => {
               const isActive = step.id === active;
               return (
-                <li key={step.id} className="shrink-0 lg:shrink">
+                <li key={step.id} className="shrink-0 sm:shrink">
                   <button
                     type="button"
                     role="tab"
                     aria-selected={isActive}
                     onClick={() => setActive(step.id)}
-                    className="group relative flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left"
+                    className="group relative flex w-full items-center gap-3 rounded-2xl px-5 py-4 text-left"
                   >
                     {isActive && (
                       <motion.span
@@ -160,27 +160,29 @@ export function HowItWorks() {
                     }}
                     aria-hidden={!isActive}
                     className={
-                      'col-start-1 row-start-1 will-change-[opacity,transform] ' +
+                      'col-start-1 row-start-1 grid grid-cols-1 gap-x-16 will-change-[opacity,transform] lg:grid-cols-2 ' +
                       (isActive ? '' : 'pointer-events-none')
                     }
                   >
-                    <span
-                      className="font-display text-5xl leading-none text-border"
-                      style={{
-                        fontFeatureSettings: '"tnum"',
-                      }}
-                    >
-                      {step.num}
-                    </span>
-                    <h3
-                      className="mt-6 font-display text-xl leading-snug text-ink md:text-2xl"
-                    >
-                      {step.title}
-                    </h3>
-                    <p className="mt-3 max-w-xl font-sans text-lg leading-relaxed text-ink-body">
-                      {step.desc}
-                    </p>
-                    <p className="mt-4 max-w-xl font-sans text-base leading-relaxed text-ink-muted">
+                    <div>
+                      <span
+                        className="font-display text-5xl leading-none text-border"
+                        style={{
+                          fontFeatureSettings: '"tnum"',
+                        }}
+                      >
+                        {step.num}
+                      </span>
+                      <h3
+                        className="mt-6 font-display text-xl leading-snug text-ink md:text-2xl"
+                      >
+                        {step.title}
+                      </h3>
+                      <p className="mt-3 max-w-xl font-sans text-lg leading-relaxed text-ink-body">
+                        {step.desc}
+                      </p>
+                    </div>
+                    <p className="mt-4 max-w-xl font-sans text-base leading-relaxed text-ink-muted lg:mt-0 lg:self-end">
                       {step.detail}
                     </p>
                   </motion.div>

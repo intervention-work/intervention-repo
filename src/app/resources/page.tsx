@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { SectionLanding } from '@/components/section-landing';
 import { fetchSection, fetchPageBody } from '@/lib/wp';
-import { mapWp } from '@/lib/wp-parse';
+import { mapWp, splitLead } from '@/lib/wp-parse';
 import { buildMetadata } from '@/lib/seo';
 import { heroForSection } from '@/lib/hero-images';
 
@@ -23,5 +23,14 @@ export default async function ResourcesPage() {
   if (!section) return null;
   const raw = await fetchPageBody(section.sourcePageSlug ?? 'resources');
   const { blocks } = mapWp(raw, { title: section.title, summary: section.summary });
-  return <SectionLanding section={section} bodyBlocks={blocks} heroImage={heroForSection('resources')} />;
+  const lead = splitLead(blocks);
+  const { actions, rest } = lead.media ? { actions: [], rest: blocks } : lead;
+  return (
+    <SectionLanding
+      section={section}
+      bodyBlocks={rest}
+      heroActions={actions}
+      heroImage={heroForSection('resources')}
+    />
+  );
 }
