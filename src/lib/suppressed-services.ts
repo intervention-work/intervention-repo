@@ -31,6 +31,22 @@ const TITLE_NEEDLES = [
   'on-set care',
 ];
 
+// Image URL fragments that must never render on the public site. Removing
+// an Elementor image widget by editing WP page content via REST does NOT
+// stick: Elementor regenerates the HTML from `_elementor_data` meta on
+// every render. Suppress by src match here so the public site stays clean
+// without editors needing to touch Elementor's widget tree.
+export const SUPPRESSED_IMAGE_FRAGMENTS: readonly string[] = [
+  'bist-badge-orange', // Breakfree Intervention Training hero badge
+  'BDL_NEW_PHOTO_081226', // Brad Lamm portrait on the training page
+];
+
+export function isSuppressedImageSrc(src: string | undefined | null): boolean {
+  if (!src) return false;
+  const s = src.toLowerCase();
+  return SUPPRESSED_IMAGE_FRAGMENTS.some((f) => s.includes(f.toLowerCase()));
+}
+
 export function isSuppressedServiceSlug(slug: string | undefined | null): boolean {
   if (!slug) return false;
   return SUPPRESSED_SERVICE_SLUGS.has(slug);
@@ -67,6 +83,8 @@ type HeadingLike = { kind: 'heading' | 'section-heading'; html?: string; text?: 
  * This hides editor-authored sections like `<h3>Concierge Assessments</h3>`
  * plus their descriptive paragraphs without removing them from WordPress.
  */
+type ImageLike = { kind: 'image'; src?: string };
+
 export function filterSuppressedBlocks<B extends { kind: string }>(blocks: B[]): B[] {
   const isHeading = (b: B) => b.kind === 'heading' || b.kind === 'section-heading';
   const headingText = (b: B): string => {
@@ -84,6 +102,12 @@ export function filterSuppressedBlocks<B extends { kind: string }>(blocks: B[]):
       let j = i + 1;
       while (j < blocks.length && !isHeading(blocks[j])) j++;
       i = j - 1;
+      continue;
+    }
+    // Drop image blocks whose src is in the suppression list. Elementor
+    // keeps regenerating these widgets in page content, so filtering at
+    // the Block layer is the only reliable way to keep them off the site.
+    if (b.kind === 'image' && isSuppressedImageSrc((b as unknown as ImageLike).src)) {
       continue;
     }
     out.push(b);
