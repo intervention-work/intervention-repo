@@ -43,7 +43,7 @@ export function PageHero({
         className="absolute inset-0"
         style={{
           background:
-            'linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.30) 40%, rgba(0,0,0,0.82) 100%)',
+            'linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.45) 40%, rgba(0,0,0,0.82) 100%)',
         }}
       />
       {/* Without a photo the flat ink block reads dead — a faint sage bloom
@@ -59,7 +59,9 @@ export function PageHero({
         />
       )}
 
-      <div className="relative z-10 mx-auto w-full max-w-[1200px] px-6 pb-16 md:pb-20 lg:pb-24">
+      {/* The shadow keeps the small breadcrumb/eyebrow type legible where a
+          photo is brightest; the overlay alone can't without crushing the image. */}
+      <div className="relative z-10 mx-auto w-full max-w-[1200px] px-6 pb-16 [text-shadow:0_1px_12px_rgba(0,0,0,0.45)] md:pb-20 lg:pb-24">
         <motion.nav
           aria-label="Breadcrumb"
           initial={{ opacity: 0, y: 14 }}

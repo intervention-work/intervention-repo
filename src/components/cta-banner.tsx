@@ -14,7 +14,7 @@ export function CtaBanner({ tight = false }: { tight?: boolean }) {
   return (
     <section
       aria-label="Talk to a specialist"
-      className={`bg-white ${tight ? 'py-12 lg:py-14' : 'py-28 lg:py-36'}`}
+      className={`bg-white ${tight ? 'py-12 lg:py-14' : 'py-20 lg:py-28'}`}
     >
       <div className="mx-auto max-w-3xl px-6 text-center">
         <motion.div

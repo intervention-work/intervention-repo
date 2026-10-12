@@ -71,6 +71,12 @@ body {
   font-family: var(--font-sans);
 }
 
+/* Source Serif 4 is variable; 400 reads too light at display sizes. In the
+   base layer so an explicit font-* weight utility still wins. */
+@layer base {
+  .font-display { font-weight: 500; }
+}
+
 ::selection {
   background: var(--color-sage-100);
   color: var(--color-sage-900);

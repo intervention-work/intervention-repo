@@ -70,6 +70,13 @@ function hasClass(el: HTMLElement, cls: string): boolean {
   return (el.getAttribute('class') ?? '').split(/\s+/).includes(cls);
 }
 
+// Elementor's per-device visibility toggles. An element hidden on desktop is
+// either switched off entirely or a mobile-only duplicate of content the desktop
+// layout already shows; rendering it puts back what editors chose to hide.
+function hiddenOnDesktop(el: HTMLElement): boolean {
+  return hasClass(el, 'elementor-hidden-desktop');
+}
+
 function widgetType(el: HTMLElement): string | null {
   const m = /\belementor-widget-([a-z0-9-]+)\b/i.exec(el.getAttribute('class') ?? '');
   return m ? m[1].toLowerCase() : null;
@@ -251,7 +258,10 @@ function extractWidget(el: HTMLElement, type: string, out: Block[]): void {
     case 'testimonial-carousel':
     case 'testimonial':
     case 'reviews': {
-      const items = el.querySelectorAll('.elementor-testimonial, .swiper-slide').map((s) => ({
+      // A slide wraps its testimonial, so selecting both reads every quote twice.
+      const slides = el.querySelectorAll('.swiper-slide');
+      const nodes = slides.length ? slides : el.querySelectorAll('.elementor-testimonial');
+      const items = nodes.map((s) => ({
         quote: stripTags(s.querySelector('.elementor-testimonial__text, .elementor-testimonial-content')?.text ?? '').trim(),
         name: stripTags(s.querySelector('.elementor-testimonial__name, .elementor-testimonial-name')?.text ?? '').trim(),
         role: stripTags(s.querySelector('.elementor-testimonial__title, .elementor-testimonial-job')?.text ?? '').trim(),
@@ -303,6 +313,30 @@ const isShortcodeText = (t: string) => /^\s*\[\/?[a-z][^\]]*\]\s*$/i.test(t);
 const LEAF_TAGS = new Set(['p', 'ul', 'ol', 'blockquote', 'table', 'img', 'hr', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']);
 const IGNORE_TAGS = new Set(['script', 'style', 'noscript', 'svg', 'iframe', 'form', 'button', 'input']);
 
+// Direct child elements of an Elementor container, looking through the
+// `.e-con-inner` wrapper boxed containers add.
+function containerChildren(el: HTMLElement): HTMLElement[] {
+  const kids = el.childNodes.filter((n) => (n as HTMLElement).tagName) as HTMLElement[];
+  if (kids.length === 1 && hasClass(kids[0], 'e-con-inner')) return containerChildren(kids[0]);
+  return kids;
+}
+
+// A container holding exactly an icon widget, a heading and (optionally) a
+// text block is one feature tile. The icon widget alone has no text, so without
+// this the heading falls out as a loose display heading.
+function iconFeature(el: HTMLElement): { icon: string; title: string; desc: string } | null {
+  if (widgetType(el)) return null;
+  const kids = containerChildren(el);
+  if (kids.length < 2 || kids.length > 3) return null;
+  const types = kids.map(widgetType);
+  if (types[0] !== 'icon' || types[1] !== 'heading') return null;
+  if (kids.length === 3 && types[2] !== 'text-editor') return null;
+  const titleEl = kids[1].querySelector('.elementor-heading-title') ?? kids[1];
+  const title = stripTags(cleanInline(titleEl));
+  const desc = kids[2] ? stripTags(cleanInline(kids[2])) : '';
+  return title ? { icon: iconKey(kids[0]), title, desc } : null;
+}
+
 // Single recursive walk that never drops content: known widgets are extracted
 // (and not recursed), site chrome is skipped, leaf HTML is emitted, and any
 // other element (containers, unknown widgets, wrappers) is recursed into.
@@ -316,6 +350,9 @@ function walkNode(node: HTMLElement, out: Block[]): void {
       continue;
     }
     if (IGNORE_TAGS.has(tag)) continue; // scripts/styles/schema/svg — never body copy
+    if (hiddenOnDesktop(el)) continue;
+    const feature = iconFeature(el);
+    if (feature) { out.push({ kind: 'icon-cards', items: [feature] }); continue; }
     const wtype = widgetType(el);
     if (wtype && KNOWN_WIDGETS.has(wtype)) { extractWidget(el, wtype, out); continue; }
     if (wtype && SKIP_WIDGETS.has(wtype)) continue;
@@ -453,7 +490,94 @@ function postProcess(blocks: Block[]): Block[] {
   b = mergeShortLists(b);
   b = detectPricing(b);
   b = detectCards(b);
+  b = detectProfiles(b);
+  b = detectActionCards(b);
+  b = detectMediaText(b);
   return b;
+}
+
+const isKicker = (t: string) => Boolean(t) && wordCount(t) <= 8 && t === t.toUpperCase();
+const isPhoto = (src: string) => !/\/icon-|usa-states/.test(src);
+
+// Photo → name heading → all-caps role ("FACULTY"): a presenter/bio tile.
+function detectProfiles(blocks: Block[]): Block[] {
+  const out: Block[] = [];
+  for (let i = 0; i < blocks.length; i++) {
+    const [img, name, role] = [blocks[i], blocks[i + 1], blocks[i + 2]];
+    if (
+      img.kind === 'image' && isPhoto(img.src) &&
+      name?.kind === 'heading' && !isKicker(stripTags(name.html)) && wordCount(stripTags(name.html)) <= 8 &&
+      role?.kind === 'heading' && isKicker(stripTags(role.html))
+    ) {
+      out.push({ kind: 'profile', image: { src: img.src, alt: img.alt }, nameHtml: name.html, role: stripTags(role.html) });
+      i += 2;
+      continue;
+    }
+    out.push(img);
+  }
+  return out;
+}
+
+// Two or more "heading → button" pairs in a row (dates, programmes, offers) are
+// parallel options; stacked as display headings they read as one long list.
+function detectActionCards(blocks: Block[]): Block[] {
+  const out: Block[] = [];
+  let i = 0;
+  while (i < blocks.length) {
+    const cards: Card[] = [];
+    let j = i;
+    for (;;) {
+      const h = blocks[j];
+      const btn = blocks[j + 1];
+      if (h?.kind !== 'heading' || btn?.kind !== 'button') break;
+      const text = stripTags(h.html);
+      if (isKicker(text) || wordCount(text) > 14) break;
+      cards.push({ heading: text, bodyHtml: '', button: { href: btn.href, label: btn.label, external: btn.external } });
+      j += 2;
+    }
+    if (cards.length >= 2) { out.push({ kind: 'card-group', cards }); i = j; continue; }
+    out.push(blocks[i]);
+    i++;
+  }
+  return out;
+}
+
+// Photo → heading → short copy: pair the photo beside the copy. Stacked, a
+// single photo spans the whole column and pushes its text a screen away. Long
+// copy stays stacked; it would leave the photo stranded at the top of a tall row.
+const MEDIA_TEXT_MAX_WORDS = 160;
+function detectMediaText(blocks: Block[]): Block[] {
+  const out: Block[] = [];
+  let side: 'left' | 'right' = 'left';
+  let i = 0;
+  while (i < blocks.length) {
+    const img = blocks[i];
+    const head = blocks[i + 1];
+    if (img.kind === 'image' && isPhoto(img.src) && head?.kind === 'heading' && !isKicker(stripTags(head.html))) {
+      const body: Block[] = [head];
+      let k = i + 2;
+      while (k < blocks.length) {
+        const b = blocks[k];
+        if (b.kind === 'paragraph' || b.kind === 'list' || b.kind === 'button' || (b.kind === 'heading' && b.level === 4)) {
+          body.push(b);
+          k++;
+        } else break;
+      }
+      const words = body.reduce(
+        (n, b) => n + (b.kind === 'paragraph' ? wordCount(stripTags(b.html)) : b.kind === 'list' ? b.items.length * 6 : 0),
+        0
+      );
+      if (body.some((b) => b.kind === 'paragraph') && words <= MEDIA_TEXT_MAX_WORDS) {
+        out.push({ kind: 'media-text', image: { src: img.src, alt: img.alt }, side, blocks: body });
+        side = side === 'left' ? 'right' : 'left';
+        i = k;
+        continue;
+      }
+    }
+    out.push(img);
+    i++;
+  }
+  return out;
 }
 
 function mergeIconCards(blocks: Block[]): Block[] {
@@ -485,25 +609,29 @@ function detectPricing(blocks: Block[]): Block[] {
   while (i < blocks.length) {
     if (blocks[i].kind === 'heading') {
       const cards: Extract<Block, { kind: 'pricing' }>['cards'] = [];
+      // Headings above the first card's own title/subtitle (e.g. "Tuition Fees:")
+      // label the whole group, so they stay outside the cards.
+      let lead: Block[] = [];
       let j = i;
       for (;;) {
-        const headings: string[] = [];
         let k = j;
-        while (k < blocks.length && blocks[k].kind === 'heading') {
-          headings.push(stripTags((blocks[k] as Extract<Block, { kind: 'heading' }>).html));
-          k++;
-        }
+        while (k < blocks.length && blocks[k].kind === 'heading') k++;
+        const run = blocks.slice(j, k) as Array<Extract<Block, { kind: 'heading' }>>;
+        const headings = run.map((h) => stripTags(h.html));
         const priceIdx = headings.findIndex((h) => PRICE_RE.test(h));
         const btn = blocks[k];
         if (headings.length < 2 || priceIdx === -1 || !btn || btn.kind !== 'button') break;
-        const price = headings[priceIdx];
-        const title = headings.find((_, idx) => idx !== priceIdx) ?? '';
-        const subtitle = headings.filter((h, idx) => idx !== priceIdx && h !== title).join(' ');
+        const start = Math.max(0, priceIdx - 2);
+        if (start > 0 && cards.length) break;
+        if (!cards.length) lead = run.slice(0, start);
+        const own = [...headings.slice(start, priceIdx), ...headings.slice(priceIdx + 1)];
+        const title = own.find((h) => h !== h.toUpperCase()) ?? own[0];
+        const subtitle = own.filter((h) => h !== title).join(' ');
         const bb = btn as Extract<Block, { kind: 'button' }>;
-        cards.push({ title, subtitle, price, button: { href: bb.href, label: bb.label, external: bb.external } });
+        cards.push({ title, subtitle, price: headings[priceIdx], button: { href: bb.href, label: bb.label, external: bb.external } });
         j = k + 1;
       }
-      if (cards.length >= 2) { out.push({ kind: 'pricing', cards }); i = j; continue; }
+      if (cards.length >= 2) { out.push(...lead, { kind: 'pricing', cards }); i = j; continue; }
     }
     out.push(blocks[i]); i++;
   }
@@ -588,8 +716,19 @@ export type MappedWp = {
   sidebar?: WpSidebar;
 };
 export function mapWp(html: string, hero: { title?: string; summary?: string } = {}): MappedWp {
-  const { blocks, sidebar } = parseWpDoc(html);
+  const parsed = parseWpDoc(html);
+  const sidebar = parsed.sidebar;
+  let blocks = parsed.blocks;
   const norm = (s: string) => s.replace(/[^a-z0-9 ]/gi, ' ').replace(/\s+/g, ' ').trim().toLowerCase();
+
+  // A banner/logo image ahead of the page title still leaves that title
+  // duplicating the hero; drop the title and keep the image.
+  const second = blocks[1];
+  if (blocks[0]?.kind === 'image' && hero.title && (second?.kind === 'section-heading' || second?.kind === 'heading')) {
+    const t = norm(second.kind === 'section-heading' ? second.text : stripTags(second.html));
+    const ht = norm(hero.title);
+    if (t && (ht.includes(t) || t.includes(ht))) blocks = [blocks[0], ...blocks.slice(2)];
+  }
 
   // A leading short all-caps line is an eyebrow/kicker, whether the editor
   // marked it up as a paragraph or as a heading.
