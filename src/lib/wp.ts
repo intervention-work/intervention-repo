@@ -289,6 +289,27 @@ function rewriteInternalHref(href: string): string {
   return target ?? href;
 }
 
+// Image URL fragments that must never render on the public site. Removing
+// an Elementor image widget by editing the WP page content directly does
+// NOT stick: Elementor regenerates the HTML from `_elementor_data` meta on
+// every render, so the widget comes back. Suppressing the image at the
+// sanitiser level keeps the site clean without needing editors to touch
+// Elementor's widget tree.
+//
+// Add a fragment here when a manager flags an image for removal and the
+// Elementor edit path is slow or unavailable. Each entry is a case-
+// insensitive substring match against the image URL (src or srcset).
+const SUPPRESSED_IMAGE_FRAGMENTS: readonly string[] = [
+  'bist-badge-orange', // Breakfree Intervention Training hero badge
+  'BDL_NEW_PHOTO_081226', // Brad Lamm portrait on the training page
+];
+
+function isSuppressedImageSrc(src: string): boolean {
+  if (!src) return false;
+  const s = src.toLowerCase();
+  return SUPPRESSED_IMAGE_FRAGMENTS.some((f) => s.includes(f.toLowerCase()));
+}
+
 // Editor-authored tel: links come in multiple formats inside WP body content
 // (`tel:(800) 789-1605`, `tel:800-789-1605`, `tel:+18007891605`, etc).
 // CallTrackingMetrics (`420748.tctm.co`) does Dynamic Number Insertion that
@@ -416,6 +437,9 @@ export function sanitizeWpHtml(html: string): string {
       // Keep image src ABSOLUTE (WP-hosted) so it loads on any deploy.
       const m = /(?:data-src|src)\s*=\s*"([^"]*)"|(?:data-src|src)\s*=\s*'([^']*)'/i.exec(attrs);
       const src = m ? (m[1] ?? m[2] ?? '') : '';
+      // Drop images flagged for suppression (Elementor keeps regenerating
+      // them in page content, so we strip at render instead).
+      if (isSuppressedImageSrc(src)) return '';
       const am = /alt\s*=\s*"([^"]*)"|alt\s*=\s*'([^']*)'/i.exec(attrs);
       const alt = am ? (am[1] ?? am[2] ?? '') : '';
       if (!src) return '';
