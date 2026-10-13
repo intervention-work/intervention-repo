@@ -98,6 +98,17 @@ export default async function RootLayout({
           src="https://420748.tctm.co/t.js"
           strategy="afterInteractive"
         />
+
+        {/* HubSpot tracking + chat widget (portal 46095144).
+            One snippet activates: site analytics (page views, form
+            submissions linked to contacts) + whatever Chatflow is
+            published in the HubSpot Conversations tool. Managed from
+            the HubSpot dashboard, not here. */}
+        <Script
+          id="hs-script-loader"
+          src="//js.hs-scripts.com/46095144.js"
+          strategy="afterInteractive"
+        />
         <JsonLd data={[organizationSchema(), websiteSchema()]} />
         <AnalyticsEvents />
         <DevServiceWorkerCleanup />
