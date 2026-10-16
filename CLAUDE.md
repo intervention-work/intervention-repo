@@ -92,3 +92,24 @@ Portal `46095144`, form `4fd83930-97c1-4d8a-a51b-3fd18583507e`. Submits JSON to 
 2. `npm run build` must pass.
 3. `npx tsx scripts/verify-content.ts` must report 0 flagged entries.
 4. For render spot-checks: `npm run start` then `python scripts/render-check.py http://localhost:3000`. Do NOT use `render-check-all.py` (hammers WP Engine rate limiter).
+
+---
+
+## Weekly log maintenance
+
+`Plans/weekly-log.md` is a running ledger of what shipped each week on intervention.com, split into two tracks per week: **Website Development** and **SEO**. Weeks run Monday to Sunday, newest at top.
+
+**When to update it:**
+- At the end of any session where something shipped, landed, or was decided.
+- When a WP-side change was made via REST (new drafts, title changes, menu edits, Elementor data pushes, meta changes).
+- When a code change got pushed (reference the commit SHA short form).
+- When an SEO signal shifted (robots, sitemap, redirects, meta/title changes, GSC/Bing resubmission, state-page title cleanup, etc.).
+- When a third-party integration was wired or toggled (HubSpot, GA4, GTM, CTM, Rank Math, Elementor, Amplify).
+
+**How to update it:**
+- Add bullets under the current week's section. Date each bullet in ISO (YYYY-MM-DD).
+- Keep each bullet terse (one line). Include commit SHA when the change is in git.
+- If the current week doesn't exist yet (we rolled into a new Monday), create a new `## Week of YYYY-MM-DD` block at the top with the two subsections.
+- No em dashes anywhere (file-wide rule).
+
+**Do this without being asked.** The user set the expectation that this log is maintained organically as work happens, not on demand. If a session ended without updating the ledger, catch up at the top of the next one before anything else.
