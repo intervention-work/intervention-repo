@@ -113,3 +113,23 @@ Portal `46095144`, form `4fd83930-97c1-4d8a-a51b-3fd18583507e`. Submits JSON to 
 - No em dashes anywhere (file-wide rule).
 
 **Do this without being asked.** The user set the expectation that this log is maintained organically as work happens, not on demand. If a session ended without updating the ledger, catch up at the top of the next one before anything else.
+
+---
+
+## IndexNow
+
+IndexNow notifies Bing, Yandex, Seznam, Naver (and by extension ChatGPT browse) within minutes whenever a URL is added or updated. On intervention.com it is wired into `/api/revalidate` so every WordPress-triggered revalidation also submits the URL to IndexNow.
+
+**Key:** `d6925beeb11ccbd7c998d9032be1a0ce`
+**Verification file:** `public/d6925beeb11ccbd7c998d9032be1a0ce.txt` (served at `https://intervention.com/d6925beeb11ccbd7c998d9032be1a0ce.txt`)
+**Helper:** `src/lib/indexnow.ts` exports `pingIndexNow(urls)` that hits both `api.indexnow.org/indexnow` and `www.bing.com/indexnow` with a 5s timeout each.
+
+**The key is intentionally public.** It is hosted at the .txt URL so search engines can confirm site ownership on each ping, and the ping body must match the file name. Do NOT rotate casually, you must delete the .txt file and update the source constant in lockstep, and seed the new key via a bulk submission.
+
+**Bulk sitemap submission** (first-time seed and whenever you want to force a reindex):
+
+```bash
+npm run indexnow:bulk
+```
+
+That script fetches `https://intervention.com/sitemap.xml`, extracts every `<loc>`, dedupes, and submits the full list to IndexNow in one call.

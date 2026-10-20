@@ -6,6 +6,17 @@ Sources: git log (code commits), WordPress REST actions taken in session (WP dat
 
 ---
 
+## Week of 2026-10-19  (Oct 19 to Oct 25)
+
+### Website Development
+- 2026-10-20: IndexNow helper `src/lib/indexnow.ts` added; `/api/revalidate` now fires IndexNow in the background on every revalidation (fire and forget, 5s timeout per endpoint).
+- 2026-10-20: `scripts/indexnow-submit-sitemap.ts` added with `npm run indexnow:bulk` to bulk-submit all sitemap URLs on demand.
+
+### SEO
+- 2026-10-20: IndexNow wired for sub-minute Bing / Yandex / ChatGPT-browse indexing on every WP save. Verification key `d6925beeb11ccbd7c998d9032be1a0ce` hosted at `/d6925beeb11ccbd7c998d9032be1a0ce.txt`.
+
+---
+
 ## Week of 2026-10-12  (Oct 12 to Oct 18)
 
 ### Website Development
