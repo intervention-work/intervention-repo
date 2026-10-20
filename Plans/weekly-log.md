@@ -11,9 +11,12 @@ Sources: git log (code commits), WordPress REST actions taken in session (WP dat
 ### Website Development
 - 2026-10-20: IndexNow helper `src/lib/indexnow.ts` added; `/api/revalidate` now fires IndexNow in the background on every revalidation (fire and forget, 5s timeout per endpoint).
 - 2026-10-20: `scripts/indexnow-submit-sitemap.ts` added with `npm run indexnow:bulk` to bulk-submit all sitemap URLs on demand.
+- 2026-10-20: Footer gets a `Learn More` row (About, Interventions, Services, Resources, Family Class, Blog) and `Breakfree Training` added to the Additional Services column, giving sitewide links to pages Ahrefs flagged as under-linked.
 
 ### SEO
 - 2026-10-20: IndexNow wired for sub-minute Bing / Yandex / ChatGPT-browse indexing on every WP save. Verification key `d6925beeb11ccbd7c998d9032be1a0ce` hosted at `/d6925beeb11ccbd7c998d9032be1a0ce.txt`.
+- 2026-10-20: Code-level sweep for Ahrefs-flagged issues. No mixed-content internal links in `src/` or `next.config.ts` (only hit was the SVG XML namespace in `globals.css`, not a link). No hard-coded hrefs in `src/` pointing to any `next.config.ts` redirect source. Remaining redirect-chain links (114 pages flagged) are inside WordPress-fetched content and already auto-rewritten by `INTERNAL_LINK_REWRITES` in `src/lib/wp.ts` for brad-lamm, jacob-hardt, substance-use. Canonicals checked across `src/app/`, all one-per-page and matching their route.
+- 2026-10-20: Footer link additions above restore internal-link coverage to foundational routes Ahrefs flagged under the "only one dofollow incoming internal link" issue (68 pages).
 
 ---
 

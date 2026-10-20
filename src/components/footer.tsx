@@ -84,12 +84,25 @@ const COLUMNS: Col[] = [
     title: 'Additional Services',
     links: [
       { label: 'Breakfree Journey', href: '/services/breakfree-journey' },
+      { label: 'Breakfree Training', href: '/trainings/breakfree-intervention-skills-training' },
       { label: 'Recovery Coach Companion', href: '/services/recovery-coach-companion' },
       { label: 'Recovery Case Management', href: '/services/recovery-care-management' },
       { label: 'Senior Support Services', href: '/services/senior-support-services' },
       { label: 'Find an Interventionist', href: '/interventionists-by-state' },
     ],
   },
+];
+
+// Foundational pages that Ahrefs flagged as under-linked (only one dofollow
+// incoming internal link each). Surfacing them in a sitewide footer row gives
+// each a stable link from every page, lifting internal PageRank distribution.
+const LEARN_MORE_LINKS = [
+  { label: 'About Us', href: '/about-us' },
+  { label: 'Interventions', href: '/intervention' },
+  { label: 'Services', href: '/services' },
+  { label: 'Resources', href: '/resources' },
+  { label: 'Family Class', href: '/family-class' },
+  { label: 'Intervention Blog', href: '/intervention-blog' },
 ];
 
 const LEGAL = [
@@ -294,6 +307,27 @@ export function Footer() {
           </h4>
           <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
             {SIGNS_LINKS.map((l) => (
+              <li key={l.href}>
+                <Link
+                  href={l.href}
+                  className="font-sans text-sm text-ink-body transition-colors duration-200 hover:text-sage-700"
+                >
+                  {l.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Learn More row — surfaces foundational pages (About, Resources,
+            Blog, Family Class, Interventions overview, Services overview)
+            that Ahrefs flagged as under-linked, giving each a sitewide link. */}
+        <div className="mt-8">
+          <h4 className="font-sans text-[11px] tracking-[0.2em] uppercase text-ink-muted">
+            Learn More
+          </h4>
+          <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
+            {LEARN_MORE_LINKS.map((l) => (
               <li key={l.href}>
                 <Link
                   href={l.href}
