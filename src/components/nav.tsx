@@ -53,11 +53,23 @@ const LINKS_OVERRIDE: Record<string, MenuItem[]> = {
 const SUPPRESSED_PATHS = new Set(['/family-class']);
 
 // Child detail_page slugs to hide from the Intervention and Services nav dropdowns.
+// Breakfree Journey + Launch live under their own top-level dropdown now.
 const SUPPRESSED_CHILD_SLUGS = new Set([
   'on-set-care-unit',
   'care-unit-assessment',
   'early-autism',
+  'breakfree-journey',
+  'breakfree-launch',
 ]);
+
+const BREAKFREE_GROUP: TopLink = {
+  label: 'Breakfree Journey',
+  href: '/breakfree-journey',
+  items: [
+    { label: 'Breakfree & Launch', href: '/breakfree-launch' },
+    { label: 'Breakfree & Assess', href: '/breakfree-and-assess' },
+  ],
+};
 
 // Paths that must render as plain links with no dropdown, regardless of WP menu children.
 const FORCE_LEAF_PATHS = new Set(['/contact']);
@@ -126,6 +138,7 @@ function buildLinks(sections: NavSection[]): TopLink[] {
       href: '/services',
       items: items('services'),
     },
+    BREAKFREE_GROUP,
     { label: 'Resources', href: '/resources', items: LINKS_OVERRIDE['/resources'] },
     { label: 'Contact Us', href: '/contact' },
   ];
