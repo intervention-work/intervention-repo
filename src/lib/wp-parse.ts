@@ -405,6 +405,21 @@ function siteRelative(href: string): string {
   return WP_HOST && href.startsWith(WP_HOST) ? href.slice(WP_HOST.length) || '/' : href;
 }
 
+// Links Elementor baked into cached nav-menu widget HTML that reference pages
+// we've since removed. The source menus no longer carry these items, but
+// Elementor keeps the rendered markup until each hosting page is re-saved,
+// which we skip. Filter on the frontend instead so the sidebar never shows
+// a dead entry regardless of WP's cache state.
+const REMOVED_SIDEBAR_PATTERNS = [
+  /early-autism/i,
+  /[?&]page_id=35180\b/i,
+];
+
+function isRemovedLink(href: string, label: string): boolean {
+  const hay = `${href} ${label}`;
+  return REMOVED_SIDEBAR_PATTERNS.some((p) => p.test(hay));
+}
+
 // Every widget element in document order. Keeps descending after a match because
 // some templates nest the menu (and its heading) inside another widget. Skips
 // `.elementor-widget-container`, the wrapper Elementor puts inside every widget —
@@ -450,7 +465,7 @@ function extractSidebar(root: HTMLElement): WpSidebar | undefined {
     for (const a of widget.querySelectorAll('a')) {
       const href = siteRelative(a.getAttribute('href') ?? '');
       const label = stripTags(a.text).trim();
-      if (!href || !label || seen.has(href)) continue;
+      if (!href || !label || seen.has(href) || isRemovedLink(href, label)) continue;
       seen.add(href);
       links.push({ href, label });
     }
