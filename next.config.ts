@@ -126,6 +126,11 @@ const nextConfig: NextConfig = {
       { source: '/intervention-blog/interventionists/brad-lamm', destination: '/our-team', permanent: true },
       { source: '/intervention-blog/interventionists/jacob-hardt', destination: '/our-team', permanent: true },
       { source: '/intervention/substance-use', destination: '/intervention/drug-alcohol-intervention', permanent: true },
+      // Early Autism page removed per manager request on 2026-10-23. Keep link
+      // equity by sending the slug (and the WP source slug) to the parent
+      // Intervention landing page.
+      { source: '/intervention/early-autism', destination: '/intervention', permanent: true },
+      { source: '/intervention/early-autism-intervention', destination: '/intervention', permanent: true },
       // Legacy WordPress sitemap entry that Google Search Console still has
       // on file (manager submitted it years ago). The Next.js app serves one
       // sitemap at /sitemap.xml; forward the old URL so GSC's existing

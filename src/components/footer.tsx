@@ -76,7 +76,6 @@ const COLUMNS: Col[] = [
       { label: 'Eating Disorder', href: '/intervention/eating-disorder' },
       { label: 'Mental Health', href: '/intervention/mental-health-crisis' },
       { label: 'Complex Trauma', href: '/intervention/complex-trauma' },
-      { label: 'Early Autism', href: '/intervention/early-autism' },
       { label: 'By State', href: '/interventionists-by-state' },
     ],
   },

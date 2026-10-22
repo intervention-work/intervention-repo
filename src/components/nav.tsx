@@ -58,6 +58,7 @@ const SUPPRESSED_CHILD_SLUGS = new Set([
   'on-set-care-unit',
   'care-unit-assessment',
   'early-autism',
+  'early-autism-intervention',
   'breakfree-journey',
   'breakfree-launch',
 ]);
