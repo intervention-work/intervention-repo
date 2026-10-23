@@ -131,6 +131,11 @@ const nextConfig: NextConfig = {
       // Intervention landing page.
       { source: '/intervention/early-autism', destination: '/intervention', permanent: true },
       { source: '/intervention/early-autism-intervention', destination: '/intervention', permanent: true },
+      // Short vanity URLs the marketing team shares; the full landing pages
+      // sit at the longer slugs. Destinations use the no-trailing-slash form
+      // to avoid a 301 to 308 chain (Next.js strips the slash on its own).
+      { source: '/eyewitness', destination: '/eyewitness-information', permanent: true },
+      { source: '/iteam', destination: '/iteam-information', permanent: true },
       // Legacy WordPress sitemap entry that Google Search Console still has
       // on file (manager submitted it years ago). The Next.js app serves one
       // sitemap at /sitemap.xml; forward the old URL so GSC's existing
