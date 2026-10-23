@@ -230,7 +230,7 @@ export function Nav({
         {/* CENTER — pill nav (desktop) */}
         <nav
           aria-label="Primary"
-          className="pointer-events-auto absolute left-1/2 hidden -translate-x-1/2 items-center gap-0.5 rounded-full border px-2 py-1.5 backdrop-blur-md transition-colors duration-300 lg:flex"
+          className="pointer-events-auto absolute left-1/2 hidden w-max -translate-x-1/2 items-center gap-0 whitespace-nowrap rounded-full border px-1.5 py-1.5 backdrop-blur-md transition-colors duration-300 lg:flex xl:gap-0.5 xl:px-2"
           style={{
             background: light ? 'rgba(17,24,39,0.42)' : 'rgba(255,255,255,0.92)',
             borderColor: light ? 'rgba(255,255,255,0.16)' : 'rgba(229,237,232,1)',
@@ -246,7 +246,7 @@ export function Nav({
                 <Link
                   key={link.label}
                   href={link.href}
-                  className="rounded-full px-3 py-1.5 font-sans text-sm transition-colors duration-200 hover:bg-black/5"
+                  className="rounded-full px-2.5 py-1.5 font-sans text-sm transition-colors duration-200 hover:bg-black/5 xl:px-3"
                   style={{ color: active ? '#6BAF83' : linkColor }}
                 >
                   {link.label}
@@ -262,7 +262,7 @@ export function Nav({
               >
                 <Link
                   href={link.href}
-                  className="flex items-center gap-1 rounded-full px-3 py-1.5 font-sans text-sm transition-colors duration-200 hover:bg-black/5"
+                  className="flex items-center gap-0.5 rounded-full px-2.5 py-1.5 font-sans text-sm transition-colors duration-200 hover:bg-black/5 xl:gap-1 xl:px-3"
                   style={{ color: active ? '#6BAF83' : linkColor }}
                   aria-expanded={openMenu === link.label}
                 >
