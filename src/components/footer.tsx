@@ -174,12 +174,12 @@ export function Footer() {
               aria-label="Change Institute — guiding families since 2003"
             >
               <Image
-                src="/images/change-insititue-logo.svg"
+                src="/brand/change-institute-logo.png"
                 alt="Change Institute"
-                width={150}
-                height={33}
+                width={121}
+                height={40}
                 unoptimized
-                className="h-7 w-auto opacity-85 transition-opacity hover:opacity-100"
+                className="h-10 w-auto opacity-85 transition-opacity hover:opacity-100"
               />
             </a>
 
