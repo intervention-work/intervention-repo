@@ -6,6 +6,16 @@ Sources: git log (code commits), WordPress REST actions taken in session (WP dat
 
 ---
 
+## Week of 2026-11-09  (Nov 9 to Nov 15)
+
+### Website Development
+- 2026-11-14: `6844578` replicated Vaibhav's `4-nov-2026` branch commit (`c66316c`) onto main. Footer uses the new Change Institute logo (`public/brand/change-institute-logo.png`). Home hero drops the floating card, primary CTA opens the HubSpot chat (falls back to `/contact`), trust points move under the buttons, left scrim added, headline smaller, stats in a right column on xl.
+
+### SEO
+- None this week so far.
+
+---
+
 ## Week of 2026-10-19  (Oct 19 to Oct 25)
 
 ### Website Development
@@ -16,6 +26,8 @@ Sources: git log (code commits), WordPress REST actions taken in session (WP dat
 - 2026-10-23: Main Menu (ID 2) restructured via REST: Breakfree Journey (item 43174) promoted to top-level between Services and Resources; Breakfree & Launch (item 43518) reparented as child; new Breakfree & Assess menu item (43583) added as child pointing to page 43563.
 - 2026-10-23: `13a059b` Early Autism page removed per manager request. WP detail_page 43494 (early-autism-intervention) set to draft on prod. Footer link removed from Interventions column. 301 redirects added in `next.config.ts` for `/intervention/early-autism` and `/intervention/early-autism-intervention` to `/intervention`. Revalidated `/intervention/early-autism`, `/intervention`, `/`.
 - 2026-10-23: Early Autism cleanup follow-up. WP page 35180 (page type, slug `early-autism`) set to draft. Menu items 42496 (Services menu 62) and 42637 (mobile menu 65) deleted. `src/lib/wp-parse.ts` filters removed sidebar links (`REMOVED_SIDEBAR_PATTERNS`) so stale Elementor-cached `ALL SERVICES` sidebar entries pointing at `?page_id=35180` or `/early-autism` are dropped at parse time. Revalidated every `/intervention/*` detail URL, `/services`, `/sitemap.xml`.
+- 2026-10-23: `ac43bab` added 301 redirects in `next.config.ts` for marketing vanity URLs: `/eyewitness` to `/eyewitness-information` and `/iteam` to `/iteam-information`. Destinations use the no-trailing-slash form so the 301 does not chain through Next's 308 slash strip.
+- 2026-10-23: `77210af` fixed top-nav pill responsiveness in `src/components/nav.tsx`. Root cause was absolute + translate-x-1/2 with no width, which Chromium sized at ~50% viewport so every multi-word label (About Us, Additional Services, Breakfree Journey, Contact Us) wrapped to two lines. Added `w-max whitespace-nowrap` on the pill container plus tighter `gap` / item `px` at `lg` with original spacing restored at `xl`.
 
 ### SEO
 - 2026-10-20: IndexNow wired for sub-minute Bing / Yandex / ChatGPT-browse indexing on every WP save. Verification key `d6925beeb11ccbd7c998d9032be1a0ce` hosted at `/d6925beeb11ccbd7c998d9032be1a0ce.txt`.
