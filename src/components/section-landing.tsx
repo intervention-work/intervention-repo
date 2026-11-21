@@ -13,6 +13,7 @@ import { WpContent } from '@/components/wp-content';
 import { FaqList } from '@/components/faq-list';
 import type { Section } from '@/content/types';
 import type { Block } from '@/lib/wp-content-parse';
+import { assignCardImages } from '@/lib/card-images';
 
 export function SectionLanding({
   section,
@@ -46,6 +47,13 @@ export function SectionLanding({
   const displayChildren = cardExclude
     ? section.children.filter((c) => !cardExclude.includes(c.slug))
     : section.children;
+
+  // Each card gets its own WP image when set; otherwise a distinct fallback
+  // photo, keeping the hero photo above the grid as the last resort.
+  const cardImages = assignCardImages(
+    displayChildren.map((c) => c.image),
+    heroImage ?? section.image
+  );
 
   const bodySection = (hasBody || hasAcf) ? (
     <section className="bg-white pt-14 pb-8 md:pt-24 md:pb-12 lg:pt-32 lg:pb-16">
@@ -123,9 +131,9 @@ export function SectionLanding({
                 className="group flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-white transition-shadow duration-300 hover:shadow-[0_24px_60px_-32px_rgba(17,24,39,0.35)]"
               >
                 <div className="relative aspect-[16/10] w-full overflow-hidden bg-ink">
-                  {(child.image ?? section.image ?? heroImage) && (
+                  {cardImages[i] && (
                     <Image
-                      src={(child.image ?? section.image ?? heroImage) as string}
+                      src={cardImages[i]}
                       alt=""
                       fill
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 380px"
