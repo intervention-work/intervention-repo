@@ -10,7 +10,7 @@ import { Footer } from '@/components/footer';
 import { JsonLd } from '@/components/json-ld';
 import { SettingsProvider } from '@/lib/settings';
 import { fetchGlobalSettings, fetchNavSections, fetchNav } from '@/lib/wp';
-import { organizationSchema, websiteSchema } from '@/lib/seo';
+import { organizationSchema, websiteSchema, SITE_DESCRIPTION } from '@/lib/seo';
 
 const sourceSerif = Source_Serif_4({
   subsets: ['latin'],
@@ -30,8 +30,7 @@ const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://intervention.com';
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),
   title: "Intervention.com | Certified Family Interventions Since 2003",
-  description: "Nation’s leading interventionists since 2003. Free, confidential consultation for addiction, mental health, and eating disorders. Available 24/7 nationwide.",
-  alternates: { canonical: '/' },
+  description: SITE_DESCRIPTION,
   openGraph: {
     title: "Intervention: Help Families Find Their Way Forward",
     description: "Compassionate, structured interventions for substance use, mental health, and behavioral challenges. Free consultation. Nationwide.",
@@ -109,7 +108,12 @@ export default async function RootLayout({
           src="//js.hs-scripts.com/46095144.js"
           strategy="afterInteractive"
         />
-        <JsonLd data={[organizationSchema(), websiteSchema()]} />
+        <JsonLd
+          data={[
+            organizationSchema({ phone: settings.phoneHref, email: settings.email }),
+            websiteSchema(),
+          ]}
+        />
         <AnalyticsEvents />
         <DevServiceWorkerCleanup />
         <SettingsProvider value={settings}>

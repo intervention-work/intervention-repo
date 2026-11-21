@@ -4,6 +4,7 @@ import { OurTeamContent } from './team-client';
 export const metadata: Metadata = {
   title: 'Our Team — Intervention.com',
   description: "Meet the team behind America's leading intervention organization.",
+  alternates: { canonical: '/our-team' },
 };
 
 export default function OurTeamPage() {

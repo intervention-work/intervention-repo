@@ -15,21 +15,51 @@ const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://intervention.com';
 // stops at this host, categorizes them as intentionally excluded, and does
 // not count them as a crawl issue. /wp-content/uploads/* stays allowed so
 // legitimately embedded image URLs still get crawled by Googlebot-Image.
+const DISALLOW = [
+  '/wp-admin/',
+  '/wp-login.php',
+  '/wp-includes/',
+  '/wp-content/plugins/',
+  '/wp-content/themes/',
+  '/wp-content/mu-plugins/',
+  '/index.php',
+  '/xmlrpc.php',
+];
+
+// AI search and assistant crawlers, allowed on purpose so the site can be read
+// and cited by ChatGPT, Claude, Perplexity, Gemini and Apple Intelligence. A
+// crawler-specific group REPLACES the `*` group, so the admin disallows are
+// repeated here; without that these bots would be allowed into /wp-admin/.
+const AI_CRAWLERS = [
+  'GPTBot',
+  'OAI-SearchBot',
+  'ChatGPT-User',
+  'ClaudeBot',
+  'Claude-SearchBot',
+  'Claude-User',
+  'anthropic-ai',
+  'PerplexityBot',
+  'Perplexity-User',
+  'Google-Extended',
+  'Applebot-Extended',
+  'CCBot',
+  'Amazonbot',
+  'meta-externalagent',
+  'DuckAssistBot',
+  'MistralAI-User',
+];
+
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
       {
         userAgent: '*',
-        disallow: [
-          '/wp-admin/',
-          '/wp-login.php',
-          '/wp-includes/',
-          '/wp-content/plugins/',
-          '/wp-content/themes/',
-          '/wp-content/mu-plugins/',
-          '/index.php',
-          '/xmlrpc.php',
-        ],
+        disallow: DISALLOW,
+        allow: ['/wp-content/uploads/', '/'],
+      },
+      {
+        userAgent: AI_CRAWLERS,
+        disallow: DISALLOW,
         allow: ['/wp-content/uploads/', '/'],
       },
     ],

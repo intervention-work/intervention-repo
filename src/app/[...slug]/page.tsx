@@ -3,7 +3,14 @@ import { notFound } from 'next/navigation';
 import { ContentPage } from '@/components/content-page';
 import { JsonLd } from '@/components/json-ld';
 import { fetchWpPage, fetchWpPost, fetchLeafDetail } from '@/lib/wp';
-import { buildMetadata, articleSchema, breadcrumbSchema, SITE } from '@/lib/seo';
+import {
+  buildMetadata,
+  articleSchema,
+  breadcrumbSchema,
+  faqSchema,
+  faqItemsFromBlocks,
+  SITE,
+} from '@/lib/seo';
 import { heroForSection, HERO_DEFAULT } from '@/lib/hero-images';
 import { mapWp } from '@/lib/wp-parse';
 
@@ -102,6 +109,9 @@ export default async function CatchAllWpPage(props: PageProps<'/[...slug]'>) {
   const schema: object[] = [
     breadcrumbSchema(crumbs.map((c) => ({ name: c.label, path: c.href }))),
   ];
+  // FAQPage markup mirrors the page's own accordion blocks (no second copy).
+  const faqLd = faqSchema(faqItemsFromBlocks(mapped.blocks));
+  if (faqLd) schema.push(faqLd);
   if (isPostType && page) {
     schema.push(
       articleSchema({
