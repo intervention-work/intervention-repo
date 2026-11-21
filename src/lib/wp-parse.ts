@@ -8,6 +8,7 @@ import { parse, type HTMLElement, type Node } from 'node-html-parser';
 import {
   type Block,
   type Card,
+  rewriteInternalHref,
   safeEmbedSrc,
   stripTags,
   wordCount,
@@ -29,6 +30,10 @@ const INLINE_KEEP = new Set(['a', 'strong', 'b', 'em', 'i', 'u', 'br']);
 // Clean inline HTML for paragraphs/headings: keep basic inline tags, make links
 // site-relative, drop everything else (unwrap), balance anchors.
 function cleanInline(node: HTMLElement): string {
+  return cleanInlineNodes(node.childNodes);
+}
+
+function cleanInlineNodes(nodes: Node[]): string {
   const walk = (n: Node): string => {
     // text node
     if ((n as HTMLElement).tagName === undefined || (n as HTMLElement).tagName === null) {
@@ -41,6 +46,7 @@ function cleanInline(node: HTMLElement): string {
     if (tag === 'a') {
       let href = el.getAttribute('href') ?? '';
       if (WP_HOST && href.startsWith(WP_HOST)) href = href.slice(WP_HOST.length) || '/';
+      href = rewriteInternalHref(href);
       const ext = /^https?:\/\//i.test(href);
       if (!href) return inner;
       return ext
@@ -51,7 +57,7 @@ function cleanInline(node: HTMLElement): string {
     if (INLINE_KEEP.has(tag)) return `<${tag}>${inner}</${tag}>`;
     return inner; // unwrap
   };
-  return node.childNodes.map(walk).join('').replace(/\s+/g, ' ').trim();
+  return nodes.map(walk).join('').replace(/\s+/g, ' ').trim();
 }
 
 // Read the FontAwesome glyph name from an icon element (inline SVG `e-fas-x`
@@ -106,8 +112,7 @@ function emitHtmlBlocks(container: HTMLElement, out: Block[]): void {
       continue;
     }
     if (tag === 'p') {
-      const html = cleanInline(el);
-      if (stripTags(html)) pushParagraphOrButton(out, html);
+      emitParagraph(el, out);
     } else if (tag === 'ul' || tag === 'ol') {
       const items = el.querySelectorAll('li').map((li) => cleanInline(li)).filter((x) => stripTags(x));
       if (items.length) out.push({ kind: 'list', ordered: tag === 'ol', items });
@@ -131,6 +136,37 @@ function emitHtmlBlocks(container: HTMLElement, out: Block[]): void {
       emitHtmlBlocks(el, out);
     }
   }
+}
+
+// WordPress wraps a lone iframe or image in <p>. Emit that media as blocks, in
+// order, with any surrounding text kept as paragraphs, instead of dropping it.
+function emitParagraph(el: HTMLElement, out: Block[]): void {
+  if (!el.querySelector('iframe, img')) {
+    const html = cleanInline(el);
+    if (stripTags(html)) pushParagraphOrButton(out, html);
+    return;
+  }
+  let run: Node[] = [];
+  const flush = () => {
+    const html = cleanInlineNodes(run);
+    run = [];
+    if (stripTags(html)) pushParagraphOrButton(out, html);
+  };
+  for (const child of el.childNodes) {
+    const c = child as HTMLElement;
+    const tag = (c.tagName ?? '').toLowerCase();
+    if (tag === 'iframe') {
+      flush();
+      pushEmbed(out, c);
+    } else if (tag === 'img') {
+      flush();
+      const src = c.getAttribute('src') ?? c.getAttribute('data-src') ?? '';
+      if (src) out.push({ kind: 'image', src, alt: c.getAttribute('alt') ?? '' });
+    } else {
+      run.push(child);
+    }
+  }
+  flush();
 }
 
 // YouTube/Spotify iframes become embed blocks (consecutive ones share a block);
@@ -230,6 +266,7 @@ function extractWidget(el: HTMLElement, type: string, out: Block[]): void {
       const label = stripTags(a?.text ?? '').trim();
       let href = a?.getAttribute('href') ?? '#';
       if (WP_HOST && href.startsWith(WP_HOST)) href = href.slice(WP_HOST.length) || '/';
+      href = rewriteInternalHref(href);
       if (label) out.push({ kind: 'button', href, label, external: /^https?:\/\//i.test(href) });
       return;
     }
@@ -382,8 +419,7 @@ function walkNode(node: HTMLElement, out: Block[]): void {
 // Emit one standard leaf HTML element as a block.
 function emitLeaf(el: HTMLElement, tag: string, out: Block[]): void {
   if (tag === 'p') {
-    const html = cleanInline(el);
-    if (stripTags(html)) pushParagraphOrButton(out, html);
+    emitParagraph(el, out);
   } else if (tag === 'ul' || tag === 'ol') {
     const items = el.querySelectorAll('li').map((li) => cleanInline(li)).filter((x) => stripTags(x));
     if (items.length) out.push({ kind: 'list', ordered: tag === 'ol', items });

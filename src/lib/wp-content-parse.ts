@@ -44,6 +44,31 @@ export type Block =
 
 export type Section = { heading?: string; blocks: Block[] };
 
+// Legacy or retired editor-authored paths, rewritten to where they now live so
+// body-copy links skip the redirect hop (and chains) entirely.
+const INTERNAL_LINK_REWRITES: Record<string, string> = {
+  '/interventionists/brad-lamm': '/our-team',
+  '/interventionists/jacob-hardt': '/our-team',
+  '/intervention-blog/interventionists/brad-lamm': '/our-team',
+  '/intervention-blog/interventionists/jacob-hardt': '/our-team',
+  '/intervention/substance-use': '/intervention/drug-alcohol-intervention',
+  '/intervention/drug-intervention': '/intervention/drug-alcohol-intervention',
+  '/intervention/alcohol-intervention': '/intervention/drug-alcohol-intervention',
+  '/intervention/early-autism': '/intervention',
+};
+
+/**
+ * Site-relative links only: apply the rewrites above and drop the trailing
+ * slash (the site's canonical form; a slashed link costs a 308 hop). Query and
+ * hash are preserved. Absolute, mailto, tel and hash-only hrefs pass through.
+ */
+export function rewriteInternalHref(href: string): string {
+  if (!href || !href.startsWith('/') || href.startsWith('//')) return href;
+  const m = /^([^?#]*)([?#][\s\S]*)?$/.exec(href);
+  const path = (m?.[1] ?? href).replace(/\/+$/, '') || '/';
+  return (INTERNAL_LINK_REWRITES[path] ?? path) + (m?.[2] ?? '');
+}
+
 /**
  * Only YouTube and Spotify embeds are allowed through; anything else is dropped.
  * Returns a canonical src (no autoplay or tracking params) or null.

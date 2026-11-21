@@ -1,6 +1,7 @@
 import type { Section, DetailContent, ContentBlock } from '@/content/types';
 import { heroForSection } from '@/lib/hero-images';
 import { isSuppressedService, isSuppressedImageSrc } from '@/lib/suppressed-services';
+import { rewriteInternalHref } from '@/lib/wp-content-parse';
 
 const WP_API =
   process.env.NEXT_PUBLIC_WP_API_URL ??
@@ -297,28 +298,6 @@ const WP_HOST = (() => {
     return '';
   }
 })();
-
-// Editor-authored legacy paths that still linger inside WordPress page bodies
-// (e.g. "Brad Lamm" / "drug abuse intervention" anchors on state pages). The
-// target routes do not exist in the Next.js app, so Ahrefs flagged them as
-// 404s and as 34 broken outbound links. Rewriting at the sanitizer layer fixes
-// the live-site link graph without needing editors to touch every WP page.
-const INTERNAL_LINK_REWRITES: Record<string, string> = {
-  '/interventionists/brad-lamm': '/our-team',
-  '/interventionists/jacob-hardt': '/our-team',
-  '/intervention-blog/interventionists/brad-lamm': '/our-team',
-  '/intervention-blog/interventionists/jacob-hardt': '/our-team',
-  '/intervention/substance-use': '/intervention/drug-alcohol-intervention',
-};
-
-function rewriteInternalHref(href: string): string {
-  if (!href || /^https?:\/\//i.test(href)) return href;
-  if (!href.startsWith('/')) return href;
-  const noSlash = href.replace(/\/+$/, '') || '/';
-  const target = INTERNAL_LINK_REWRITES[noSlash];
-  return target ?? href;
-}
-
 
 // Editor-authored tel: links come in multiple formats inside WP body content
 // (`tel:(800) 789-1605`, `tel:800-789-1605`, `tel:+18007891605`, etc).
@@ -621,16 +600,26 @@ export async function fetchDetailSeo(slug: string): Promise<WpSeo | undefined> {
   return undefined;
 }
 
-// All published WP page paths (for generateStaticParams on the catch-all).
-export async function fetchAllPagePaths(): Promise<string[]> {
+// All published WP pages with their real last-edited time (sitemap lastModified).
+export async function fetchAllPageMeta(): Promise<Array<{ path: string; modified?: string }>> {
   try {
-    const pages = await wpFetch<Array<{ link: string }>>(
-      `/wp/v2/pages?per_page=100&status=publish&_fields=link`
+    const pages = await wpFetch<Array<{ link: string; modified_gmt?: string }>>(
+      `/wp/v2/pages?per_page=100&status=publish&_fields=link,modified_gmt`
     );
-    return pages.map((p) => linkToPath(p.link)).filter((p) => p && p !== '/');
+    return pages
+      .map((p) => ({
+        path: linkToPath(p.link),
+        modified: p.modified_gmt ? `${p.modified_gmt}Z` : undefined,
+      }))
+      .filter((p) => p.path && p.path !== '/');
   } catch {
     return [];
   }
+}
+
+// All published WP page paths.
+export async function fetchAllPagePaths(): Promise<string[]> {
+  return (await fetchAllPageMeta()).map((p) => p.path);
 }
 
 // Fetch a single WP page by slug (last URL segment), sanitized for rendering.

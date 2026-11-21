@@ -1,19 +1,25 @@
 import type { Metadata } from 'next';
 import { SectionLanding } from '@/components/section-landing';
 import { StateGrid } from '@/components/state-grid';
-import { fetchSection, fetchPageBody } from '@/lib/wp';
+import { fetchSection, fetchPageBody, fetchSeo } from '@/lib/wp';
 import { mapWp, splitLead } from '@/lib/wp-parse';
 import { buildMetadata } from '@/lib/seo';
 import { heroForSection } from '@/lib/hero-images';
 
 export const revalidate = 3600;
 
+// Used only when neither Rank Math nor the WP section summary has a value.
+const FALLBACK_DESCRIPTION =
+  'Professional intervention for drug and alcohol use, eating disorders, mental health crises and complex trauma, available to families in all 50 states.';
+
 export async function generateMetadata(): Promise<Metadata> {
   const section = await fetchSection('intervention');
   if (!section) return {};
+  const seo = await fetchSeo('page', section.sourcePageSlug ?? 'intervention');
   return buildMetadata({
     title: `${section.label} — Intervention.com`,
-    description: section.summary,
+    description: section.summary || FALLBACK_DESCRIPTION,
+    seo: { description: seo?.description, ogDescription: seo?.ogDescription },
     canonicalPath: '/intervention',
     image: section.image,
   });
