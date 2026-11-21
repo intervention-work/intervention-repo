@@ -6,6 +6,19 @@ Sources: git log (code commits), WordPress REST actions taken in session (WP dat
 
 ---
 
+## Week of 2026-11-16  (Nov 16 to Nov 22)
+
+### Website Development
+- 2026-11-21: `6c7bce2` parser gets an allowlisted `embed` Block (YouTube and Spotify iframes only) with a WpContent renderer and verify-content support, so podcast and video embeds survive the pipeline.
+- 2026-11-21: `6c7bce2` nav pill and hamburger now swap at a dedicated 1360px `nav` breakpoint (the pill already collided with the logo at 1100px and below, and seven items need 1360px). Dropdown panel is `w-80` with wrapping restored after the pill's `whitespace-nowrap` cascaded into it and overflowed long labels.
+- 2026-11-21: `6c7bce2` Our Blog removed from the Resources dropdown override; Podcasts & Blogs group added to the fallback links. Production nav is driven by the WP menu, so the group goes live only once the WP menu is edited.
+- 2026-11-21: WP page 43584 (America Recovers Podcast, slug `america-recovers`) created as a DRAFT on prod: cleaned copy of the americarecovers.com homepage (Spotify episode, 3 YouTube videos, hosts, contributors, social links). Not published and not yet in the menu.
+
+### SEO
+- None this week so far.
+
+---
+
 ## Week of 2026-11-09  (Nov 9 to Nov 15)
 
 ### Website Development
