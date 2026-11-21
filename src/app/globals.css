@@ -5,6 +5,10 @@
  * Match the v3 config from the spec, encoded for v4.
  * --------------------------------------------------------------- */
 @theme {
+  /* Width at which the seven-item nav pill fits between the logo and the CTA;
+     below it the nav collapses to the hamburger menu. */
+  --breakpoint-nav: 85rem;
+
   /* Sage — primary brand */
   --color-sage-50:  #EBF3EE;
   --color-sage-100: #D4E8DA;

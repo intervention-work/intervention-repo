@@ -533,6 +533,37 @@ function Profile({ block }: { block: Extract<Block, { kind: 'profile' }> }) {
   );
 }
 
+function Embeds({ items }: { items: Extract<Block, { kind: 'embed' }>['items'] }) {
+  const grid = items.length > 1;
+  return (
+    <div className={grid ? 'grid w-full gap-5 sm:grid-cols-2 lg:grid-cols-3' : 'w-full max-w-3xl'}>
+      {items.map((it) => {
+        const video = it.provider === 'youtube';
+        return (
+          <div
+            key={it.src}
+            className={`overflow-hidden rounded-2xl border border-border bg-surface ${video ? 'aspect-video' : ''}`}
+          >
+            <iframe
+              src={it.src}
+              title={it.title || (video ? 'Video' : 'Podcast episode')}
+              loading="lazy"
+              allowFullScreen
+              referrerPolicy="strict-origin-when-cross-origin"
+              allow={
+                video
+                  ? 'clipboard-write; encrypted-media; picture-in-picture; web-share'
+                  : 'clipboard-write; encrypted-media; fullscreen; picture-in-picture'
+              }
+              className={video ? 'h-full w-full' : 'block h-[352px] w-full'}
+            />
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function BlockView({ block }: { block: Block }) {
   switch (block.kind) {
     case 'heading': {
@@ -598,6 +629,8 @@ function BlockView({ block }: { block: Block }) {
           />
         </div>
       );
+    case 'embed':
+      return <Embeds items={block.items} />;
     case 'image': {
       // Wide coverage maps stay full width. Everything else renders at a modest
       // size and is LEFT-aligned so it flows with the (left-aligned) copy rather

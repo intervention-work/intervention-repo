@@ -42,7 +42,6 @@ const LINKS_OVERRIDE: Record<string, MenuItem[]> = {
     { label: 'FAQ', href: '/faq' },
   ],
   '/resources': [
-    { label: 'Our Blog', href: '/intervention-blog' },
     { label: 'Breakfree Intervention Training', href: '/trainings/breakfree-intervention-skills-training' },
     { label: 'Family Class', href: '/family-class' },
     { label: 'Verify Your Insurance', href: '/insurance' },
@@ -69,6 +68,15 @@ const BREAKFREE_GROUP: TopLink = {
   items: [
     { label: 'Breakfree & Launch', href: '/breakfree-launch' },
     { label: 'Breakfree & Assess', href: '/breakfree-and-assess' },
+  ],
+};
+
+const PODCASTS_GROUP: TopLink = {
+  label: 'Podcasts & Blogs',
+  href: '/america-recovers',
+  items: [
+    { label: 'America Recovers Podcast', href: '/america-recovers' },
+    { label: 'Blog', href: '/intervention-blog' },
   ],
 };
 
@@ -141,6 +149,7 @@ function buildLinks(sections: NavSection[]): TopLink[] {
     },
     BREAKFREE_GROUP,
     { label: 'Resources', href: '/resources', items: LINKS_OVERRIDE['/resources'] },
+    PODCASTS_GROUP,
     { label: 'Contact Us', href: '/contact' },
   ];
 }
@@ -230,7 +239,7 @@ export function Nav({
         {/* CENTER — pill nav (desktop) */}
         <nav
           aria-label="Primary"
-          className="pointer-events-auto absolute left-1/2 hidden w-max -translate-x-1/2 items-center gap-0 whitespace-nowrap rounded-full border px-1.5 py-1.5 backdrop-blur-md transition-colors duration-300 lg:flex xl:gap-0.5 xl:px-2"
+          className="pointer-events-auto absolute left-1/2 hidden w-max -translate-x-1/2 items-center gap-0.5 whitespace-nowrap rounded-full border px-2 py-1.5 backdrop-blur-md transition-colors duration-300 nav:flex"
           style={{
             background: light ? 'rgba(17,24,39,0.42)' : 'rgba(255,255,255,0.92)',
             borderColor: light ? 'rgba(255,255,255,0.16)' : 'rgba(229,237,232,1)',
@@ -246,7 +255,7 @@ export function Nav({
                 <Link
                   key={link.label}
                   href={link.href}
-                  className="rounded-full px-2.5 py-1.5 font-sans text-sm transition-colors duration-200 hover:bg-black/5 xl:px-3"
+                  className="rounded-full px-3 py-1.5 font-sans text-sm transition-colors duration-200 hover:bg-black/5"
                   style={{ color: active ? '#6BAF83' : linkColor }}
                 >
                   {link.label}
@@ -262,7 +271,7 @@ export function Nav({
               >
                 <Link
                   href={link.href}
-                  className="flex items-center gap-0.5 rounded-full px-2.5 py-1.5 font-sans text-sm transition-colors duration-200 hover:bg-black/5 xl:gap-1 xl:px-3"
+                  className="flex items-center gap-1 rounded-full px-3 py-1.5 font-sans text-sm transition-colors duration-200 hover:bg-black/5"
                   style={{ color: active ? '#6BAF83' : linkColor }}
                   aria-expanded={openMenu === link.label}
                 >
@@ -278,7 +287,7 @@ export function Nav({
                 </Link>
 
                 {openMenu === link.label && (
-                  <div className="absolute left-1/2 top-full w-64 -translate-x-1/2 pt-2.5">
+                  <div className="absolute left-1/2 top-full w-80 max-w-[calc(100vw-2rem)] -translate-x-1/2 whitespace-normal pt-2.5">
                     <div className="rounded-2xl border border-border bg-white p-2 shadow-[0_24px_60px_-24px_rgba(17,24,39,0.35)]">
                       {link.items.map((item) =>
                         item.external ? (
@@ -314,7 +323,7 @@ export function Nav({
           <Link
             href="/contact"
             className={
-              'hidden items-center rounded-full px-4 py-2 font-sans text-sm font-medium transition-colors duration-300 lg:inline-flex ' +
+              'hidden items-center rounded-full px-4 py-2 font-sans text-sm font-medium transition-colors duration-300 nav:inline-flex ' +
               (light
                 ? 'bg-white text-ink hover:bg-sage-50'
                 : 'bg-ink text-white hover:bg-ink-body')
@@ -327,7 +336,7 @@ export function Nav({
             aria-label="Open menu"
             onClick={() => setMobileOpen(true)}
             className={
-              'inline-flex h-10 w-10 items-center justify-center rounded-full border transition-colors duration-300 lg:hidden ' +
+              'inline-flex h-10 w-10 items-center justify-center rounded-full border transition-colors duration-300 nav:hidden ' +
               (light
                 ? 'border-white/25 text-white'
                 : 'border-border bg-white text-ink')
@@ -340,7 +349,7 @@ export function Nav({
 
       {/* MOBILE MENU */}
       {mobileOpen && (
-        <div className="pointer-events-auto fixed inset-0 z-50 flex flex-col bg-white lg:hidden">
+        <div className="pointer-events-auto fixed inset-0 z-50 flex flex-col bg-white nav:hidden">
           <div className="flex h-[72px] shrink-0 items-center justify-between px-5 md:px-7">
             <Link
               href="/"

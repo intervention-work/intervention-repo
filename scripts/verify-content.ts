@@ -61,6 +61,8 @@ function blockText(b: Block): string {
         .join(' ');
     case 'hsform':
       return '';
+    case 'embed':
+      return b.items.map((i) => i.title).join(' ');
     case 'profile':
       return `${stripTags(b.nameHtml)} ${b.role}`;
   }

@@ -39,9 +39,40 @@ export type Block =
   | { kind: 'icon-cards'; items: Array<{ icon: string; title: string; desc: string }> }
   | { kind: 'media-text'; image: { src: string; alt: string }; side: 'left' | 'right'; blocks: Block[] }
   | { kind: 'profile'; image: { src: string; alt: string }; nameHtml: string; role: string }
-  | { kind: 'hsform'; portalId: string; formId: string; region: string };
+  | { kind: 'hsform'; portalId: string; formId: string; region: string }
+  | { kind: 'embed'; items: Array<{ provider: 'youtube' | 'spotify'; src: string; title: string }> };
 
 export type Section = { heading?: string; blocks: Block[] };
+
+/**
+ * Only YouTube and Spotify embeds are allowed through; anything else is dropped.
+ * Returns a canonical src (no autoplay or tracking params) or null.
+ */
+export function safeEmbedSrc(
+  raw: string
+): { provider: 'youtube' | 'spotify'; src: string } | null {
+  let u: URL;
+  try {
+    u = new URL(raw.trim());
+  } catch {
+    return null;
+  }
+  if (u.protocol !== 'https:') return null;
+  const host = u.hostname.toLowerCase();
+  if (
+    (host === 'www.youtube.com' || host === 'www.youtube-nocookie.com') &&
+    /^\/embed\/[\w-]{6,}$/.test(u.pathname)
+  ) {
+    return { provider: 'youtube', src: `https://www.youtube-nocookie.com${u.pathname}?rel=0` };
+  }
+  if (
+    host === 'open.spotify.com' &&
+    /^\/embed\/(episode|show|track|playlist|album)\/[A-Za-z0-9]+$/.test(u.pathname)
+  ) {
+    return { provider: 'spotify', src: `https://open.spotify.com${u.pathname}` };
+  }
+  return null;
+}
 
 const NAMED_ENTITIES: Record<string, string> = {
   amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: '\u00a0',

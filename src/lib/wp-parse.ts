@@ -8,6 +8,7 @@ import { parse, type HTMLElement, type Node } from 'node-html-parser';
 import {
   type Block,
   type Card,
+  safeEmbedSrc,
   stripTags,
   wordCount,
 } from './wp-content-parse';
@@ -123,11 +124,24 @@ function emitHtmlBlocks(container: HTMLElement, out: Block[]): void {
       if (src) out.push({ kind: 'image', src, alt: el.getAttribute('alt') ?? '' });
     } else if (tag === 'hr') {
       out.push({ kind: 'divider' });
+    } else if (tag === 'iframe') {
+      pushEmbed(out, el);
     } else {
       // div/span wrapper → recurse
       emitHtmlBlocks(el, out);
     }
   }
+}
+
+// YouTube/Spotify iframes become embed blocks (consecutive ones share a block);
+// every other iframe is dropped. Allowlist lives in safeEmbedSrc.
+function pushEmbed(out: Block[], el: HTMLElement): void {
+  const safe = safeEmbedSrc(el.getAttribute('src') ?? el.getAttribute('data-src') ?? '');
+  if (!safe) return;
+  const item = { provider: safe.provider, src: safe.src, title: (el.getAttribute('title') ?? '').trim() };
+  const last = out[out.length - 1];
+  if (last?.kind === 'embed') last.items.push(item);
+  else out.push({ kind: 'embed', items: [item] });
 }
 
 function pushParagraphOrButton(out: Block[], html: string): void {
@@ -349,6 +363,7 @@ function walkNode(node: HTMLElement, out: Block[]): void {
       if (t && !isShortcodeText(t)) out.push({ kind: 'paragraph', html: t });
       continue;
     }
+    if (tag === 'iframe') { pushEmbed(out, el); continue; }
     if (IGNORE_TAGS.has(tag)) continue; // scripts/styles/schema/svg — never body copy
     if (hiddenOnDesktop(el)) continue;
     const feature = iconFeature(el);
