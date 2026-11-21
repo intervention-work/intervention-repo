@@ -287,7 +287,7 @@ export function Nav({
                 </Link>
 
                 {openMenu === link.label && (
-                  <div className="absolute left-1/2 top-full w-80 max-w-[calc(100vw-2rem)] -translate-x-1/2 whitespace-normal pt-2.5">
+                  <div className="absolute left-1/2 top-full w-max min-w-60 max-w-[min(22rem,calc(100vw-2rem))] -translate-x-1/2 whitespace-normal pt-2.5">
                     <div className="rounded-2xl border border-border bg-white p-2 shadow-[0_24px_60px_-24px_rgba(17,24,39,0.35)]">
                       {link.items.map((item) =>
                         item.external ? (
@@ -296,7 +296,7 @@ export function Nav({
                             href={item.href}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="block rounded-xl px-3.5 py-2.5 font-sans text-sm text-ink-body transition-colors duration-150 hover:bg-surface hover:text-ink"
+                            className="block rounded-xl px-3.5 py-2.5 font-sans text-sm leading-snug text-ink-body text-pretty break-words transition-colors duration-150 hover:bg-surface hover:text-ink"
                           >
                             {item.label}
                           </a>
@@ -304,7 +304,7 @@ export function Nav({
                           <Link
                             key={item.label}
                             href={item.href}
-                            className="block rounded-xl px-3.5 py-2.5 font-sans text-sm text-ink-body transition-colors duration-150 hover:bg-surface hover:text-ink"
+                            className="block rounded-xl px-3.5 py-2.5 font-sans text-sm leading-snug text-ink-body text-pretty break-words transition-colors duration-150 hover:bg-surface hover:text-ink"
                           >
                             {item.label}
                           </Link>
@@ -396,7 +396,7 @@ export function Nav({
                               target="_blank"
                               rel="noopener noreferrer"
                               onClick={() => setMobileOpen(false)}
-                              className="block py-1.5 font-sans text-[15px] text-ink-muted"
+                              className="block py-1.5 font-sans text-[15px] leading-snug text-ink-muted break-words"
                             >
                               {item.label}
                             </a>
@@ -406,7 +406,7 @@ export function Nav({
                             <Link
                               href={item.href}
                               onClick={() => setMobileOpen(false)}
-                              className="block py-1.5 font-sans text-[15px] text-ink-muted"
+                              className="block py-1.5 font-sans text-[15px] leading-snug text-ink-muted break-words"
                             >
                               {item.label}
                             </Link>

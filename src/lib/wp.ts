@@ -225,6 +225,35 @@ async function fillSectionHeroFallback(section: Section, slug: string): Promise<
   section.childrenTitle = section.childrenTitle || `Explore ${label.toLowerCase()}`;
 }
 
+// detail_page records rarely carry an ACF image, but the WP page each one
+// renders (source_page_slug) can have a Featured Image set in WP Admin. Use it
+// for the landing card so editors control card photos without code changes.
+// One batched request per section; failures leave the card on its fallback.
+async function fillChildFeaturedImages(children: DetailContent[]): Promise<void> {
+  const missing = children.filter((c) => !c.image);
+  if (!missing.length) return;
+  const slugs = [...new Set(missing.map((c) => c.sourcePageSlug ?? c.slug))];
+  try {
+    const pages = await wpFetch<
+      Array<{
+        slug: string;
+        _embedded?: { 'wp:featuredmedia'?: Array<{ source_url?: string }> };
+      }>
+    >(
+      `/wp/v2/pages?slug=${slugs.map(encodeURIComponent).join(',')}&per_page=100&_embed=wp:featuredmedia&_fields=slug,_links,_embedded`
+    );
+    const bySlug = new Map(
+      pages.map((p) => [p.slug, p._embedded?.['wp:featuredmedia']?.[0]?.source_url])
+    );
+    for (const child of missing) {
+      const src = bySlug.get(child.sourcePageSlug ?? child.slug);
+      if (src && !isSuppressedImageSrc(src)) child.image = src;
+    }
+  } catch {
+    /* keep fallbacks */
+  }
+}
+
 export async function fetchSection(slug: string): Promise<Section | null> {
   const pages = await wpFetch<Array<{ slug: string; acf: AcfSectionFields }>>(
     `/wp/v2/pages?slug=${slug}&_fields=slug,acf&acf_format=standard`
@@ -234,6 +263,7 @@ export async function fetchSection(slug: string): Promise<Section | null> {
   const children = rawChildren.filter(
     (c) => !isSuppressedService({ slug: c.slug, title: c.label })
   );
+  await fillChildFeaturedImages(children);
   const section = toSection(slug, pages[0].acf, children);
   await fillSectionHeroFallback(section, slug);
   return section;

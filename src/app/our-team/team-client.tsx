@@ -128,7 +128,7 @@ export function OurTeamContent() {
             </div>
             <div>
               <p className="font-sans text-xs tracking-[0.22em] uppercase text-sage-500">
-                Chief Executive Officer · In Recovery
+                Chief Executive Officer
               </p>
               <h2 className="mt-3 font-display text-3xl leading-tight text-ink md:text-4xl">
                 Shoaib Haroon
