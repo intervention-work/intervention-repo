@@ -37,9 +37,17 @@ async function wordpressRedirects(): Promise<Redirect[]> {
   // site-relative paths so visitors stay on the new site, not the WP backend.
   const SAFE_SOURCE = /^\/[A-Za-z0-9\-._~%\/]*$/;
   const stripTrailing = (p: string) => (p.length > 1 ? p.replace(/\/+$/, '') : p);
+  // Rank Math stores destinations as absolute public URLs with a trailing
+  // slash (https://intervention.com/x/). Left absolute they bounce through an
+  // extra 308 to drop the slash, so reduce them to a slash-free relative path.
+  const PUBLIC_ORIGINS = ['https://intervention.com', 'https://www.intervention.com'];
   const toRelative = (url: string) => {
     let u = (url || '').trim();
     if (wpOrigin && u.startsWith(wpOrigin)) u = u.slice(wpOrigin.length) || '/';
+    else {
+      const pub = PUBLIC_ORIGINS.find((o) => u === o || u.startsWith(`${o}/`));
+      if (pub) u = u.slice(pub.length) || '/';
+    }
     return u.startsWith('/') ? stripTrailing(u) : u;
   };
 
@@ -136,6 +144,15 @@ const nextConfig: NextConfig = {
       // to avoid a 301 to 308 chain (Next.js strips the slash on its own).
       { source: '/eyewitness', destination: '/eyewitness-information', permanent: true },
       { source: '/iteam', destination: '/iteam-information', permanent: true },
+      // Short link for the Family Class sign-up page (assumed slug, confirm with marketing).
+      { source: '/familyclass', destination: '/family-class', permanent: true },
+      // These four services answer at both /{slug} and /services/{slug} with the
+      // same content. The root URL is canonical (it is the one in the sitemap),
+      // so the duplicate permanently forwards to it.
+      { source: '/services/breakfree-journey', destination: '/breakfree-journey', permanent: true },
+      { source: '/services/recovery-coach-companion', destination: '/recovery-coach-companion', permanent: true },
+      { source: '/services/recovery-care-management', destination: '/recovery-care-management', permanent: true },
+      { source: '/services/senior-support-services', destination: '/senior-support-services', permanent: true },
       // Legacy WordPress sitemap entry that Google Search Console still has
       // on file (manager submitted it years ago). The Next.js app serves one
       // sitemap at /sitemap.xml; forward the old URL so GSC's existing
@@ -166,7 +183,24 @@ const nextConfig: NextConfig = {
     const fromWp = (await wordpressRedirects()).filter(
       (r) => !manualSources.has(r.source)
     );
-    return [...manual, ...fromWp];
+    const all = [...manual, ...fromWp];
+    // Point every rule straight at its final destination so no redirect has to
+    // hop through another one (A to B to C becomes A to C).
+    const bySource = new Map(
+      all.filter((r) => !/[:*]/.test(r.source)).map((r) => [r.source, r.destination])
+    );
+    const finalDestination = (dest: string) => {
+      const seen = new Set<string>();
+      let cur = dest;
+      while (bySource.has(cur) && !seen.has(cur)) {
+        seen.add(cur);
+        cur = bySource.get(cur) as string;
+      }
+      return cur;
+    };
+    return all
+      .map((r) => ({ ...r, destination: finalDestination(r.destination) }))
+      .filter((r) => r.source !== r.destination);
   },
 };
 

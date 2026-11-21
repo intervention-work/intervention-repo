@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "indexnow:bulk": "tsx scripts/indexnow-submit-sitemap.ts"
+    "indexnow:bulk": "tsx scripts/indexnow-submit-sitemap.ts",
+    "index:audit": "tsx scripts/index-audit.ts"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.12",

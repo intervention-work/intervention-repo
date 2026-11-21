@@ -82,11 +82,11 @@ const COLUMNS: Col[] = [
   {
     title: 'Additional Services',
     links: [
-      { label: 'Breakfree Journey', href: '/services/breakfree-journey' },
-      { label: 'Breakfree Training', href: '/trainings/breakfree-intervention-skills-training' },
-      { label: 'Recovery Coach Companion', href: '/services/recovery-coach-companion' },
-      { label: 'Recovery Case Management', href: '/services/recovery-care-management' },
-      { label: 'Senior Support Services', href: '/services/senior-support-services' },
+      { label: 'BreakFree Journey', href: '/breakfree-journey' },
+      { label: 'BreakFree Training', href: '/trainings/breakfree-intervention-skills-training' },
+      { label: 'Coaching and Companion Services', href: '/recovery-coach-companion' },
+      { label: 'Recovery Case Management', href: '/recovery-care-management' },
+      { label: 'Senior Support Services', href: '/senior-support-services' },
       { label: 'Find an Interventionist', href: '/interventionists-by-state' },
     ],
   },

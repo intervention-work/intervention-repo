@@ -44,7 +44,7 @@ export default async function BreakfreeTrainingPage() {
           { label: 'Resources', href: '/resources' },
           { label: page.title },
         ]}
-        eyebrow="Breakfree Training"
+        eyebrow="BreakFree Training"
         title={page.title}
         summary={summary}
         image={page.image}

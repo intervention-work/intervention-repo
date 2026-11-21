@@ -37,7 +37,7 @@ const TITLE_NEEDLES = [
 // every render. Suppress by src match here so the public site stays clean
 // without editors needing to touch Elementor's widget tree.
 export const SUPPRESSED_IMAGE_FRAGMENTS: readonly string[] = [
-  'bist-badge-orange', // Breakfree Intervention Training hero badge
+  'bist-badge-orange', // BreakFree Intervention Training hero badge
   'BDL_NEW_PHOTO_081226', // Brad Lamm portrait on the training page
 ];
 

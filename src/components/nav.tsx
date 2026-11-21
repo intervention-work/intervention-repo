@@ -12,7 +12,7 @@ type MenuItem = { label: string; href: string; external?: boolean };
 type TopLink = { label: string; href: string; items?: MenuItem[] };
 
 // Decode common HTML entities that WP stores verbatim in menu labels
-// (e.g. "Breakfree &#038; Launch" → "Breakfree & Launch").
+// (e.g. "BreakFree &#038; Launch" → "BreakFree & Launch").
 function decodeWpLabel(label: string): string {
   return label
     .replace(/&#0*38;/g, '&')
@@ -42,7 +42,7 @@ const LINKS_OVERRIDE: Record<string, MenuItem[]> = {
     { label: 'FAQ', href: '/faq' },
   ],
   '/resources': [
-    { label: 'Breakfree Intervention Training', href: '/trainings/breakfree-intervention-skills-training' },
+    { label: 'BreakFree Intervention Training', href: '/trainings/breakfree-intervention-skills-training' },
     { label: 'Family Class', href: '/family-class' },
     { label: 'Verify Your Insurance', href: '/insurance' },
   ],
@@ -52,7 +52,7 @@ const LINKS_OVERRIDE: Record<string, MenuItem[]> = {
 const SUPPRESSED_PATHS = new Set(['/family-class']);
 
 // Child detail_page slugs to hide from the Intervention and Services nav dropdowns.
-// Breakfree Journey + Launch live under their own top-level dropdown now.
+// BreakFree Journey + Launch live under their own top-level dropdown now.
 const SUPPRESSED_CHILD_SLUGS = new Set([
   'on-set-care-unit',
   'care-unit-assessment',
@@ -63,11 +63,11 @@ const SUPPRESSED_CHILD_SLUGS = new Set([
 ]);
 
 const BREAKFREE_GROUP: TopLink = {
-  label: 'Breakfree Journey',
+  label: 'BreakFree Journey',
   href: '/breakfree-journey',
   items: [
-    { label: 'Breakfree & Launch', href: '/breakfree-launch' },
-    { label: 'Breakfree & Assess', href: '/breakfree-and-assess' },
+    { label: 'BreakFree & Launch', href: '/breakfree-launch' },
+    { label: 'BreakFree & Assess', href: '/breakfree-and-assess' },
   ],
 };
 

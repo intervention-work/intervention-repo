@@ -9,7 +9,7 @@ import type { HeroAction } from '@/components/page-hero';
 export function TrainingCtaCallout({
   action,
   pretitle = 'Reserve your seat',
-  title = 'Our next Breakfree Intervention training opens soon.',
+  title = 'Our next BreakFree Intervention training opens soon.',
   subtitle = 'Spots are limited. Register your interest and we will reach out with the next dates and details.',
 }: {
   action?: HeroAction;
@@ -58,7 +58,7 @@ export function TrainingCtaCallout({
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center lg:mt-0 lg:flex-col lg:items-stretch">
             {primaryCta}
             <a
-              href="mailto:help@intervention.com?subject=Breakfree%20Intervention%20Training"
+              href="mailto:help@intervention.com?subject=BreakFree%20Intervention%20Training"
               className="inline-flex items-center justify-center gap-2 rounded-full border border-white/30 px-6 py-4 font-sans text-sm font-medium text-white transition-colors hover:bg-white/10"
             >
               <Mail size={15} strokeWidth={1.75} />
