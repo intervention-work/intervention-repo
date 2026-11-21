@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Check, Phone } from 'lucide-react';
 
 /**
@@ -12,7 +12,10 @@ import { Check, Phone } from 'lucide-react';
  * IMPORTANT: HubSpot rejects API submissions while "CAPTCHA (spam prevention)"
  * is enabled on the form (error FORM_HAS_RECAPTCHA_ENABLED). It must be turned
  * off in HubSpot (Forms > this form > Options) for this component to deliver.
- * A honeypot field compensates for basic bot spam.
+ * Spam defense without CAPTCHA: a honeypot, time-on-page, a resubmit cooldown,
+ * and server-side scoring in /api/contact (see src/app/api/contact). If that
+ * route is unreachable the form falls back to submitting straight to HubSpot so
+ * a genuine inquiry is never lost.
  */
 const PORTAL_ID = '46095144';
 export const CONTACT_FORM_ID = '4fd83930-97c1-4d8a-a51b-3fd18583507e';
@@ -50,6 +53,28 @@ function readCookie(name: string): string | undefined {
   return m ? decodeURIComponent(m[1]) : undefined;
 }
 
+// Neutral name so browser autofill never fills the honeypot for a real person.
+const HONEYPOT = 'hp_c7f3';
+const COOLDOWN_KEY = 'contact_sent_at';
+const COOLDOWN_MS = 20_000;
+
+function recentlySent(): boolean {
+  try {
+    const at = Number(sessionStorage.getItem(COOLDOWN_KEY) ?? 0);
+    return at > 0 && Date.now() - at < COOLDOWN_MS;
+  } catch {
+    return false;
+  }
+}
+
+function markSent() {
+  try {
+    sessionStorage.setItem(COOLDOWN_KEY, String(Date.now()));
+  } catch {
+    // Storage blocked (private mode): the cooldown is a nicety, not required.
+  }
+}
+
 type Status = 'idle' | 'submitting' | 'sent' | 'error';
 
 export function HubSpotContactForm({
@@ -60,14 +85,28 @@ export function HubSpotContactForm({
   phoneHref: string;
 }) {
   const [status, setStatus] = useState<Status>('idle');
+  const startedAt = useRef(0);
+
+  useEffect(() => {
+    startedAt.current = Date.now();
+  }, []);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (status === 'submitting') return;
     const form = e.currentTarget;
     const data = new FormData(form);
 
-    // Honeypot: bots fill every field; humans never see this one.
-    if (data.get('website')) {
+    // Honeypot: bots fill every field; humans never see this one. Show the
+    // normal thank-you and send nothing, so a bot gets no signal to adapt to.
+    const honeypot = String(data.get(HONEYPOT) ?? '');
+    if (honeypot) {
+      setStatus('sent');
+      return;
+    }
+
+    // Double-submit / rapid resubmit: treat as already sent.
+    if (recentlySent()) {
       setStatus('sent');
       return;
     }
@@ -119,12 +158,39 @@ export function HubSpotContactForm({
     };
 
     setStatus('submitting');
+    const elapsedMs = startedAt.current ? Date.now() - startedAt.current : undefined;
+
+    // Primary path: the relay, which scores for spam before reaching HubSpot.
+    // It answers ok:true even for dropped spam so bots learn nothing.
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ payload, meta: { hp: honeypot, elapsedMs } }),
+      });
+      if (res.ok) {
+        markSent();
+        setStatus('sent');
+        return;
+      }
+      // Rate limit, bad request, or HubSpot itself refusing: a direct retry
+      // would fail the same way, so show the call-us message.
+      if (res.status === 429 || res.status === 400 || res.status === 413 || res.status === 502) {
+        setStatus('error');
+        return;
+      }
+      // Anything else (route missing or crashed): fall through to direct submit.
+    } catch {
+      // Network error reaching our own route: fall through to direct submit.
+    }
+
     try {
       const res = await fetch(SUBMIT_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
+      if (res.ok) markSent();
       setStatus(res.ok ? 'sent' : 'error');
     } catch {
       setStatus('error');
@@ -158,11 +224,19 @@ export function HubSpotContactForm({
 
   return (
     <form onSubmit={onSubmit} className="grid grid-cols-1 gap-5 sm:grid-cols-6">
-      {/* Honeypot, visually hidden from humans */}
+      {/* Honeypot, visually hidden from humans and skipped by keyboard and
+          password managers. Bots that fill every input trip it. */}
       <div className="absolute -left-[9999px] top-auto h-px w-px overflow-hidden" aria-hidden>
         <label>
-          Website
-          <input type="text" name="website" tabIndex={-1} autoComplete="off" />
+          Leave this field empty
+          <input
+            type="text"
+            name={HONEYPOT}
+            tabIndex={-1}
+            autoComplete="off"
+            data-lpignore="true"
+            data-1p-ignore
+          />
         </label>
       </div>
 
