@@ -514,7 +514,7 @@ function extractSidebar(root: HTMLElement): WpSidebar | undefined {
     const seen = new Set<string>();
     const links: WpSidebar['links'] = [];
     for (const a of widget.querySelectorAll('a')) {
-      const href = siteRelative(a.getAttribute('href') ?? '');
+      const href = rewriteInternalHref(siteRelative(a.getAttribute('href') ?? ''));
       const label = stripTags(a.text).trim();
       if (!href || !label || seen.has(href) || isRemovedLink(href, label)) continue;
       seen.add(href);

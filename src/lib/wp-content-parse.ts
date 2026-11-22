@@ -62,7 +62,10 @@ const INTERNAL_LINK_REWRITES: Record<string, string> = {
  * slash (the site's canonical form; a slashed link costs a 308 hop). Query and
  * hash are preserved. Absolute, mailto, tel and hash-only hrefs pass through.
  */
-export function rewriteInternalHref(href: string): string {
+export function rewriteInternalHref(rawHref: string): string {
+  // WordPress writes its own pages as absolute intervention.com URLs. Those are
+  // internal: make them relative so they stay in the same tab and get rewritten.
+  const href = (rawHref ?? '').replace(/^https?:\/\/(?:www\.)?intervention\.com(?=[\/?#]|$)/i, '') || (/^https?:\/\//i.test(rawHref ?? '') ? '/' : rawHref);
   if (!href || !href.startsWith('/') || href.startsWith('//')) return href;
   const m = /^([^?#]*)([?#][\s\S]*)?$/.exec(href);
   const path = (m?.[1] ?? href).replace(/\/+$/, '') || '/';
