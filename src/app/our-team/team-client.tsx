@@ -97,7 +97,7 @@ export function OurTeamContent() {
             <div className="mx-auto w-full max-w-xs lg:mx-0">
               <div className="relative aspect-[3/4] w-full overflow-hidden rounded-2xl">
                 <Image
-                  src="/images/brad-lamm.jpg"
+                  src="/images/brad-lamm-2.jpg"
                   alt="Brad Lamm, Founder and Lead Interventionist"
                   fill
                   className="object-cover"
@@ -115,7 +115,7 @@ export function OurTeamContent() {
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:items-start"
           >
-            <div className="mx-auto w-full max-w-xs lg:order-first lg:mx-0">
+            <div className="mx-auto w-full max-w-xs lg:order-first lg:ml-auto lg:mr-0">
               <div className="relative aspect-[3/4] w-full overflow-hidden rounded-2xl">
                 <Image
                   src="/images/shoaib-haroon.jpeg"

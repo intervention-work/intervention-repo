@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import styles from './wp-prose.module.css';
 import { Carousel } from './carousel';
+import { TestimonialCarousel } from './testimonial-carousel';
 import { Heading } from './heading';
 import { IconList } from './icon-list';
 import { Accordion } from './accordion';
@@ -334,32 +335,8 @@ function CardGroup({ cards }: { cards: CardData[] }) {
   );
 }
 
-function Testimonials({ items }: { items: Array<{ quote: string; name: string; role: string }> }) {
-  const cards = items.map((t, i) => (
-    <figure
-      key={i}
-      className="flex h-full flex-col rounded-2xl border border-border bg-white p-7"
-    >
-      <blockquote
-        className="flex-1 font-display text-lg leading-relaxed text-ink"
-      >
-        “{t.quote}”
-      </blockquote>
-      {(t.name || t.role) && (
-        <figcaption className="mt-5 border-t border-border pt-4 font-sans">
-          {t.name && <span className="block text-sm font-semibold text-ink">{t.name}</span>}
-          {t.role && <span className="block text-sm text-ink-muted">{t.role}</span>}
-        </figcaption>
-      )}
-    </figure>
-  ));
-  // Many → carousel; one/two → grid.
-  if (items.length >= 3) return <Carousel>{cards}</Carousel>;
-  return (
-    <div className={`grid grid-cols-1 gap-6 ${items.length === 2 ? 'sm:grid-cols-2' : ''}`}>
-      {cards}
-    </div>
-  );
+function Testimonials({ items }: { items: Extract<Block, { kind: 'testimonials' }>['items'] }) {
+  return <TestimonialCarousel items={items} />;
 }
 
 function PricingCards({
@@ -533,6 +510,47 @@ function Profile({ block }: { block: Extract<Block, { kind: 'profile' }> }) {
   );
 }
 
+// Team-style rows (same geometry as /our-team): equal 3:4 photos, a 40px gap
+// between photo and copy, sides alternating, a thin divider between rows.
+function PeopleRows({ items }: { items: Extract<Block, { kind: 'people' }>['items'] }) {
+  return (
+    <div className="w-full space-y-14 lg:space-y-20">
+      {items.map((p, i) => {
+        const photoLeft = i % 2 === 0;
+        const divider = i < items.length - 1 ? 'border-b border-border pb-14 lg:pb-20' : '';
+        return (
+          <div
+            key={`${p.name}-${i}`}
+            className={`grid grid-cols-1 gap-10 lg:grid-cols-2 lg:items-start ${divider}`}
+          >
+            <div
+              className={`mx-auto w-full max-w-xs ${
+                photoLeft ? 'lg:ml-auto lg:mr-0' : 'lg:order-last lg:ml-0 lg:mr-auto'
+              }`}
+            >
+              <div className="relative aspect-[3/4] w-full overflow-hidden rounded-2xl bg-surface">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={p.image.src}
+                  alt={p.image.alt || p.name}
+                  loading="lazy"
+                  className="absolute inset-0 h-full w-full object-cover object-top"
+                />
+              </div>
+            </div>
+            <div>
+              <Heading level={3} className="text-balance">
+                {p.name}
+              </Heading>
+              <div className="mt-6 space-y-5">{renderBlocks(p.blocks)}</div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function Embeds({ items }: { items: Extract<Block, { kind: 'embed' }>['items'] }) {
   const grid = items.length > 1;
   return (
@@ -631,6 +649,8 @@ function BlockView({ block }: { block: Block }) {
       );
     case 'embed':
       return <Embeds items={block.items} />;
+    case 'people':
+      return <PeopleRows items={block.items} />;
     case 'image': {
       // Wide coverage maps stay full width. Everything else renders at a modest
       // size and is LEFT-aligned so it flows with the (left-aligned) copy rather
@@ -933,7 +953,7 @@ function collectFeatureRun(
 // Self-contained layouts. Whatever follows one starts a new cluster; otherwise
 // it sits at paragraph spacing under the grid and reads as part of it.
 const STANDALONE = new Set<Block['kind']>([
-  'media-text', 'testimonials', 'card-group', 'pricing', 'icon-cards', 'profile',
+  'media-text', 'testimonials', 'card-group', 'pricing', 'icon-cards', 'profile', 'people',
 ]);
 
 function proseSegment(blocks: Block[]): ReactNode[] {

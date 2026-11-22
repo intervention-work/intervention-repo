@@ -63,6 +63,8 @@ function blockText(b: Block): string {
       return '';
     case 'embed':
       return b.items.map((i) => i.title).join(' ');
+    case 'people':
+      return b.items.map((i) => `${i.name} ${i.blocks.map(blockText).join(' ')}`).join(' ');
     case 'profile':
       return `${stripTags(b.nameHtml)} ${b.role}`;
   }

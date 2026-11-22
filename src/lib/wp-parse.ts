@@ -180,6 +180,27 @@ function pushEmbed(out: Block[], el: HTMLElement): void {
   else out.push({ kind: 'embed', items: [item] });
 }
 
+// Opt-in `<div class="person">` container: photo, name heading and the rest of the
+// copy and buttons become one row of a `people` block (consecutive ones share it).
+function pushPerson(out: Block[], el: HTMLElement): void {
+  const parts: Block[] = [];
+  emitHtmlBlocks(el, parts);
+  const img = parts.find((b): b is Extract<Block, { kind: 'image' }> => b.kind === 'image');
+  const nameIdx = parts.findIndex((b) => b.kind === 'heading' || b.kind === 'section-heading');
+  const nameBlock = nameIdx >= 0 ? parts[nameIdx] : undefined;
+  const name = !nameBlock ? '' : nameBlock.kind === 'section-heading' ? nameBlock.text : nameBlock.kind === 'heading' ? stripTags(nameBlock.html) : '';
+  const body = parts.filter((b, i) => b !== img && i !== nameIdx && ['paragraph', 'button', 'list', 'quote'].includes(b.kind));
+  if (!img || !name) {
+    // Not a complete person card: keep whatever it held rather than lose content.
+    out.push(...parts);
+    return;
+  }
+  const item = { image: { src: img.src, alt: img.alt }, name, blocks: body };
+  const last = out[out.length - 1];
+  if (last?.kind === 'people') last.items.push(item);
+  else out.push({ kind: 'people', items: [item] });
+}
+
 function pushParagraphOrButton(out: Block[], html: string): void {
   const text = stripTags(html);
   if (!text || isShortcodeText(text)) return;
@@ -312,11 +333,19 @@ function extractWidget(el: HTMLElement, type: string, out: Block[]): void {
       // A slide wraps its testimonial, so selecting both reads every quote twice.
       const slides = el.querySelectorAll('.swiper-slide');
       const nodes = slides.length ? slides : el.querySelectorAll('.elementor-testimonial');
-      const items = nodes.map((s) => ({
-        quote: stripTags(s.querySelector('.elementor-testimonial__text, .elementor-testimonial-content')?.text ?? '').trim(),
-        name: stripTags(s.querySelector('.elementor-testimonial__name, .elementor-testimonial-name')?.text ?? '').trim(),
-        role: stripTags(s.querySelector('.elementor-testimonial__title, .elementor-testimonial-job')?.text ?? '').trim(),
-      })).filter((x) => x.quote);
+      const items: TestimonialItem[] = nodes.map((s) => {
+        const textEl = s.querySelector('.elementor-testimonial__text, .elementor-testimonial-content');
+        const name = stripTags(s.querySelector('.elementor-testimonial__name, .elementor-testimonial-name')?.text ?? '').trim();
+        const img = s.querySelector('.elementor-testimonial__image img, .elementor-testimonial-image img');
+        const src = img?.getAttribute('src') ?? img?.getAttribute('data-src') ?? '';
+        return {
+          quote: stripTags(textEl?.text ?? '').trim(),
+          ...(textEl ? { quoteHtml: quoteMarkup(textEl) } : {}),
+          name,
+          role: stripTags(s.querySelector('.elementor-testimonial__title, .elementor-testimonial-job')?.text ?? '').trim(),
+          ...(src ? { image: { src, alt: img?.getAttribute('alt') ?? name } } : {}),
+        };
+      }).filter((x) => x.quote);
       if (items.length) out.push({ kind: 'testimonials', items });
       return;
     }
@@ -388,6 +417,41 @@ function iconFeature(el: HTMLElement): { icon: string; title: string; desc: stri
   return title ? { icon: iconKey(kids[0]), title, desc } : null;
 }
 
+// --- Testimonials -----------------------------------------------------------
+
+type TestimonialItem = Extract<Block, { kind: 'testimonials' }>['items'][number];
+
+// Quote markup limited to bold/italic: links and everything else are unwrapped.
+function quoteMarkup(el: HTMLElement): string {
+  return cleanInline(el).replace(/<\/?a\b[^>]*>/gi, '').trim();
+}
+
+// <figure class="testimonial"><img><blockquote>..</blockquote>
+//   <figcaption><strong>Name</strong><span>Role</span></figcaption></figure>
+function testimonialFromFigure(el: HTMLElement): TestimonialItem {
+  const quoteHtml = quoteMarkup(el.querySelector('blockquote') ?? el);
+  const cap = el.querySelector('figcaption');
+  const name = stripTags(cap?.querySelector('strong, b')?.text ?? '').trim();
+  const role = stripTags(cap?.querySelector('span, em')?.text ?? '').trim();
+  const img = el.querySelector('img');
+  const src = img?.getAttribute('src') ?? img?.getAttribute('data-src') ?? '';
+  return {
+    quote: stripTags(quoteHtml),
+    quoteHtml,
+    name,
+    role,
+    ...(src ? { image: { src, alt: img?.getAttribute('alt') ?? name } } : {}),
+  };
+}
+
+// Consecutive testimonials form one block (one carousel).
+function pushTestimonial(out: Block[], item: TestimonialItem): void {
+  if (!item.quote) return;
+  const last = out[out.length - 1];
+  if (last?.kind === 'testimonials') last.items.push(item);
+  else out.push({ kind: 'testimonials', items: [item] });
+}
+
 // Single recursive walk that never drops content: known widgets are extracted
 // (and not recursed), site chrome is skipped, leaf HTML is emitted, and any
 // other element (containers, unknown widgets, wrappers) is recursed into.
@@ -401,8 +465,10 @@ function walkNode(node: HTMLElement, out: Block[]): void {
       continue;
     }
     if (tag === 'iframe') { pushEmbed(out, el); continue; }
+    if (tag === 'figure' && hasClass(el, 'testimonial')) { pushTestimonial(out, testimonialFromFigure(el)); continue; }
     if (IGNORE_TAGS.has(tag)) continue; // scripts/styles/schema/svg — never body copy
     if (hiddenOnDesktop(el)) continue;
+    if (tag === 'div' && hasClass(el, 'person')) { pushPerson(out, el); continue; }
     const feature = iconFeature(el);
     if (feature) { out.push({ kind: 'icon-cards', items: [feature] }); continue; }
     const wtype = widgetType(el);

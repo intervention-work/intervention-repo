@@ -26,7 +26,17 @@ export type Block =
   | { kind: 'icon-list'; items: Array<{ icon: string; label: string }> }
   | { kind: 'divider' }
   | { kind: 'accordion'; items: Array<{ title: string; blocks: Block[] }> }
-  | { kind: 'testimonials'; items: Array<{ quote: string; name: string; role: string }> }
+  | {
+      kind: 'testimonials';
+      items: Array<{
+        quote: string;
+        /** Quote with inline <strong> kept, for display. */
+        quoteHtml?: string;
+        name: string;
+        role: string;
+        image?: { src: string; alt: string };
+      }>;
+    }
   | {
       kind: 'pricing';
       cards: Array<{
@@ -40,7 +50,11 @@ export type Block =
   | { kind: 'media-text'; image: { src: string; alt: string }; side: 'left' | 'right'; blocks: Block[] }
   | { kind: 'profile'; image: { src: string; alt: string }; nameHtml: string; role: string }
   | { kind: 'hsform'; portalId: string; formId: string; region: string }
-  | { kind: 'embed'; items: Array<{ provider: 'youtube' | 'spotify'; src: string; title: string }> };
+  | { kind: 'embed'; items: Array<{ provider: 'youtube' | 'spotify'; src: string; title: string }> }
+  | {
+      kind: 'people';
+      items: Array<{ image: { src: string; alt: string }; name: string; blocks: Block[] }>;
+    };
 
 export type Section = { heading?: string; blocks: Block[] };
 
