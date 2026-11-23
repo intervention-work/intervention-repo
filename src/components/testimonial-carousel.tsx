@@ -88,7 +88,7 @@ export function TestimonialCarousel({ items }: { items: TestimonialItem[] }) {
       role="region"
       aria-roledescription="carousel"
       aria-label="Testimonials"
-      className="relative overflow-hidden rounded-3xl bg-gradient-to-b from-sage-700 to-sage-900 px-4 py-10 sm:px-14 md:py-12"
+      className="relative overflow-hidden rounded-3xl bg-gradient-to-b from-sage-700 to-sage-900 px-4 py-10 sm:px-16 md:py-12 lg:px-20"
     >
       {scrollable && (
         <>
@@ -133,7 +133,7 @@ export function TestimonialCarousel({ items }: { items: TestimonialItem[] }) {
             }`}
           >
             <blockquote
-              className="flex-1 font-sans text-[15px] leading-relaxed text-white/90 [&_b]:font-semibold [&_b]:text-white [&_strong]:font-semibold [&_strong]:text-white"
+              className="flex-1 font-sans text-sm leading-relaxed text-white/90 sm:min-h-[9.5rem] lg:min-h-[10.5rem] [&_b]:font-semibold [&_b]:text-white [&_strong]:font-semibold [&_strong]:text-white"
               dangerouslySetInnerHTML={{ __html: `&ldquo;${quoteBody(t)}&rdquo;` }}
             />
             <figcaption className="mt-6 flex flex-col items-center font-sans">
@@ -143,11 +143,13 @@ export function TestimonialCarousel({ items }: { items: TestimonialItem[] }) {
                   src={t.image.src}
                   alt={t.image.alt || t.name}
                   loading="eager"
-                  className="mb-3 h-[72px] w-[72px] rounded-full object-cover ring-2 ring-white/25"
+                  className="mb-4 h-28 w-28 rounded-full object-cover object-top ring-2 ring-white/30 md:h-32 md:w-32 lg:h-[136px] lg:w-[136px]"
                 />
               )}
-              {t.name && <span className="text-sm font-semibold text-sage-200">{t.name}</span>}
-              {t.role && <span className="mt-0.5 text-xs leading-snug text-white/70">{t.role}</span>}
+              <div className="flex min-h-[3.5rem] flex-col items-center">
+                {t.name && <span className="text-base font-semibold text-sage-200">{t.name}</span>}
+                {t.role && <span className="mt-0.5 text-xs leading-snug text-white/70">{t.role}</span>}
+              </div>
             </figcaption>
           </figure>
         ))}

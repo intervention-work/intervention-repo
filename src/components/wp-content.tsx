@@ -510,25 +510,22 @@ function Profile({ block }: { block: Extract<Block, { kind: 'profile' }> }) {
   );
 }
 
-// Team-style rows (same geometry as /our-team): equal 3:4 photos, a 40px gap
-// between photo and copy, sides alternating, a thin divider between rows.
+// People rows: a large portrait on the left and copy on the right, the same
+// structure on every row so the left edges line up (faces are the point, so the
+// photo is big and the copy is a step smaller). Stacks and stays left aligned
+// on a phone. A thin divider separates rows.
 function PeopleRows({ items }: { items: Extract<Block, { kind: 'people' }>['items'] }) {
   return (
-    <div className="w-full space-y-14 lg:space-y-20">
+    <div className="w-full space-y-12 text-left lg:space-y-16">
       {items.map((p, i) => {
-        const photoLeft = i % 2 === 0;
-        const divider = i < items.length - 1 ? 'border-b border-border pb-14 lg:pb-20' : '';
+        const divider = i < items.length - 1 ? 'border-b border-border pb-12 lg:pb-16' : '';
         return (
           <div
             key={`${p.name}-${i}`}
-            className={`grid grid-cols-1 gap-10 lg:grid-cols-2 lg:items-start ${divider}`}
+            className={`grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,460px)_minmax(0,1fr)] lg:items-start lg:gap-12 ${divider}`}
           >
-            <div
-              className={`mx-auto w-full max-w-xs ${
-                photoLeft ? 'lg:ml-auto lg:mr-0' : 'lg:order-last lg:ml-0 lg:mr-auto'
-              }`}
-            >
-              <div className="relative aspect-[3/4] w-full overflow-hidden rounded-2xl bg-surface">
+            <div className="w-full max-w-sm lg:max-w-none">
+              <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-surface">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={p.image.src}
@@ -538,11 +535,13 @@ function PeopleRows({ items }: { items: Extract<Block, { kind: 'people' }>['item
                 />
               </div>
             </div>
-            <div>
+            <div className="min-w-0 lg:pt-2">
               <Heading level={3} className="text-balance">
                 {p.name}
               </Heading>
-              <div className="mt-6 space-y-5">{renderBlocks(p.blocks)}</div>
+              <div className="mt-4 space-y-4 text-left [&_p]:text-[15px] [&_p]:leading-relaxed">
+                {renderBlocks(p.blocks)}
+              </div>
             </div>
           </div>
         );

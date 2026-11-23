@@ -78,8 +78,19 @@ export function OurTeamContent() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={viewport}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="grid grid-cols-1 gap-10 border-b border-border pb-14 lg:grid-cols-2 lg:items-start lg:pb-20"
+            className="grid grid-cols-1 items-start gap-10 border-b border-border pb-14 text-left lg:grid-cols-[400px_1fr] lg:gap-14 lg:pb-20"
           >
+            <div className="w-full max-w-sm lg:max-w-none">
+              <div className="relative aspect-[3/4] w-full overflow-hidden rounded-2xl">
+                <Image
+                  src="/images/brad-lamm-2.jpg"
+                  alt="Brad Lamm, Founder and Lead Interventionist"
+                  fill
+                  className="object-cover object-top"
+                  sizes="(max-width: 1024px) 100vw, 400px"
+                />
+              </div>
+            </div>
             <div>
               <p className="font-sans text-xs tracking-[0.22em] uppercase text-sage-500">
                 Certified Intervention Professional · Founder
@@ -94,17 +105,6 @@ export function OurTeamContent() {
                 <ExpandableBio shortBio={BRAD_SHORT} longParas={BRAD_LONG_PARAS} />
               </div>
             </div>
-            <div className="mx-auto w-full max-w-xs lg:mx-0">
-              <div className="relative aspect-[3/4] w-full overflow-hidden rounded-2xl">
-                <Image
-                  src="/images/brad-lamm-2.jpg"
-                  alt="Brad Lamm, Founder and Lead Interventionist"
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 100vw, 400px"
-                />
-              </div>
-            </div>
           </motion.div>
 
           {/* Shoaib Haroon */}
@@ -113,15 +113,15 @@ export function OurTeamContent() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={viewport}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:items-start"
+            className="grid grid-cols-1 items-start gap-10 text-left lg:grid-cols-[400px_1fr] lg:gap-14"
           >
-            <div className="mx-auto w-full max-w-xs lg:order-first lg:ml-auto lg:mr-0">
+            <div className="w-full max-w-sm lg:max-w-none">
               <div className="relative aspect-[3/4] w-full overflow-hidden rounded-2xl">
                 <Image
                   src="/images/shoaib-haroon.jpeg"
                   alt="Shoaib Haroon, Chief Executive Officer"
                   fill
-                  className="object-cover"
+                  className="object-cover object-top"
                   sizes="(max-width: 1024px) 100vw, 400px"
                 />
               </div>

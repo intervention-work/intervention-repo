@@ -139,6 +139,89 @@ const nextConfig: NextConfig = {
       // Intervention landing page.
       { source: '/intervention/early-autism', destination: '/intervention', permanent: true },
       { source: '/intervention/early-autism-intervention', destination: '/intervention', permanent: true },
+      // Retired URLs that were live on the old intervention.com and now 404.
+      // Every rule below has evidence (see Plans/redirects-evidence.md): a 301
+      // the old production site itself served (Wayback Machine capture), a
+      // slug succession in the archive, an identical page, or the same family
+      // the site owners already redirect in the Rank Math export. Pages retired
+      // on purpose (early autism, the CARE unit) are deliberately absent.
+      //
+      // The old site served these two as real 301s on 2023-06-01.
+      { source: '/intervention/eating-disorder-intervention', destination: '/intervention/eating-disorder', permanent: true },
+      { source: '/intervention/mental-health-crisis-intervention', destination: '/intervention/mental-health-crisis', permanent: true },
+      // Same rename as above, older slugs: each one's last archived capture
+      // (2021 to 2022-07) is followed by the new slug's first capture on
+      // 2022-10-05, in the same menu position.
+      { source: '/intervention/complex-trauma-intervention', destination: '/intervention/complex-trauma', permanent: true },
+      { source: '/intervention/mental-illness-intervention', destination: '/intervention/mental-health-crisis', permanent: true },
+      { source: '/intervention/substance-use-intervention', destination: '/intervention/drug-alcohol-intervention', permanent: true },
+      // Alcohol and drug were separate pages, later merged. The site owners
+      // already redirect the -intervention slugs here; the 2023 archive shows
+      // /intervention/alcohol-intervention was a 301 to /intervention/alcohol.
+      { source: '/intervention/alcohol', destination: '/intervention/drug-alcohol-intervention', permanent: true },
+      { source: '/intervention/drug', destination: '/intervention/drug-alcohol-intervention', permanent: true },
+      // Spectrum Intervention (2021 stub) became Early Autism in the same menu
+      // slot; early autism now forwards to /intervention, so this does too.
+      { source: '/intervention/spectrum-intervention', destination: '/intervention', permanent: true },
+      // /intervention-2 is a duplicate slug of /intervention (the 2024-07-13
+      // capture has the same title, H1 and phone as the live page).
+      { source: '/intervention-2', destination: '/intervention', permanent: true },
+      // The old site served these as 301s to /intervention on 2022-03-07
+      // (/drug-rehab hopped through /addiction-treatment/drug-rehab).
+      { source: '/drug-rehab', destination: '/intervention', permanent: true },
+      { source: '/addiction-treatment/drug-rehab', destination: '/intervention', permanent: true },
+      // Same page, older path. The 2021 /about-us/our-team is the team page.
+      { source: '/about-us/our-team', destination: '/our-team', permanent: true },
+      // 2021 to 2022 state grid; the archived page is the state chooser and
+      // the owners already forward /intervention/interventionists-by-state.
+      { source: '/states', destination: '/interventionists-by-state', permanent: true },
+      // The 2022 menu listed "Our Services" under Resources as the services hub.
+      { source: '/our-services', destination: '/services', permanent: true },
+      // The BIST page is the parent of the BIST registration pages that sit
+      // under /trainings/breakfree-intervention-skills-training (2022 capture).
+      { source: '/bist-training', destination: '/trainings/breakfree-intervention-skills-training', permanent: true },
+      // Accreditation pages: the owners already send the sibling accreditation
+      // URLs (/about-us/jcaho-, /who-we-are/memberships-accreditations) to /about-us.
+      { source: '/about-us/accreditations', destination: '/about-us', permanent: true },
+      { source: '/about-us/fair-care-promise', destination: '/about-us', permanent: true },
+      { source: '/about-us/jcaho-accreditation', destination: '/about-us', permanent: true },
+      // Directory profiles: the owners redirect 13 sibling /interventionists/
+      // profiles to the by-state directory. These five are the same family.
+      { source: '/interventionists/adam-banks', destination: '/interventionists-by-state', permanent: true },
+      { source: '/interventionists/anisha-cooper', destination: '/interventionists-by-state', permanent: true },
+      { source: '/interventionists/arthur-westinghouse', destination: '/interventionists-by-state', permanent: true },
+      { source: '/interventionists/jonathan-rauch', destination: '/interventionists-by-state', permanent: true },
+      { source: '/interventionists/pat-brashears', destination: '/interventionists-by-state', permanent: true },
+      // Blog listings and removed posts. /our-blog was served until 2026-02
+      // (Wayback) and the owners redirect /our-blog and removed /news posts to
+      // the blog; the 4 blog category archives all 404 now. Removed articles
+      // follow the owners' own rule for their removed posts. None of these
+      // posts exist on the live blog (checked by title and text).
+      { source: '/our-blog/page/:n', destination: '/intervention-blog', permanent: true },
+      { source: '/news', destination: '/intervention-blog', permanent: true },
+      { source: '/news/page/:n', destination: '/intervention-blog', permanent: true },
+      { source: '/intervention-blog/page/5', destination: '/intervention-blog', permanent: true },
+      { source: '/intervention-blog/category/drug-interventionists', destination: '/intervention-blog', permanent: true },
+      { source: '/intervention-blog/category/eating-disorders', destination: '/intervention-blog', permanent: true },
+      { source: '/intervention-blog/category/mental-health', destination: '/intervention-blog', permanent: true },
+      { source: '/intervention-blog/category/teens', destination: '/intervention-blog', permanent: true },
+      { source: '/4-signs-heroin-addiction', destination: '/intervention-blog', permanent: true },
+      { source: '/8-life-lessons-survivors-addiction-list', destination: '/intervention-blog', permanent: true },
+      { source: '/9-ways-alcohol-abuse-damages-health', destination: '/intervention-blog', permanent: true },
+      { source: '/anorexia-facts-and-statistics', destination: '/intervention-blog', permanent: true },
+      { source: '/how-not-to-die-at-a-concert', destination: '/intervention-blog', permanent: true },
+      { source: '/importance-family-support-recovery-addict', destination: '/intervention-blog', permanent: true },
+      { source: '/physical-emotional-effects-alcoholism', destination: '/intervention-blog', permanent: true },
+      { source: '/things-that-might-surprise-you-about-male-anorexia', destination: '/intervention-blog', permanent: true },
+      { source: '/toxic-relationships-addiction-cycle', destination: '/intervention-blog', permanent: true },
+      // The numbered landing pages: the owners send their siblings (-527262,
+      // -527263, -527264) to the blog.
+      { source: '/alcohol-interventions-527258', destination: '/intervention-blog', permanent: true },
+      { source: '/drug-interventionist-527259', destination: '/intervention-blog', permanent: true },
+      { source: '/drug-intervention-california-527260', destination: '/intervention-blog', permanent: true },
+      { source: '/drug-interventions-for-lgbtq-527257', destination: '/intervention-blog', permanent: true },
+      { source: '/eating-disorder-intervention-527265', destination: '/intervention-blog', permanent: true },
+      { source: '/trauma-intervention-program-527261', destination: '/intervention-blog', permanent: true },
       // Short vanity URLs the marketing team shares; the full landing pages
       // sit at the longer slugs. Destinations use the no-trailing-slash form
       // to avoid a 301 to 308 chain (Next.js strips the slash on its own).
