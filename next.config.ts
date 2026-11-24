@@ -81,7 +81,17 @@ async function wordpressRedirects(): Promise<Redirect[]> {
   }
 }
 
+// Staging must never be indexed. Set NEXT_PUBLIC_SITE_ENV=staging on the
+// staging Amplify app only; production leaves it unset and is unaffected.
+const IS_STAGING = process.env.NEXT_PUBLIC_SITE_ENV === 'staging';
+
 const nextConfig: NextConfig = {
+  async headers() {
+    return IS_STAGING
+      ? [{ source: '/:path*', headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }] }]
+      : [];
+  },
+
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },

@@ -50,6 +50,10 @@ const AI_CRAWLERS = [
 ];
 
 export default function robots(): MetadataRoute.Robots {
+  // Staging app: block every crawler (see NEXT_PUBLIC_SITE_ENV in next.config.ts).
+  if (process.env.NEXT_PUBLIC_SITE_ENV === 'staging') {
+    return { rules: [{ userAgent: '*', disallow: '/' }] };
+  }
   return {
     rules: [
       {

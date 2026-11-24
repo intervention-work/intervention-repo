@@ -1,0 +1,18 @@
+name: Enforce staging flow
+
+# Pull requests into main must come from the staging branch.
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  from-staging-only:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require head branch to be staging
+        run: |
+          if [ "${{ github.head_ref }}" != "staging" ]; then
+            echo "PRs into main must come from the staging branch (got: ${{ github.head_ref }})."
+            echo "Push your work to staging first, then open the PR staging -> main."
+            exit 1
+          fi

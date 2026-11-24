@@ -95,6 +95,12 @@ Portal `46095144`, form `4fd83930-97c1-4d8a-a51b-3fd18583507e`. Submits JSON to 
 
 ---
 
+## Branch and release flow (staging first)
+
+`staging` is a permanent branch with its own Amplify app. `main` is production. All changes go to `staging` first, get reviewed on the staging URL by the PM / team lead, then a PR `staging` -> `main` ships them. Never push directly to `main`. Full flow in `Plans/staging-workflow.md`, one-time AWS/GitHub setup in `Plans/staging-setup-guide.md`. Staging sets `NEXT_PUBLIC_SITE_ENV=staging` (noindex + robots disallow); never set it on production.
+
+---
+
 ## Weekly log maintenance
 
 `Plans/weekly-log.md` is a running ledger of what shipped each week on intervention.com, split into two tracks per week: **Website Development** and **SEO**. Weeks run Monday to Sunday, newest at top.
