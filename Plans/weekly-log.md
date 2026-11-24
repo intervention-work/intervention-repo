@@ -6,6 +6,24 @@ Sources: git log (code commits), WordPress REST actions taken in session (WP dat
 
 ---
 
+## Week of 2026-11-23  (Nov 23 to Nov 29)
+
+### Website Development
+- 2026-11-24: local dev now reads prod WP (`.env.local` sets `NEXT_PUBLIC_WP_API_URL` to interventions.wpenginepowered.com); dev WP was missing `/america-recovers` and the new nav items. Branch `24-nov-2026` cut from `main` `33b41f5`.
+- 2026-11-24: `675173e` `/america-recovers` layout pass, all at parser/render level (no WP edits):
+  - New Block kinds `cta-card` (short heading + 1 to 3 buttons) and `callout` (sentence + single tel button); "Get Help from Brad & Mack" renders as a contact card beside the intro, the 911 line as a notice card beside "Get Intervention Help".
+  - Testimonials: photo-led cards (full-width photo, name and role over a gradient, quote below); on mobile the track height follows the visible card.
+  - People blocks with short bios (80 words or fewer each) render as a 3-up card grid; long bios keep the portrait rows.
+  - Social/profile link rows render as outline pills with icons; a section of copy plus only social links becomes a panel with link tiles. Brand SVGs moved to `src/components/social-icons.tsx` (footer imports them).
+  - Single embed + copy + buttons renders side by side (player left, copy right).
+  - Catch-all breadcrumb uses the WP page title instead of the hero tagline.
+  - Pattern scan across all 121 prod pages/posts: the new rules fire only on `/america-recovers`.
+
+### SEO
+- 2026-11-24: catch-all BreadcrumbList JSON-LD now names the page by its WP title (e.g. "America Recovers Podcast") instead of the hero tagline (`675173e`).
+
+---
+
 ## Week of 2026-11-16  (Nov 16 to Nov 22)
 
 ### Website Development
