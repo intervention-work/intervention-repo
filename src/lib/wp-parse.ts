@@ -624,6 +624,7 @@ function postProcess(blocks: Block[]): Block[] {
   b = detectCards(b);
   b = detectProfiles(b);
   b = detectActionCards(b);
+  b = detectCtas(b);
   b = detectMediaText(b);
   return b;
 }
@@ -669,6 +670,48 @@ function detectActionCards(blocks: Block[]): Block[] {
     }
     if (cards.length >= 2) { out.push({ kind: 'card-group', cards }); i = j; continue; }
     out.push(blocks[i]);
+    i++;
+  }
+  return out;
+}
+
+// A short heading that only labels 1–3 buttons ("Get help from …" + Call /
+// Contact) is a contact card, not a section title. A sentence followed by a
+// single phone button ("In an emergency, call 911") is a call-out.
+function detectCtas(blocks: Block[]): Block[] {
+  const out: Block[] = [];
+  let i = 0;
+  while (i < blocks.length) {
+    const b = blocks[i];
+    let j = i + 1;
+    while (blocks[j]?.kind === 'button') j++;
+    const buttons = blocks.slice(i + 1, j).flatMap((x) => (x.kind === 'button' ? [x] : []));
+    const next = blocks[j]?.kind;
+    const endsGroup = !next || next === 'section-heading' || next === 'heading';
+    const text = b.kind === 'heading' || b.kind === 'paragraph' ? stripTags(b.html) : '';
+
+    if (
+      b.kind === 'heading' && !isKicker(text) && wordCount(text) <= 8 &&
+      buttons.length >= 1 && buttons.length <= 3 && endsGroup
+    ) {
+      out.push({
+        kind: 'cta-card',
+        html: b.html,
+        buttons: buttons.map(({ href, label, external }) => ({ href, label, external })),
+      });
+      i = j;
+      continue;
+    }
+    if (
+      (b.kind === 'paragraph' || (b.kind === 'heading' && wordCount(text) >= 14)) &&
+      buttons.length === 1 && buttons[0].href.startsWith('tel:')
+    ) {
+      const { href, label, external } = buttons[0];
+      out.push({ kind: 'callout', html: b.html, button: { href, label, external } });
+      i = j;
+      continue;
+    }
+    out.push(b);
     i++;
   }
   return out;

@@ -67,6 +67,10 @@ function blockText(b: Block): string {
       return b.items.map((i) => `${i.name} ${i.blocks.map(blockText).join(' ')}`).join(' ');
     case 'profile':
       return `${stripTags(b.nameHtml)} ${b.role}`;
+    case 'cta-card':
+      return `${stripTags(b.html)} ${b.buttons.map((x) => x.label).join(' ')}`;
+    case 'callout':
+      return `${stripTags(b.html)} ${b.button.label}`;
   }
 }
 

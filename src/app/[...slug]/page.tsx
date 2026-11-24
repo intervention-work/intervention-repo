@@ -102,7 +102,8 @@ export default async function CatchAllWpPage(props: PageProps<'/[...slug]'>) {
       label: titleize(seg),
       href: '/' + slug.slice(0, i + 1).join('/'),
     })),
-    { label: heroTitle },
+    // The hero title can be a full tagline; the crumb wants the page's name.
+    { label: detailLabel || page?.title || heroTitle },
   ];
 
   const url = `${SITE}/${slug.join('/')}`;

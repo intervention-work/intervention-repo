@@ -39,8 +39,8 @@ function usePerView(): number {
 }
 
 /**
- * Quotes on a dark panel: centered quote, round avatar, accent name, small role,
- * side arrows and dots. Snap-scrolling track, so touch swipe and trackpad work.
+ * Quote cards on a dark panel: large photo with name + role on top, quote
+ * underneath, side arrows and dots. Snap-scrolling track, so touch swipe and trackpad work.
  */
 export function TestimonialCarousel({ items }: { items: TestimonialItem[] }) {
   const perView = usePerView();
@@ -75,13 +75,21 @@ export function TestimonialCarousel({ items }: { items: TestimonialItem[] }) {
     return () => el.removeEventListener('scroll', onScroll);
   }, [pages, perView]);
 
+  // One card per view: size the track to the visible card, so a short quote
+  // doesn't sit above the empty space of the longest one.
+  const [trackHeight, setTrackHeight] = useState<number>();
+  useEffect(() => {
+    const slide = trackRef.current?.children[active] as HTMLElement | undefined;
+    setTrackHeight(perView === 1 && slide ? slide.offsetHeight : undefined);
+  }, [active, perView]);
+
   const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
     if (e.key === 'ArrowRight') { e.preventDefault(); goTo(active + 1); }
     if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(active - 1); }
   };
 
   const arrow =
-    'absolute top-[38%] z-10 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 text-sage-200 transition-colors hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sage-200 disabled:cursor-not-allowed disabled:opacity-30 sm:flex';
+    'absolute top-1/2 z-10 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 text-sage-200 transition-colors hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sage-200 disabled:cursor-not-allowed disabled:opacity-30 sm:flex';
 
   return (
     <div
@@ -117,14 +125,15 @@ export function TestimonialCarousel({ items }: { items: TestimonialItem[] }) {
         ref={trackRef}
         tabIndex={scrollable ? 0 : -1}
         onKeyDown={onKeyDown}
-        className={`flex snap-x snap-mandatory overflow-x-auto scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sage-200 ${
+        style={trackHeight ? { height: trackHeight } : undefined}
+        className={`flex items-start transition-[height] duration-300 ease-out snap-x snap-mandatory overflow-x-auto sm:items-stretch scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sage-200 ${
           scrollable ? '' : 'justify-center'
         }`}
       >
         {items.map((t, i) => (
-          <figure
+          <div
             key={i}
-            className={`flex shrink-0 snap-start flex-col items-center px-3 text-center sm:px-5 ${
+            className={`flex shrink-0 snap-start px-2 sm:px-2.5 ${
               scrollable
                 ? 'basis-full sm:basis-1/2 lg:basis-1/3'
                 : items.length === 1
@@ -132,26 +141,39 @@ export function TestimonialCarousel({ items }: { items: TestimonialItem[] }) {
                   : 'basis-full sm:basis-1/2'
             }`}
           >
-            <blockquote
-              className="flex-1 font-sans text-sm leading-relaxed text-white/90 sm:min-h-[9.5rem] lg:min-h-[10.5rem] [&_b]:font-semibold [&_b]:text-white [&_strong]:font-semibold [&_strong]:text-white"
-              dangerouslySetInnerHTML={{ __html: `&ldquo;${quoteBody(t)}&rdquo;` }}
-            />
-            <figcaption className="mt-6 flex flex-col items-center font-sans">
-              {t.image?.src && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={t.image.src}
-                  alt={t.image.alt || t.name}
-                  loading="eager"
-                  className="mb-4 h-28 w-28 rounded-full object-cover object-top ring-2 ring-white/30 md:h-32 md:w-32 lg:h-[136px] lg:w-[136px]"
-                />
+            <figure className="flex w-full flex-col overflow-hidden rounded-2xl bg-white/[0.07] ring-1 ring-white/15">
+              {t.image?.src ? (
+                // The face is why the quote carries weight, so it leads the card.
+                <figcaption className="relative aspect-[4/3] w-full bg-sage-900 font-sans">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={t.image.src}
+                    alt={t.image.alt || t.name}
+                    loading="eager"
+                    className="absolute inset-0 h-full w-full object-cover object-[50%_25%]"
+                  />
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent px-6 pt-14 pb-4 md:px-7">
+                    {t.name && <p className="text-lg font-semibold text-white">{t.name}</p>}
+                    {t.role && <p className="mt-0.5 text-xs leading-snug text-white/80">{t.role}</p>}
+                  </div>
+                </figcaption>
+              ) : (
+                <figcaption className="px-6 pt-6 font-sans md:px-7">
+                  {t.name && <p className="text-[15px] font-semibold text-white">{t.name}</p>}
+                  {t.role && <p className="mt-0.5 text-xs leading-snug text-sage-200/90">{t.role}</p>}
+                </figcaption>
               )}
-              <div className="flex min-h-[3.5rem] flex-col items-center">
-                {t.name && <span className="text-base font-semibold text-sage-200">{t.name}</span>}
-                {t.role && <span className="mt-0.5 text-xs leading-snug text-white/70">{t.role}</span>}
+              <div className="flex flex-1 gap-3 p-6 md:p-7">
+                <span aria-hidden className="-mt-1 font-display text-4xl leading-none text-sage-200/80">
+                  &ldquo;
+                </span>
+                <blockquote
+                  className="font-sans text-[15px] leading-relaxed text-white/90 [&_b]:font-semibold [&_b]:text-white [&_strong]:font-semibold [&_strong]:text-white"
+                  dangerouslySetInnerHTML={{ __html: `${quoteBody(t)}&rdquo;` }}
+                />
               </div>
-            </figcaption>
-          </figure>
+            </figure>
+          </div>
         ))}
       </div>
 

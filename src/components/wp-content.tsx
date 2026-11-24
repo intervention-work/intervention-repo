@@ -8,9 +8,10 @@ import { Accordion } from './accordion';
 import { HubSpotEmbed } from './hubspot-embed';
 import { groupSections, stripTags, wordCount, type Block, type Card as CardData, type Section } from '@/lib/wp-content-parse';
 import { parseWp } from '@/lib/wp-parse';
+import { FacebookIcon, InstagramIcon, LinkedinIcon, TwitterIcon } from './social-icons';
 import {
   Users, User, Check, Smile, Heart, Star, HandHeart, ShieldCheck,
-  GraduationCap, Handshake, Sparkles, type LucideIcon,
+  GraduationCap, Handshake, Sparkles, Phone, Shield, Mail, Globe, ArrowUpRight, type LucideIcon,
 } from 'lucide-react';
 
 /**
@@ -88,6 +89,152 @@ function CtaLink({
         </span>
       )}
     </a>
+  );
+}
+
+type ButtonData = { href: string; label: string; external: boolean };
+
+const LINK_ICONS: Array<[RegExp, (p: { size?: number }) => ReactNode]> = [
+  [/^facebook$/i, FacebookIcon],
+  [/^instagram$/i, InstagramIcon],
+  [/^(twitter|x)$/i, TwitterIcon],
+  [/^linked\s?in$/i, LinkedinIcon],
+  [/^e-?mail$/i, ({ size }) => <Mail size={size} strokeWidth={1.75} />],
+  [/^website$/i, ({ size }) => <Globe size={size} strokeWidth={1.75} />],
+];
+
+const linkIcon = (label: string) => LINK_ICONS.find(([re]) => re.test(label.trim()))?.[1];
+
+/**
+ * A row of "Facebook / Instagram / Email" buttons is a set of profile links;
+ * as filled pills they shout louder than the page's real calls to action.
+ */
+function LinkPills({ buttons }: { buttons: ButtonData[] }) {
+  return (
+    <div className="flex flex-wrap gap-2.5 py-1">
+      {buttons.map((b) => {
+        const Icon = linkIcon(b.label);
+        return (
+          <a
+            key={b.href + b.label}
+            href={b.href}
+            {...(b.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+            className="inline-flex items-center gap-2 rounded-full border border-border bg-white px-4 py-2.5 font-sans text-sm font-medium text-ink transition-colors duration-200 hover:border-sage-300 hover:text-sage-700"
+          >
+            {Icon && (
+              <span className="text-sage-500">
+                <Icon size={15} />
+              </span>
+            )}
+            {b.label}
+          </a>
+        );
+      })}
+    </div>
+  );
+}
+
+/** Profile links as full-width tiles, for a section that exists to share them. */
+function LinkTiles({ buttons }: { buttons: ButtonData[] }) {
+  return (
+    <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+      {buttons.map((b) => {
+        const Icon = linkIcon(b.label);
+        return (
+          <a
+            key={b.href + b.label}
+            href={b.href}
+            {...(b.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+            className="group flex items-center gap-3.5 rounded-2xl border border-border bg-white px-4 py-3.5 font-sans text-[15px] font-medium text-ink transition-colors duration-200 hover:border-sage-300"
+          >
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sage-50 text-sage-700">
+              {Icon && <Icon size={17} />}
+            </span>
+            <span className="flex-1">{b.label}</span>
+            <ArrowUpRight
+              size={16}
+              strokeWidth={1.75}
+              aria-hidden
+              className="text-ink-muted transition-transform duration-200 ease-expo-out group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-sage-700"
+            />
+          </a>
+        );
+      })}
+    </div>
+  );
+}
+
+/** Heading + its buttons as one contact card, phone first and filled. */
+function CtaCard({ html, buttons }: { html: string; buttons: ButtonData[] }) {
+  return (
+    <div className="w-full rounded-3xl border border-border bg-surface p-7 md:p-8">
+      <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-border bg-white px-2.5 py-1 font-sans text-[11px] text-ink-muted">
+        <Shield size={10} strokeWidth={1.75} className="text-sage-500" />
+        Free · Confidential
+      </div>
+      <p
+        className="font-display text-xl leading-snug text-balance text-ink md:text-2xl"
+        dangerouslySetInnerHTML={{ __html: html }}
+      />
+      <div className="mt-6 flex flex-col gap-2.5">
+        {buttons.map((b, i) => {
+          const tel = b.href.startsWith('tel:');
+          return (
+            <a
+              key={b.href + b.label}
+              href={b.href}
+              {...(b.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+              className={
+                i === 0
+                  ? 'inline-flex w-full items-center justify-center gap-2 rounded-full bg-sage-700 px-5 py-3.5 font-sans text-sm font-medium text-white transition-colors duration-300 hover:bg-sage-900'
+                  : 'inline-flex w-full items-center justify-center gap-2 rounded-full border border-border bg-white px-5 py-3.5 font-sans text-sm text-ink transition-colors duration-200 hover:bg-surface'
+              }
+            >
+              {tel && <Phone size={13} strokeWidth={1.75} className={i === 0 ? '' : 'text-sage-500'} />}
+              {toTitleCase(b.label)}
+            </a>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/** One sentence and a phone button, read as a single notice. */
+function Callout({ html, button, stacked = false }: { html: string; button: ButtonData; stacked?: boolean }) {
+  if (stacked) {
+    return (
+      <div className="w-full rounded-3xl border border-border bg-surface p-7 md:p-8">
+        <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-sage-500">
+          <Phone size={17} strokeWidth={1.75} />
+        </span>
+        <p
+          className="mt-5 font-sans text-[15px] leading-relaxed text-pretty text-ink"
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
+        <a href={button.href} className={`${BTN_PRIMARY} mt-6 w-full py-3.5`}>
+          <Phone size={13} strokeWidth={1.75} />
+          {toTitleCase(button.label)}
+        </a>
+      </div>
+    );
+  }
+  return (
+    <div className="flex flex-col gap-5 rounded-2xl border border-border bg-surface p-5 sm:flex-row sm:items-center sm:justify-between md:p-6">
+      <div className="flex items-start gap-4">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-sage-500">
+          <Phone size={16} strokeWidth={1.75} />
+        </span>
+        <p
+          className="max-w-[60ch] pt-2 font-sans text-[15px] leading-relaxed text-pretty text-ink"
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
+      </div>
+      <a href={button.href} className={`${BTN_PRIMARY} shrink-0 self-start sm:self-auto`}>
+        <Phone size={13} strokeWidth={1.75} />
+        {toTitleCase(button.label)}
+      </a>
+    </div>
   );
 }
 
@@ -514,7 +661,47 @@ function Profile({ block }: { block: Extract<Block, { kind: 'profile' }> }) {
 // structure on every row so the left edges line up (faces are the point, so the
 // photo is big and the copy is a step smaller). Stacks and stays left aligned
 // on a phone. A thin divider separates rows.
+const PERSON_CARD_MAX_WORDS = 80;
+const bioWords = (blocks: Block[]) =>
+  blocks.reduce((n, b) => n + (b.kind === 'paragraph' ? wordCount(stripTags(b.html)) : 0), 0);
+
 function PeopleRows({ items }: { items: Extract<Block, { kind: 'people' }>['items'] }) {
+  // A short bio beside a tall portrait leaves most of the row empty; those sit
+  // better as a grid of cards. Long bios keep the row layout.
+  if (items.length > 1 && items.every((p) => bioWords(p.blocks) <= PERSON_CARD_MAX_WORDS)) {
+    return (
+      <BalancedGrid count={items.length}>
+        {items.map((p, i) => (
+          <article
+            key={`${p.name}-${i}`}
+            className="flex w-full flex-col overflow-hidden rounded-2xl border border-border bg-white"
+          >
+            <div className="relative aspect-[4/3] w-full bg-surface lg:aspect-square">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={p.image.src}
+                alt={p.image.alt || p.name}
+                loading="lazy"
+                className="absolute inset-0 h-full w-full object-cover object-top"
+              />
+            </div>
+            <div className="flex flex-1 flex-col p-6 md:p-7">
+              <Heading level={3} className="text-balance">
+                {p.name}
+              </Heading>
+              <div
+                className={`mt-3 flex flex-1 flex-col gap-4 [&_p]:text-[15px] [&_p]:leading-relaxed ${
+                  p.blocks[p.blocks.length - 1]?.kind === 'button' ? '[&>*:last-child]:mt-auto' : ''
+                }`}
+              >
+                {renderBlocks(p.blocks)}
+              </div>
+            </div>
+          </article>
+        ))}
+      </BalancedGrid>
+    );
+  }
   return (
     <div className="w-full space-y-12 text-left lg:space-y-16">
       {items.map((p, i) => {
@@ -710,6 +897,14 @@ function BlockView({ block }: { block: Block }) {
       return <MediaText image={block.image} side={block.side} blocks={block.blocks} />;
     case 'profile':
       return <Profile block={block} />;
+    case 'cta-card':
+      return (
+        <div className="max-w-md">
+          <CtaCard html={block.html} buttons={block.buttons} />
+        </div>
+      );
+    case 'callout':
+      return <Callout html={block.html} button={block.button} />;
     case 'section-heading':
       return null;
   }
@@ -724,6 +919,11 @@ function renderBlocks(blocks: Block[]): ReactNode[] {
     if (b.kind === 'button') {
       const group: Block[] = [];
       while (i < blocks.length && blocks[i].kind === 'button') group.push(blocks[i++]);
+      const buttons = group.flatMap((g) => (g.kind === 'button' ? [g] : []));
+      if (buttons.every((g) => linkIcon(g.label))) {
+        out.push(<LinkPills key={`links-${i}`} buttons={buttons} />);
+        continue;
+      }
       out.push(
         <div key={`btn-${i}`} className="flex flex-wrap gap-3 py-1">
           {group.map((g, k) => (
@@ -1116,6 +1316,77 @@ function SectionView({
 }) {
   if (panels && hasChips(section)) {
     return <LocatorPanel section={section} media={media} />;
+  }
+  // A section that closes on a contact card: copy on the left, the card beside
+  // it on the right; stacked under the copy on a phone.
+  const last = section.blocks[section.blocks.length - 1];
+  if (last?.kind === 'cta-card' && section.blocks.length > 1) {
+    return (
+      <section className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-16">
+        <div className="min-w-0">
+          {section.heading && <SectionHeading text={section.heading} />}
+          {media && <BlockView block={{ kind: 'image', ...media }} />}
+          <BlockFlow blocks={section.blocks.slice(0, -1)} />
+        </div>
+        <CtaCard html={last.html} buttons={last.buttons} />
+      </section>
+    );
+  }
+  // Copy + CTA that closes on a phone notice: the notice moves beside the copy.
+  const head = section.blocks.slice(0, -1);
+  if (
+    !media && last?.kind === 'callout' && head.length > 0 &&
+    head.every((b) => b.kind === 'paragraph' || b.kind === 'button')
+  ) {
+    return (
+      <section className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-16">
+        <div className="min-w-0">
+          {section.heading && <SectionHeading text={section.heading} />}
+          <div className="space-y-5">{renderBlocks(head)}</div>
+        </div>
+        <Callout html={last.html} button={last.button} stacked />
+      </section>
+    );
+  }
+  // Copy that ends in a row of profile links ("Follow us"): the links are the
+  // point, so they get their own column instead of trailing as small pills.
+  const firstLink = section.blocks.findIndex((b) => b.kind === 'button');
+  const copy = firstLink > 0 ? section.blocks.slice(0, firstLink) : [];
+  const links = firstLink > 0
+    ? section.blocks.slice(firstLink).flatMap((b) => (b.kind === 'button' ? [b] : []))
+    : [];
+  if (
+    !media && copy.length > 0 && copy.every((b) => b.kind === 'paragraph') &&
+    links.length > 0 && links.length === section.blocks.length - firstLink &&
+    links.every((b) => linkIcon(b.label))
+  ) {
+    return (
+      <section className={`${PANEL} grid items-center gap-8 lg:grid-cols-[minmax(0,1fr)_280px] lg:gap-16`}>
+        <div className="min-w-0">
+          {section.heading && <SectionHeading text={section.heading} />}
+          <div className="space-y-5">{renderBlocks(copy)}</div>
+        </div>
+        <LinkTiles buttons={links} />
+      </section>
+    );
+  }
+  // One player plus its blurb and buttons: player beside the copy, so the copy
+  // isn't left trailing under a half-width embed.
+  const embeds = section.blocks.filter((b) => b.kind === 'embed');
+  const rest = section.blocks.filter((b) => b.kind !== 'embed');
+  if (
+    !media && embeds.length === 1 && embeds[0].kind === 'embed' && embeds[0].items.length === 1 &&
+    rest.length > 0 && rest.every((b) => b.kind === 'paragraph' || b.kind === 'button')
+  ) {
+    return (
+      <section>
+        {section.heading && <SectionHeading text={section.heading} />}
+        <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] lg:gap-12">
+          <Embeds items={embeds[0].items} />
+          <div className="space-y-5">{renderBlocks(rest)}</div>
+        </div>
+      </section>
+    );
   }
   return (
     <section className={panels && isPanel(section) ? PANEL : undefined}>

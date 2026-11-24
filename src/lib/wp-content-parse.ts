@@ -51,6 +51,8 @@ export type Block =
   | { kind: 'profile'; image: { src: string; alt: string }; nameHtml: string; role: string }
   | { kind: 'hsform'; portalId: string; formId: string; region: string }
   | { kind: 'embed'; items: Array<{ provider: 'youtube' | 'spotify'; src: string; title: string }> }
+  | { kind: 'cta-card'; html: string; buttons: Array<{ href: string; label: string; external: boolean }> }
+  | { kind: 'callout'; html: string; button: { href: string; label: string; external: boolean } }
   | {
       kind: 'people';
       items: Array<{ image: { src: string; alt: string }; name: string; blocks: Block[] }>;
